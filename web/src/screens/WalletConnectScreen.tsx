@@ -4,7 +4,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { useWallet } from '../contexts/WalletContext';
 import { walletService } from '../services/walletService';
 import { Wallet } from 'lucide-react';
-import { colors, spacing, borderRadius } from '../theme/colors';
+import { colors } from '../theme/colors';
 import './WalletConnectScreen.css';
 
 export const WalletConnectScreen: React.FC = () => {

@@ -247,7 +247,7 @@ class PasskeyService {
   }
 
   // Extract public key from attestation object
-  private extractPublicKey(response: AuthenticatorAttestationResponse): string {
+  private extractPublicKey(_response: AuthenticatorAttestationResponse): string {
     // In production, parse the CBOR attestation object to extract the public key
     // For now, return a mock public key
     const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';

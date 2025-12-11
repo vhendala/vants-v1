@@ -4,7 +4,6 @@ import { useTheme } from '../theme/ThemeContext';
 import { useWallet } from '../contexts/WalletContext';
 import { ThemeToggle } from './ThemeToggle';
 import { Menu, Eye, Settings } from 'lucide-react';
-import { spacing } from '../theme/colors';
 import './Header.css';
 
 interface HeaderProps {

@@ -4,7 +4,7 @@ import { useTheme } from '../theme/ThemeContext';
 import { useWallet } from '../contexts/WalletContext';
 import { passkeyService } from '../services/passkeyService';
 import { walletService } from '../services/walletService';
-import { colors, spacing } from '../theme/colors';
+import { colors } from '../theme/colors';
 import './OnboardingScreen.css';
 
 export const OnboardingScreen: React.FC = () => {

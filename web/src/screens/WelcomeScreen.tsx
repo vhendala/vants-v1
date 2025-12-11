@@ -5,14 +5,14 @@ import { useWallet } from '../contexts/WalletContext';
 import { VantisLogo } from '../components/VantisLogo';
 import { passkeyService } from '../services/passkeyService';
 import { walletService } from '../services/walletService';
-import { colors, spacing, borderRadius } from '../theme/colors';
+import { colors } from '../theme/colors';
 import './WelcomeScreen.css';
 
 export const WelcomeScreen: React.FC = () => {
   const navigate = useNavigate();
   const { colors: themeColors } = useTheme();
   const { connectWallet } = useWallet();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [isLoginLoading, setIsLoginLoading] = useState(false);
 
   const createAccount = () => {

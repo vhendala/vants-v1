@@ -4,14 +4,13 @@ import { useTheme } from '../theme/ThemeContext';
 import { useWallet } from '../contexts/WalletContext';
 import { Header } from '../components/Header';
 import { Send, Download, CheckCircle2, FileText } from 'lucide-react';
-import { spacing, borderRadius, colors } from '../theme/colors';
+import { colors } from '../theme/colors';
 import './HomeScreen.css';
 
 export const HomeScreen: React.FC = () => {
   const navigate = useNavigate();
   const { colors: themeColors } = useTheme();
-  const { account, isConnected, refreshAccount, loadTransactions, isLoading } = useWallet();
-  const [refreshing, setRefreshing] = useState(false);
+  const { account, isConnected, refreshAccount, loadTransactions } = useWallet();
   const [balanceVisible, setBalanceVisible] = useState(true);
 
   // Convert XLM to USD (mock rate: 1 XLM = 0.10 USD)
@@ -28,12 +27,10 @@ export const HomeScreen: React.FC = () => {
   }, [isConnected]);
 
   const onRefresh = async () => {
-    setRefreshing(true);
     if (isConnected) {
       await refreshAccount();
       await loadTransactions();
     }
-    setRefreshing(false);
   };
 
   if (!isConnected) {

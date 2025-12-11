@@ -1,6 +1,5 @@
 import React from 'react';
 import { useTheme } from '../theme/ThemeContext';
-import { spacing, borderRadius } from '../theme/colors';
 import './ThemeToggle.css';
 
 export const ThemeToggle: React.FC = () => {

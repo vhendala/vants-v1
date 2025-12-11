@@ -3,8 +3,8 @@
 // or implement via backend API calls
 
 // Mock Stellar SDK types and functions for React Native compatibility
-const STELLAR_NETWORK = 'TESTNET'; // Change to 'PUBLIC' for mainnet
-const HORIZON_URL = 'https://horizon-testnet.stellar.org'; // Change for mainnet
+// const STELLAR_NETWORK = 'TESTNET'; // Change to 'PUBLIC' for mainnet
+// const HORIZON_URL = 'https://horizon-testnet.stellar.org'; // Change for mainnet
 
 // Mock Keypair for React Native
 const generateKeypair = () => {
@@ -159,8 +159,8 @@ class WalletService {
   async sendPayment(
     destination: string,
     amount: string,
-    assetCode: string = 'XLM',
-    assetIssuer?: string,
+    _assetCode: string = 'XLM',
+    _assetIssuer?: string,
   ): Promise<string> {
     if (!this.currentAccount) {
       throw new Error('No wallet connected');
@@ -205,7 +205,7 @@ class WalletService {
   }
 
   // Get transaction history
-  async getTransactionHistory(limit: number = 20): Promise<Transaction[]> {
+  async getTransactionHistory(_limit: number = 20): Promise<Transaction[]> {
     if (!this.currentAccount) {
       return [];
     }
@@ -227,9 +227,9 @@ class WalletService {
 
   // Request credit (using collateral)
   async requestCredit(
-    amount: string,
-    collateralAsset: string,
-    collateralAmount: string,
+    _amount: string,
+    _collateralAsset: string,
+    _collateralAmount: string,
   ): Promise<string> {
     if (!this.currentAccount) {
       throw new Error('No wallet connected');

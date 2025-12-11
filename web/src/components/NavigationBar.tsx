@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../theme/ThemeContext';
 import { Home, CreditCard, ArrowLeftRight, TrendingUp, List } from 'lucide-react';
-import { colors, spacing } from '../theme/colors';
+import { colors } from '../theme/colors';
 import './NavigationBar.css';
 
 type NavItem = {
