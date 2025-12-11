@@ -1,0 +1,25 @@
+.vantis-logo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.vantis-logo-icon-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.vantis-logo-svg {
+  position: absolute;
+}
+
+.vantis-logo-text {
+  font-weight: 600;
+  letter-spacing: 2px;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+

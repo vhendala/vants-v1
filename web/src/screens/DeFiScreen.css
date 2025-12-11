@@ -1,0 +1,15 @@
+.defi-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.defi-screen-content {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+

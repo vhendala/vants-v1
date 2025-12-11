@@ -1,0 +1,42 @@
+.header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  border-bottom: 1px solid;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(10px);
+}
+
+.header-menu-button,
+.header-action-button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  transition: opacity 0.2s;
+}
+
+.header-menu-button:hover,
+.header-action-button:hover {
+  opacity: 0.7;
+}
+
+.header-wallet-address {
+  font-size: 14px;
+  font-family: monospace;
+}
+
+.header-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: center;
+}
+
