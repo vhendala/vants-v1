@@ -62,6 +62,39 @@ Os arquivos de produção estarão na pasta `dist/`
 npm run preview
 ```
 
+## Deploy no Vercel
+
+O projeto está configurado para deploy no Vercel. Existem duas formas de fazer o deploy:
+
+### Opção 1: Deploy via Vercel CLI
+
+1. Instale o Vercel CLI globalmente:
+```bash
+npm i -g vercel
+```
+
+2. Na pasta `web`, execute:
+```bash
+vercel
+```
+
+3. Siga as instruções do CLI para configurar o projeto.
+
+### Opção 2: Deploy via Dashboard do Vercel
+
+1. Acesse [vercel.com](https://vercel.com) e faça login
+2. Clique em "Add New Project"
+3. Conecte seu repositório GitHub (`vhendala/vants-app`)
+4. Configure o projeto:
+   - **Root Directory**: `web`
+   - **Framework Preset**: Vite
+   - **Build Command**: `npm run build`
+   - **Output Directory**: `dist`
+   - **Install Command**: `npm install`
+5. Clique em "Deploy"
+
+O arquivo `vercel.json` já está configurado na pasta `web` com as configurações necessárias.
+
 ## Funcionalidades
 
 - ✅ Sistema de temas (claro/escuro)
