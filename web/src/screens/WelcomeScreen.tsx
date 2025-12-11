@@ -12,7 +12,7 @@ export const WelcomeScreen: React.FC = () => {
   const navigate = useNavigate();
   const { colors: themeColors } = useTheme();
   const { connectWallet } = useWallet();
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading] = useState(false);
   const [isLoginLoading, setIsLoginLoading] = useState(false);
 
   const createAccount = () => {
