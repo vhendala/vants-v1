@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../theme/ThemeContext';
 import { useWallet } from '../contexts/WalletContext';
 import { Header } from '../components/Header';
-import { Send, Download, CheckCircle2, FileText } from 'lucide-react';
+import { Send, Download, CheckCircle2, FileText, Wallet } from 'lucide-react';
 import { colors } from '../theme/colors';
 import './HomeScreen.css';
 
@@ -12,6 +12,7 @@ export const HomeScreen: React.FC = () => {
   const { colors: themeColors } = useTheme();
   const { account, isConnected, refreshAccount, loadTransactions } = useWallet();
   const [balanceVisible, setBalanceVisible] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
   // Convert XLM to USD (mock rate: 1 XLM = 0.10 USD)
   const xlmToUsd = (xlm: string): string => {
@@ -27,10 +28,12 @@ export const HomeScreen: React.FC = () => {
   }, [isConnected]);
 
   const onRefresh = async () => {
+    setRefreshing(true);
     if (isConnected) {
       await refreshAccount();
       await loadTransactions();
     }
+    setTimeout(() => setRefreshing(false), 500);
   };
 
   if (!isConnected) {
@@ -40,7 +43,7 @@ export const HomeScreen: React.FC = () => {
         style={{ backgroundColor: themeColors.bgPrimary }}>
         <Header showMenu={true} />
         <div className="home-empty-state">
-          <div style={{ color: themeColors.textSecondary, fontSize: '64px' }}>💼</div>
+          <Wallet size={64} color={themeColors.textSecondary} />
           <p
             className="home-empty-text"
             style={{ color: themeColors.textPrimary }}>
@@ -50,7 +53,7 @@ export const HomeScreen: React.FC = () => {
             className="home-connect-button"
             onClick={() => navigate('/wallet-connect')}
             style={{ backgroundColor: colors.accentTeal }}>
-            <span style={{ color: themeColors.bgPrimary }}>💼</span>
+            <Wallet size={20} color={themeColors.bgPrimary} />
             <span style={{ color: themeColors.bgPrimary }}>Connect Wallet</span>
           </button>
         </div>
