@@ -8,9 +8,24 @@
   justify-content: space-around;
   align-items: center;
   padding: 8px 0;
+  padding-bottom: max(8px, env(safe-area-inset-bottom));
   border-top: 1px solid;
   z-index: 1000;
   backdrop-filter: blur(10px);
+  background-color: rgba(18, 18, 18, 0.8);
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .navigation-bar {
+    padding: 12px 0;
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
+
+[data-theme='light'] .navigation-bar {
+  background-color: rgba(245, 245, 245, 0.8);
 }
 
 .navigation-bar-item {
@@ -22,12 +37,29 @@
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 8px;
-  transition: opacity 0.2s;
+  padding: 6px 8px;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .navigation-bar-item {
+    padding: 8px 12px;
+  }
 }
 
 .navigation-bar-item:hover {
   opacity: 0.7;
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme='light'] .navigation-bar-item:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.navigation-bar-item:active {
+  transform: scale(0.95);
 }
 
 .navigation-bar-pay-button-container {
@@ -37,28 +69,55 @@
   gap: 4px;
   flex: 1;
   margin-top: -16px;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .navigation-bar-pay-button-container {
+    margin-top: -20px;
+  }
 }
 
 .navigation-bar-pay-button {
-  width: 56px;
-  height: 56px;
-  border-radius: 28px;
+  width: 52px;
+  height: 52px;
+  border-radius: 26px;
   display: flex;
   align-items: center;
   justify-content: center;
   border: none;
   cursor: pointer;
   color: white;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(255, 183, 0, 0.3);
+}
+
+@media (min-width: 768px) {
+  .navigation-bar-pay-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 28px;
+  }
 }
 
 .navigation-bar-pay-button:hover {
-  transform: scale(1.05);
+  transform: scale(1.05) translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 183, 0, 0.4);
+}
+
+.navigation-bar-pay-button:active {
+  transform: scale(1.02) translateY(0);
 }
 
 .navigation-bar-pay-label {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
   margin-top: 2px;
+}
+
+@media (min-width: 768px) {
+  .navigation-bar-pay-label {
+    font-size: 12px;
+  }
 }
 
