@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../theme/ThemeContext';
 import { useWallet } from '../contexts/WalletContext';
 import { Header } from '../components/Header';
-import { Send, Download, CheckCircle2, FileText, Wallet } from 'lucide-react';
+import { Wallet, QrCode } from 'lucide-react';
 import { colors } from '../theme/colors';
 import './HomeScreen.css';
 
@@ -19,6 +19,26 @@ export const HomeScreen: React.FC = () => {
     const xlmAmount = parseFloat(xlm) || 0;
     return (xlmAmount * 0.10).toFixed(2);
   };
+
+  // Mock assets data with APY (matching Pitch Deck)
+  const mockAssets = [
+    {
+      assetCode: 'XLM',
+      balance: account?.balance || '0.00',
+      balanceUsd: xlmToUsd(account?.balance || '0.00'),
+      apy: '8.5%',
+    },
+    {
+      assetCode: 'BTC',
+      balance: '0.00',
+      balanceUsd: '0.00',
+      apy: '6.2%',
+    },
+  ];
+
+  const totalSpendingPower = mockAssets.reduce((sum, asset) => {
+    return sum + parseFloat(asset.balanceUsd || '0');
+  }, 0);
 
   useEffect(() => {
     if (isConnected) {
@@ -73,112 +93,66 @@ export const HomeScreen: React.FC = () => {
       <Header showMenu={true} onBalanceToggle={() => setBalanceVisible(!balanceVisible)} />
 
       <div className="home-content" onScroll={onRefresh}>
-        <div className="home-portfolio-section">
+        {/* Hero Section: Your Spending Power */}
+        <div className="home-spending-power-section">
+          <div className="home-spending-power-label" style={{ color: themeColors.textSecondary }}>
+            Your Spending Power
+          </div>
           <div
-            className="home-balance"
-            style={{ color: themeColors.textPrimary }}>
+            className="home-spending-power-value"
+            style={{ color: colors.accentTeal }}>
             {balanceVisible
-              ? `$${xlmToUsd(account?.balance || '0.00')} USD`
+              ? `$${totalSpendingPower.toFixed(2)}`
               : '••••••'}
           </div>
-          {account?.balance && (
-            <div
-              className="home-balance-subtext"
-              style={{ color: themeColors.textSecondary }}>
-              {balanceVisible ? `${account.balance} XLM` : ''}
+          {account?.balance && balanceVisible && (
+            <div className="home-spending-power-badge" style={{ color: colors.accentGreen }}>
+              +12.4% this month
             </div>
           )}
         </div>
 
-        <div className="home-action-buttons">
-          <div className="home-send-receive-buttons">
-            <button
-              className="home-btn home-btn-secondary"
-              onClick={() => navigate('/transfer')}
+        {/* Assets List */}
+        <div className="home-assets-section">
+          {mockAssets.map((asset, index) => (
+            <div
+              key={index}
+              className="home-asset-row"
               style={{
                 backgroundColor: themeColors.bgCard,
                 borderColor: themeColors.borderColor,
               }}>
-              <Send size={20} color={themeColors.textPrimary} />
-              <span style={{ color: themeColors.textPrimary }}>Send</span>
-            </button>
-
-            <button
-              className="home-btn home-btn-secondary"
-              onClick={() => navigate('/receive')}
-              style={{
-                backgroundColor: themeColors.bgCard,
-                borderColor: themeColors.borderColor,
-              }}>
-              <Download size={20} color={themeColors.textPrimary} />
-              <span style={{ color: themeColors.textPrimary }}>Receive</span>
-            </button>
-          </div>
+              <div className="home-asset-info">
+                <div className="home-asset-name" style={{ color: themeColors.textPrimary }}>
+                  {asset.assetCode}
+                </div>
+                <div className="home-asset-balance" style={{ color: themeColors.textSecondary }}>
+                  ${asset.balanceUsd}
+                </div>
+              </div>
+              <div className="home-asset-apy" style={{ color: colors.accentGreen }}>
+                {asset.apy} APY
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div className="home-cards-grid">
-          <div
-            className="home-card"
-            style={{
-              backgroundColor: themeColors.bgCard,
-            }}>
-            <h3
-              className="home-card-title"
-              style={{
-                color: themeColors.textPrimary,
-              }}>
-              Upcoming payments
-            </h3>
-            <div className="home-empty-state">
-              <CheckCircle2 size={48} color={colors.accentTeal} />
-              <p
-                className="home-empty-state-text"
-                style={{
-                  color: colors.accentTeal,
-                }}>
-                You're all set!
-              </p>
-              <p
-                className="home-empty-state-subtext"
-                style={{
-                  color: themeColors.textSecondary,
-                }}>
-                Any funding or purchases will show up here.
-              </p>
-            </div>
-          </div>
 
-          <div
-            className="home-card"
+        {/* Pay with Vants Button */}
+        <div className="home-pay-button-container">
+          <button
+            className="home-pay-button"
+            onClick={() => {
+              // Open QR code modal or payment flow
+              alert('Pay with Vants - QR Code Scanner');
+            }}
             style={{
-              backgroundColor: themeColors.bgCard,
+              backgroundColor: colors.accentTeal,
+              color: '#000000',
             }}>
-            <h3
-              className="home-card-title"
-              style={{
-                color: themeColors.textPrimary,
-              }}>
-              Latest activity
-            </h3>
-            <div className="home-empty-state">
-              <FileText size={48} color={colors.accentTeal} />
-              <p
-                className="home-empty-state-text"
-                style={{
-                  color: colors.accentTeal,
-                }}>
-                No activity yet
-              </p>
-              <p
-                className="home-empty-state-subtext"
-                style={{
-                  color: themeColors.textSecondary,
-                }}>
-                Your transactions will show up here once you get started. Add
-                funds to begin!
-              </p>
-            </div>
-          </div>
+            <QrCode size={24} color="#000000" />
+            <span>Pay with Vants</span>
+          </button>
         </div>
 
         <div className="home-footer-text">

@@ -32,121 +32,181 @@
   }
 }
 
-.home-portfolio-section {
+/* Spending Power Hero Section */
+.home-spending-power-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 24px 0;
+  margin: 32px 0 40px;
   width: 100%;
 }
 
-@media (min-width: 768px) {
-  .home-portfolio-section {
-    margin: 32px 0;
-  }
+.home-spending-power-label {
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+  font-family: 'Space Grotesk', sans-serif;
 }
 
-.home-balance {
-  font-size: 40px;
+.home-spending-power-value {
+  font-size: 56px;
   font-weight: 700;
   text-align: center;
   word-break: break-word;
+  font-family: 'Space Grotesk', sans-serif;
+  line-height: 1.1;
 }
 
 @media (min-width: 480px) {
-  .home-balance {
-    font-size: 48px;
+  .home-spending-power-value {
+    font-size: 64px;
   }
 }
 
 @media (min-width: 768px) {
-  .home-balance {
-    font-size: 56px;
+  .home-spending-power-value {
+    font-size: 72px;
   }
 }
 
-.home-balance-subtext {
+.home-spending-power-badge {
   font-size: 14px;
-  margin-top: 4px;
-  text-align: center;
+  font-weight: 600;
+  margin-top: 12px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background-color: rgba(76, 175, 80, 0.15);
+  font-family: 'Space Grotesk', sans-serif;
 }
 
-@media (min-width: 768px) {
-  .home-balance-subtext {
-    font-size: 16px;
-  }
-}
-
-.home-action-buttons {
+/* Assets List Section */
+.home-assets-section {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 24px;
+  gap: 12px;
+  margin-bottom: 32px;
   width: 100%;
 }
 
-@media (min-width: 768px) {
-  .home-action-buttons {
-    margin-bottom: 32px;
-  }
-}
-
-.home-send-receive-buttons {
+.home-asset-row {
   display: flex;
-  flex-direction: row;
-  gap: 8px;
-  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid;
+  transition: transform 0.2s ease;
+}
+
+.home-asset-row:hover {
+  transform: translateY(-2px);
+}
+
+.home-asset-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.home-asset-name {
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.home-asset-balance {
+  font-size: 16px;
+  font-weight: 500;
+  font-family: 'Space Grotesk', sans-serif;
+}
+
+.home-asset-apy {
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'Space Grotesk', sans-serif;
+  text-align: right;
 }
 
 @media (min-width: 768px) {
-  .home-send-receive-buttons {
-    gap: 12px;
+  .home-asset-row {
+    padding: 24px;
+  }
+
+  .home-asset-name {
+    font-size: 20px;
+  }
+
+  .home-asset-balance {
+    font-size: 18px;
+  }
+
+  .home-asset-apy {
+    font-size: 18px;
   }
 }
 
-.home-btn {
-  flex: 1;
+/* Pay with Vants Button */
+.home-pay-button-container {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 16px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.95) 0%, rgba(0, 0, 0, 0) 100%);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 768px) {
+  .home-pay-button-container {
+    position: relative;
+    background: transparent;
+    padding: 24px 0;
+    margin-top: 32px;
+  }
+}
+
+.home-pay-button {
+  width: 100%;
+  max-width: 600px;
   display: flex;
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: 8px;
-  padding: 14px 20px;
+  gap: 12px;
+  padding: 18px 24px;
   border-radius: 12px;
   border: none;
   cursor: pointer;
-  font-size: 15px;
-  font-weight: 600;
-  font-family: inherit;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: 'Space Grotesk', sans-serif;
   transition: all 0.2s ease;
-  min-height: 48px;
-}
-
-@media (min-width: 480px) {
-  .home-btn {
-    padding: 16px 24px;
-    font-size: 16px;
-  }
+  min-height: 56px;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
 }
 
 @media (min-width: 768px) {
-  .home-btn {
-    padding: 18px 28px;
-    font-size: 17px;
+  .home-pay-button {
+    padding: 20px 32px;
+    font-size: 20px;
+    min-height: 64px;
   }
 }
 
-.home-btn:hover {
-  opacity: 0.8;
-  transform: translateY(-1px);
+.home-pay-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
 }
 
-.home-btn:active {
+.home-pay-button:active {
   transform: translateY(0);
-}
-
-.home-btn-secondary {
-  border: 1px solid;
+  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
 }
 
 .home-empty-state {
@@ -268,12 +328,13 @@
 }
 
 .home-card {
-  border-radius: 12px;
+  border-radius: 16px;
   padding: 16px;
   margin-bottom: 0;
   border: 1px solid;
   width: 100%;
   transition: transform 0.2s ease;
+  background-color: #1E1E1E;
 }
 
 @media (min-width: 768px) {

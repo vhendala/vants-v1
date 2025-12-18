@@ -1,66 +1,25 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useEffect, ReactNode } from 'react';
 import { colors } from './colors';
 
-type Theme = 'light' | 'dark';
-
 interface ThemeContextType {
-  theme: Theme;
+  theme: 'dark';
   isDark: boolean;
-  colors: typeof colors.dark | typeof colors.light & {
+  colors: typeof colors.dark & {
     accentTeal: string;
     accentTealDark: string;
     accentBlue: string;
     accentRed: string;
     accentGreen: string;
   };
-  toggleTheme: () => void;
-  setTheme: (theme: Theme) => void;
 }
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-const THEME_STORAGE_KEY = 'vantis-theme';
-
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [theme, setThemeState] = useState<Theme>('dark');
-
-  useEffect(() => {
-    initTheme();
-  }, []);
-
-  const initTheme = () => {
-    try {
-      const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
-      if (savedTheme === 'light' || savedTheme === 'dark') {
-        setThemeState(savedTheme as Theme);
-      } else {
-        // Use system preference
-        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        setThemeState(prefersDark ? 'dark' : 'light');
-      }
-    } catch (error) {
-      console.error('Error loading theme:', error);
-      const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setThemeState(prefersDark ? 'dark' : 'light');
-    }
-  };
-
-  const setTheme = (newTheme: Theme) => {
-    try {
-      setThemeState(newTheme);
-      localStorage.setItem(THEME_STORAGE_KEY, newTheme);
-    } catch (error) {
-      console.error('Error saving theme:', error);
-    }
-  };
-
-  const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
-  };
-
-  const isDark = theme === 'dark';
+  const theme = 'dark';
+  const isDark = true;
   const themeColors = {
-    ...(isDark ? colors.dark : colors.light),
+    ...colors.dark,
     accentTeal: colors.accentTeal,
     accentTealDark: colors.accentTealDark,
     accentBlue: colors.accentBlue,
@@ -75,7 +34,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     Object.entries(themeColors).forEach(([key, value]) => {
       root.style.setProperty(`--color-${key}`, value);
     });
-  }, [theme, themeColors]);
+  }, [themeColors]);
 
   return (
     <ThemeContext.Provider
@@ -83,8 +42,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         theme,
         isDark,
         colors: themeColors,
-        toggleTheme,
-        setTheme,
       }}>
       {children}
     </ThemeContext.Provider>

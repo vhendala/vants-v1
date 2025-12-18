@@ -1,18 +1,18 @@
 export const colors = {
   // CORES DE DESTAQUE (sempre as mesmas)
-  accentTeal: '#FFB700',        // Amarelo Dourado
+  accentTeal: '#FFD700',        // Amarelo Ouro (Gold) - Primary Action Color
   accentTealDark: '#358FDC',   // Azul Celeste Vibrante
   accentBlue: '#75AADB',        // Azul Celeste
   accentRed: '#ff5252',         // Vermelho
-  accentGreen: '#FFB700',       // Verde (usando amarelo)
+  accentGreen: '#4CAF50',       // Verde para indicadores positivos
   
-  // DARK MODE (padrão)
+  // DARK MODE (padrão) - Pitch Deck Design System
   dark: {
-    bgPrimary: '#050505',
-    bgSecondary: '#121212',
-    bgCard: '#1c1c1c',
-    textPrimary: '#ffffff',
-    textSecondary: '#9e9e9e',
+    bgPrimary: '#000000',       // Deep Dark Mode
+    bgSecondary: '#111111',     // Alternative dark background
+    bgCard: '#1E1E1E',          // Card background (gray dark subtle)
+    textPrimary: '#ffffff',      // White text
+    textSecondary: '#9e9e9e',   // Gray light text
     borderColor: 'rgba(255, 255, 255, 0.1)',
     shadowColor: 'rgba(0, 0, 0, 0.3)',
   },

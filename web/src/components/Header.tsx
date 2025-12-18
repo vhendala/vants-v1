@@ -2,7 +2,6 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../theme/ThemeContext';
 import { useWallet } from '../contexts/WalletContext';
-import { ThemeToggle } from './ThemeToggle';
 import { VantisLogo } from './VantisLogo';
 import { Menu, Eye, Settings } from 'lucide-react';
 import './Header.css';
@@ -50,7 +49,6 @@ export const Header: React.FC<HeaderProps> = ({
         {displayAddress}
       </div>
       <div className="header-actions">
-        <ThemeToggle />
         {onBalanceToggle && (
           <button
             className="header-action-button"
