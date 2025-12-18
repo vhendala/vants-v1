@@ -60,13 +60,6 @@ export const OnboardingScreen: React.FC = () => {
       style={{ backgroundColor: themeColors.bgPrimary }}>
       <div className="onboarding-content">
         <div className="onboarding-illustration-section">
-          <div
-            className="onboarding-illustration-bg"
-            style={{
-              backgroundColor: colors.accentTealDark,
-              opacity: 0.3,
-            }}
-          />
           <div className="onboarding-illustration-elements">
             <div className="onboarding-key-icon">🔑</div>
             <div

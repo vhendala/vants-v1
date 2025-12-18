@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../theme/ThemeContext';
 import { useWallet } from '../contexts/WalletContext';
-import { VantisLogo } from '../components/VantisLogo';
 import { passkeyService } from '../services/passkeyService';
 import { walletService } from '../services/walletService';
 import { colors } from '../theme/colors';
@@ -70,7 +69,11 @@ export const WelcomeScreen: React.FC = () => {
       <div className="welcome-content">
         <div className="welcome-illustration-section">
           <div className="welcome-illustration-elements">
-            <VantisLogo size="large" variant="light" showText={true} />
+            <img
+              src="/vants-logo.png"
+              alt="Vants Logo"
+              className="welcome-logo-image"
+            />
           </div>
         </div>
 
