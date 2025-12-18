@@ -13,6 +13,7 @@ import { ActivityScreen } from './screens/ActivityScreen';
 import { TransferScreen } from './screens/TransferScreen';
 import { ReceiveScreen } from './screens/ReceiveScreen';
 import { SettingsScreen } from './screens/SettingsScreen';
+import { DashboardScreen } from './screens/DashboardScreen';
 import { NavigationBar } from './components/NavigationBar';
 import './App.css';
 
@@ -58,6 +59,14 @@ function App() {
                     <MainLayout>
                       <HomeScreen />
                     </MainLayout>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DashboardScreen />
                   </ProtectedRoute>
                 }
               />
