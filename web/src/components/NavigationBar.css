@@ -81,7 +81,7 @@
   cursor: pointer;
   color: white;
   transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(255, 183, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(223, 180, 51, 0.3);
 }
 
 @media (min-width: 768px) {
@@ -94,7 +94,7 @@
 
 .navigation-bar-pay-button:hover {
   transform: scale(1.05) translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 183, 0, 0.4);
+  box-shadow: 0 6px 16px rgba(223, 180, 51, 0.4);
 }
 
 .navigation-bar-pay-button:active {

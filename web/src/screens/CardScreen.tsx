@@ -44,7 +44,7 @@ export const CardScreen: React.FC = () => {
         {/* Visual Card */}
         <div className="card-visual-container">
           <div className="card-visual" style={{
-            background: 'linear-gradient(to right bottom, #358FDC 0%, #FFB700 100%)',
+            background: 'linear-gradient(to right bottom, #358FDC 0%, #DFB433 100%)',
           }}>
             <div className="card-visual-header">
               <img

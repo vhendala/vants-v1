@@ -21,6 +21,13 @@ body {
   position: relative;
 }
 
+@media (min-width: 1440px) {
+  .app {
+    display: flex;
+    justify-content: center;
+  }
+}
+
 .app-loading {
   min-height: 100vh;
   display: flex;

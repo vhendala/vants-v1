@@ -27,8 +27,22 @@
 
 @media (min-width: 1024px) {
   .home-content {
-    padding: 32px;
-    max-width: 800px;
+    padding: 24px;
+    max-width: 600px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .home-content {
+    padding: 24px;
+    max-width: 600px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .home-content {
+    padding: 24px;
+    max-width: 600px;
   }
 }
 
@@ -71,6 +85,33 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .home-spending-power-section {
+    margin: 32px 0 40px;
+  }
+
+  .home-spending-power-label {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+
+  .home-spending-power-value {
+    font-size: 72px;
+  }
+
+  .home-spending-power-badge {
+    font-size: 14px;
+    padding: 6px 12px;
+    margin-top: 12px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .home-spending-power-value {
+    font-size: 72px;
+  }
+}
+
 .home-spending-power-badge {
   font-size: 14px;
   font-weight: 600;
@@ -88,6 +129,20 @@
   gap: 12px;
   margin-bottom: 32px;
   width: 100%;
+}
+
+@media (min-width: 1024px) {
+  .home-assets-section {
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .home-assets-section {
+    gap: 12px;
+    margin-bottom: 32px;
+  }
 }
 
 .home-asset-row {
@@ -148,6 +203,43 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .home-asset-row {
+    padding: 24px;
+    border-radius: 12px;
+  }
+
+  .home-asset-name {
+    font-size: 20px;
+  }
+
+  .home-asset-balance {
+    font-size: 18px;
+  }
+
+  .home-asset-apy {
+    font-size: 18px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .home-asset-row {
+    padding: 24px;
+  }
+
+  .home-asset-name {
+    font-size: 20px;
+  }
+
+  .home-asset-balance {
+    font-size: 18px;
+  }
+
+  .home-asset-apy {
+    font-size: 18px;
+  }
+}
+
 /* Pay with Vants Button */
 .home-pay-button-container {
   position: fixed;
@@ -171,6 +263,20 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .home-pay-button-container {
+    padding: 24px 0;
+    margin-top: 32px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .home-pay-button-container {
+    padding: 24px 0;
+    margin-top: 32px;
+  }
+}
+
 .home-pay-button {
   width: 100%;
   max-width: 600px;
@@ -188,7 +294,7 @@
   font-family: 'Space Grotesk', sans-serif;
   transition: all 0.2s ease;
   min-height: 56px;
-  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+  box-shadow: 0 4px 12px rgba(223, 180, 51, 0.3);
 }
 
 @media (min-width: 768px) {
@@ -199,14 +305,32 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .home-pay-button {
+    padding: 20px 32px;
+    font-size: 20px;
+    min-height: 64px;
+    max-width: 600px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .home-pay-button {
+    padding: 20px 32px;
+    font-size: 20px;
+    min-height: 64px;
+    max-width: 600px;
+  }
+}
+
 .home-pay-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
+  box-shadow: 0 6px 16px rgba(223, 180, 51, 0.4);
 }
 
 .home-pay-button:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(255, 215, 0, 0.3);
+  box-shadow: 0 2px 8px rgba(223, 180, 51, 0.3);
 }
 
 .home-empty-state {
@@ -406,6 +530,20 @@
   }
 }
 
+@media (min-width: 1024px) {
+  .home-footer-text {
+    padding: 24px;
+    margin-top: 32px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .home-footer-text {
+    padding: 24px;
+    margin-top: 32px;
+  }
+}
+
 .home-footer-text-content {
   font-size: 11px;
   text-align: center;
@@ -424,6 +562,22 @@
   .home-footer-text-content {
     font-size: 13px;
     line-height: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .home-footer-text-content {
+    font-size: 13px;
+    line-height: 20px;
+    max-width: 600px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .home-footer-text-content {
+    font-size: 13px;
+    line-height: 20px;
+    max-width: 600px;
   }
 }
 

@@ -50,12 +50,12 @@ export const VantisLogo: React.FC<VantisLogoProps> = ({
           <defs>
             {/* Metallic gold gradient with 3D shine effect */}
             <linearGradient id={`gold-${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FFD700" />
-              <stop offset="20%" stopColor="#FFE44D" />
-              <stop offset="40%" stopColor="#FFD700" />
-              <stop offset="60%" stopColor="#D4AF37" />
+              <stop offset="0%" stopColor="#DFB433" />
+              <stop offset="20%" stopColor="#E8C55A" />
+              <stop offset="40%" stopColor="#DFB433" />
+              <stop offset="60%" stopColor="#C9A02A" />
               <stop offset="80%" stopColor="#B8860B" />
-              <stop offset="100%" stopColor="#D4AF37" />
+              <stop offset="100%" stopColor="#C9A02A" />
             </linearGradient>
             
             {/* 3D shadow for depth */}

@@ -65,7 +65,7 @@ export const OnboardingScreen: React.FC = () => {
             <div
               className="onboarding-biometric-icon"
               style={{
-                backgroundColor: 'rgba(255, 215, 0, 0.9)',
+                backgroundColor: 'rgba(223, 180, 51, 0.9)',
               }}>
               <div className="onboarding-biometric-icon-text">👤</div>
             </div>

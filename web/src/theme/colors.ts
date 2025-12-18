@@ -1,6 +1,6 @@
 export const colors = {
   // CORES DE DESTAQUE (sempre as mesmas)
-  accentTeal: '#FFD700',        // Amarelo Ouro (Gold) - Primary Action Color
+  accentTeal: '#DFB433',        // Amarelo Ouro (Gold) - Primary Action Color
   accentTealDark: '#358FDC',   // Azul Celeste Vibrante
   accentBlue: '#75AADB',        // Azul Celeste
   accentRed: '#ff5252',         // Vermelho
