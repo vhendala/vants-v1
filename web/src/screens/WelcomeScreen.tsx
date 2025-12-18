@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../theme/ThemeContext';
 import { useWallet } from '../contexts/WalletContext';
-import { VantsLogo } from '../components/VantsLogo';
+import { VantisLogo } from '../components/VantisLogo';
 import { passkeyService } from '../services/passkeyService';
 import { walletService } from '../services/walletService';
 import { colors } from '../theme/colors';
@@ -77,7 +77,7 @@ export const WelcomeScreen: React.FC = () => {
             }}
           />
           <div className="welcome-illustration-elements">
-            <VantsLogo size="large" showText={true} />
+            <VantisLogo size="large" variant="light" showText={true} />
           </div>
         </div>
 
@@ -87,7 +87,7 @@ export const WelcomeScreen: React.FC = () => {
             style={{
               color: colors.accentTeal,
             }}>
-            Buy Now.{'\n'}Keep Your Crypto.{'\n'}Build Wealth.
+            Instant liquidity{'\n'}without selling your crypto
           </h1>
           
           <p
@@ -95,7 +95,7 @@ export const WelcomeScreen: React.FC = () => {
             style={{
               color: themeColors.textSecondary,
             }}>
-            Instant liquidity without selling your crypto
+            The "Buy, Borrow, Pay" app for Latin America
           </p>
 
           <div className="welcome-features">

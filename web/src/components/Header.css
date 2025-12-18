@@ -85,6 +85,12 @@
   }
 }
 
+.header-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .header-actions {
   display: flex;
   flex-direction: row;

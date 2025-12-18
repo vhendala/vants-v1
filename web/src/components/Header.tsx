@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useTheme } from '../theme/ThemeContext';
 import { useWallet } from '../contexts/WalletContext';
 import { ThemeToggle } from './ThemeToggle';
+import { VantisLogo } from './VantisLogo';
 import { Menu, Eye, Settings } from 'lucide-react';
 import './Header.css';
 
@@ -34,10 +35,14 @@ export const Header: React.FC<HeaderProps> = ({
         backgroundColor: themeColors.bgPrimary,
         borderBottomColor: themeColors.borderColor,
       }}>
-      {showMenu && (
+      {showMenu ? (
         <button className="header-menu-button" aria-label="Menu">
           <Menu size={24} color={themeColors.textPrimary} />
         </button>
+      ) : (
+        <div className="header-logo">
+          <VantisLogo size="small" showText={false} />
+        </div>
       )}
       <div
         className="header-wallet-address"
