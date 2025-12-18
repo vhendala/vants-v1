@@ -47,7 +47,12 @@ export const HomeScreen: React.FC = () => {
           <p
             className="home-empty-text"
             style={{ color: themeColors.textPrimary }}>
-            invest your assets and pay later
+            Instant liquidity without selling your crypto
+          </p>
+          <p
+            className="home-empty-subtext"
+            style={{ color: themeColors.textSecondary }}>
+            Keep your crypto. Get instant liquidity. Pay 6x less.
           </p>
           <button
             className="home-connect-button"

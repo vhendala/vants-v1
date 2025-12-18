@@ -87,8 +87,40 @@ export const WelcomeScreen: React.FC = () => {
             style={{
               color: colors.accentTeal,
             }}>
-            Pay later in installments{'\n'}and hold your crypto
+            Instant liquidity{'\n'}without selling your crypto
           </h1>
+          
+          <p
+            className="welcome-subtitle"
+            style={{
+              color: themeColors.textSecondary,
+            }}>
+            The "Buy, Borrow, Pay" app for Latin America
+          </p>
+
+          <div className="welcome-features">
+            <div className="welcome-feature">
+              <div className="welcome-feature-icon">⚡</div>
+              <div className="welcome-feature-text">
+                <strong>3 Seconds</strong>
+                <span>Liquidity in seconds</span>
+              </div>
+            </div>
+            <div className="welcome-feature">
+              <div className="welcome-feature-icon">💰</div>
+              <div className="welcome-feature-text">
+                <strong>6x Less</strong>
+                <span>Pay less than selling</span>
+              </div>
+            </div>
+            <div className="welcome-feature">
+              <div className="welcome-feature-icon">🔒</div>
+              <div className="welcome-feature-text">
+                <strong>Non-Custodial</strong>
+                <span>Your keys, your crypto</span>
+              </div>
+            </div>
+          </div>
 
           <div className="welcome-carousel-indicators">
             <div className="welcome-indicator" />
@@ -111,8 +143,8 @@ export const WelcomeScreen: React.FC = () => {
               <div className="welcome-spinner" />
             ) : (
               <>
-                <span style={{ color: themeColors.bgPrimary }}>Create an account</span>
-                <span>🔑</span>
+                <span style={{ color: themeColors.bgPrimary }}>Get Started</span>
+                <span style={{ color: themeColors.bgPrimary }}>→</span>
               </>
             )}
           </button>

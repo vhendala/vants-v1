@@ -40,18 +40,125 @@
 
 .welcome-text-section {
   padding: 32px 24px;
+  padding-bottom: 40px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .welcome-text-section {
+    padding: 40px 32px;
+    padding-bottom: 48px;
+  }
 }
 
 .welcome-title {
-  font-size: 32px;
+  font-size: 36px;
   font-weight: 700;
-  margin-bottom: 24px;
-  line-height: 42px;
+  margin-bottom: 12px;
+  line-height: 44px;
   text-align: center;
   white-space: pre-line;
+}
+
+@media (min-width: 768px) {
+  .welcome-title {
+    font-size: 48px;
+    line-height: 56px;
+  }
+}
+
+.welcome-subtitle {
+  font-size: 16px;
+  font-weight: 500;
+  margin-bottom: 32px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+@media (min-width: 768px) {
+  .welcome-subtitle {
+    font-size: 18px;
+    margin-bottom: 40px;
+  }
+}
+
+.welcome-features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+  margin-bottom: 32px;
+  max-width: 400px;
+}
+
+@media (min-width: 768px) {
+  .welcome-features {
+    flex-direction: row;
+    gap: 20px;
+    max-width: 600px;
+  }
+}
+
+.welcome-feature {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: rgba(255, 183, 0, 0.1);
+  border-radius: 12px;
+  flex: 1;
+  border: 1px solid rgba(255, 183, 0, 0.2);
+}
+
+[data-theme='light'] .welcome-feature {
+  background-color: rgba(255, 183, 0, 0.05);
+  border-color: rgba(255, 183, 0, 0.15);
+}
+
+.welcome-feature-icon {
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.welcome-feature-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.welcome-feature-text strong {
+  font-size: 16px;
+  font-weight: 700;
+  color: #FFB700;
+  line-height: 1.2;
+}
+
+.welcome-feature-text span {
+  font-size: 13px;
+  font-weight: 400;
+  opacity: 0.8;
+  line-height: 1.3;
+}
+
+@media (min-width: 768px) {
+  .welcome-feature-text strong {
+    font-size: 18px;
+  }
+  
+  .welcome-feature-text span {
+    font-size: 14px;
+  }
 }
 
 .welcome-carousel-indicators {
