@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { spacing } from '../theme/colors';
 import './VantisLogo.css';
 
@@ -17,51 +17,53 @@ export const VantisLogo: React.FC<VantisLogoProps> = ({
 }) => {
   const sizeConfig = {
     small: {
-      iconSize: 40,
-      fontSize: 14,
-      spacing: spacing.xs,
+      iconSize: 56,
+      fontSize: 18,
+      spacing: 12,
     },
     medium: {
-      iconSize: 60,
-      fontSize: 20,
-      spacing: spacing.sm,
+      iconSize: 96,
+      fontSize: 28,
+      spacing: 20,
     },
     large: {
-      iconSize: 96,
-      fontSize: 32,
-      spacing: spacing.md,
+      iconSize: 140,
+      fontSize: 42,
+      spacing: 28,
     },
   };
 
   const config = sizeConfig[size];
-  const uniqueId = `vantis-logo-${size}-${Math.random().toString(36).substr(2, 9)}`;
+  const uniqueId = useMemo(() => `vants-${size}-${Math.random().toString(36).substr(2, 9)}`, [size]);
 
   return (
     <div className="vantis-logo-container" style={style}>
-      {/* Symbol: V in rounded square */}
+      {/* Symbol: V in rounded square - exactly as in the image */}
       <div className="vantis-logo-symbol" style={{ width: config.iconSize, height: config.iconSize }}>
         <svg
           width={config.iconSize}
           height={config.iconSize}
-          viewBox="0 0 120 120"
+          viewBox="0 0 200 200"
           className="vantis-logo-svg"
+          preserveAspectRatio="xMidYMid meet"
         >
           <defs>
-            {/* Metallic gold gradient */}
-            <linearGradient id={`goldGradient-${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" stopColor="#FFD700" stopOpacity="1" />
-              <stop offset="30%" stopColor="#FFE44D" stopOpacity="1" />
-              <stop offset="50%" stopColor="#FFD700" stopOpacity="1" />
-              <stop offset="70%" stopColor="#D4AF37" stopOpacity="1" />
-              <stop offset="100%" stopColor="#B8860B" stopOpacity="1" />
+            {/* Metallic gold gradient with 3D shine effect */}
+            <linearGradient id={`gold-${uniqueId}`} x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FFD700" />
+              <stop offset="20%" stopColor="#FFE44D" />
+              <stop offset="40%" stopColor="#FFD700" />
+              <stop offset="60%" stopColor="#D4AF37" />
+              <stop offset="80%" stopColor="#B8860B" />
+              <stop offset="100%" stopColor="#D4AF37" />
             </linearGradient>
             
-            {/* 3D shadow effect */}
-            <filter id={`shadow3D-${uniqueId}`} x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-              <feOffset dx="2" dy="2" result="offsetblur"/>
+            {/* 3D shadow for depth */}
+            <filter id={`shadow3d-${uniqueId}`} x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="5"/>
+              <feOffset dx="4" dy="4" result="offsetblur"/>
               <feComponentTransfer>
-                <feFuncA type="linear" slope="0.4"/>
+                <feFuncA type="linear" slope="0.35"/>
               </feComponentTransfer>
               <feMerge>
                 <feMergeNode/>
@@ -70,30 +72,30 @@ export const VantisLogo: React.FC<VantisLogoProps> = ({
             </filter>
           </defs>
           
-          {/* Rounded square outline */}
+          {/* Rounded square outline - thicker stroke */}
           <rect
-            x="10"
-            y="10"
-            width="100"
-            height="100"
-            rx="20"
-            ry="20"
+            x="15"
+            y="15"
+            width="170"
+            height="170"
+            rx="35"
+            ry="35"
             fill="none"
-            stroke={`url(#goldGradient-${uniqueId})`}
-            strokeWidth="5"
-            filter={`url(#shadow3D-${uniqueId})`}
+            stroke={`url(#gold-${uniqueId})`}
+            strokeWidth="14"
+            filter={`url(#shadow3d-${uniqueId})`}
           />
           
-          {/* Letter V - clean sans-serif style, slightly thinner than square */}
+          {/* Letter V - clean sans-serif, slightly thinner lines than square */}
           <path
-            d="M 30 30 L 30 75 L 50 95 L 60 95 L 90 30 L 80 30 L 55 75 L 45 75 L 25 30 Z"
-            fill={`url(#goldGradient-${uniqueId})`}
-            filter={`url(#shadow3D-${uniqueId})`}
+            d="M 45 45 L 45 125 L 80 155 L 100 155 L 155 45 L 140 45 L 100 125 L 85 125 L 35 45 Z"
+            fill={`url(#gold-${uniqueId})`}
+            filter={`url(#shadow3d-${uniqueId})`}
           />
         </svg>
       </div>
       
-      {/* Text: VANTS */}
+      {/* Text: VANTS - bold sans-serif, metallic gold */}
       {showText && (
         <div
           className="vantis-logo-text"
