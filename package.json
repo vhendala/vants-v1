@@ -1,0 +1,9 @@
+{
+  "name": "vants-app",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "landingpage",
+    "mobile"
+  ]
+}
