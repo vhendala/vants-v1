@@ -1,0 +1,279 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Light Mode - Clean institutional design (aligned with landing page) */
+  --background: #f8fafc;
+  --foreground: #1a1a2e;
+  --card: #ffffff;
+  --card-foreground: #1a1a2e;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a2e;
+  --primary: #6851FF;
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #1a1a2e;
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
+  --accent: #00D2FF;
+  --accent-foreground: #081229;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e2e8f0;
+  --input: #e2e8f0;
+  --ring: #6851FF;
+  --chart-1: #6851FF;
+  --chart-2: #00D2FF;
+  --chart-3: #4CAF50;
+  --chart-4: #ECC94B;
+  --chart-5: #ef4444;
+  --radius: 0.75rem;
+  --sidebar: #ffffff;
+  --sidebar-foreground: #1a1a2e;
+  --sidebar-primary: #6851FF;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f1f5f9;
+  --sidebar-accent-foreground: #1a1a2e;
+  --sidebar-border: #e2e8f0;
+  --sidebar-ring: #6851FF;
+  /* Vants Protocol Brand Colors */
+  --vants-deep-space: #081229;
+  --vants-surface-navy: #151E32;
+  --vants-indigo: #6851FF;
+  --vants-indigo-hover: #5842e6;
+  --vants-cyan: #00D2FF;
+  --vants-success: #4CAF50;
+  --vants-warning: #ECC94B;
+  --vants-text-primary: #FFFFFF;
+  --vants-text-secondary: #8F9BBA;
+  /* Glow shadows (landing-page aligned) */
+  --glow-indigo: 0 0 40px rgba(104, 81, 255, 0.25);
+  --glow-cyan: 0 0 40px rgba(0, 210, 255, 0.25);
+  --glow-success: 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+.dark {
+  /* Dark Mode - Vants Protocol Brand Book */
+  --background: #081229;
+  --foreground: #FFFFFF;
+  --card: #151E32;
+  --card-foreground: #FFFFFF;
+  --popover: #151E32;
+  --popover-foreground: #FFFFFF;
+  --primary: #6851FF;
+  --primary-foreground: #FFFFFF;
+  --secondary: #151E32;
+  --secondary-foreground: #FFFFFF;
+  --muted: #151E32;
+  --muted-foreground: #8F9BBA;
+  --accent: #00D2FF;
+  --accent-foreground: #081229;
+  --destructive: #ef4444;
+  --destructive-foreground: #FFFFFF;
+  --border: rgba(255, 255, 255, 0.07);
+  --input: rgba(255, 255, 255, 0.07);
+  --ring: #6851FF;
+  --chart-1: #6851FF;
+  --chart-2: #00D2FF;
+  --chart-3: #4CAF50;
+  --chart-4: #ECC94B;
+  --chart-5: #ef4444;
+  --sidebar: #151E32;
+  --sidebar-foreground: #FFFFFF;
+  --sidebar-primary: #6851FF;
+  --sidebar-primary-foreground: #FFFFFF;
+  --sidebar-accent: #151E32;
+  --sidebar-accent-foreground: #FFFFFF;
+  --sidebar-border: rgba(255, 255, 255, 0.07);
+  --sidebar-ring: #6851FF;
+  /* Glow shadows (dark mode — more visible) */
+  --glow-indigo: 0 0 60px rgba(104, 81, 255, 0.35);
+  --glow-cyan: 0 0 60px rgba(0, 210, 255, 0.35);
+  --glow-success: 0 0 30px rgba(76, 175, 80, 0.4);
+}
+
+@theme inline {
+  /* Typography - Inter for UI, JetBrains Mono for financial data */
+  --font-sans: var(--font-inter, 'Inter'), 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --font-mono: var(--font-jetbrains-mono, 'JetBrains Mono'), 'JetBrains Mono', ui-monospace, 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    font-family: var(--font-inter), 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: inherit;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  /* JetBrains Mono para dados financeiros — OBRIGATÓRIO */
+  .font-mono {
+    font-family: var(--font-jetbrains-mono), 'JetBrains Mono', 'SF Mono', 'Monaco', 'Consolas', monospace !important;
+    font-feature-settings: 'tnum' 1, 'ss01' 1;
+  }
+}
+
+/* ====================================================
+   ANIMAÇÕES (alinhadas à landing page)
+   ==================================================== */
+
+/* Fade + slide up para entradas de card */
+@keyframes fadeUpIn {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Pulse de glow no item ativo */
+@keyframes glowPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(104, 81, 255, 0.3); }
+  50%       { box-shadow: 0 0 24px rgba(104, 81, 255, 0.6); }
+}
+
+/* Shimmer para loading states */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Flutuação suave (como os badges da hero da landing) */
+@keyframes floatY {
+  0%, 100% { transform: translateY(0px); }
+  50%       { transform: translateY(-6px); }
+}
+
+/* Linha de scan QR */
+@keyframes scan {
+  0%   { top: 8px;  opacity: 1; }
+  48%  { opacity: 1; }
+  50%  { top: calc(100% - 8px); opacity: 0.6; }
+  52%  { opacity: 1; }
+  100% { top: 8px;  opacity: 1; }
+}
+
+/* ====================================================
+   UTILITÁRIOS
+   ==================================================== */
+
+/* Entrada animada */
+.animate-fade-up {
+  animation: fadeUpIn 0.5s ease forwards;
+}
+
+/* Glow pulsante */
+.animate-glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* Float suave */
+.animate-float {
+  animation: floatY 4s ease-in-out infinite;
+}
+
+/* Scan line QR */
+.scan-line {
+  animation: scan 2s ease-in-out infinite;
+}
+
+/* Texto gradiente indigo (assinatura da landing page) */
+.gradient-text {
+  background: linear-gradient(135deg, #6851FF 0%, #818cf8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glassmorphism card — dark */
+.glass-card {
+  background: rgba(21, 30, 50, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+/* Glassmorphism card — light */
+.glass-card-light {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(104, 81, 255, 0.1);
+}
+
+/* Glow indigo (box-shadow) */
+.glow-indigo {
+  box-shadow: var(--glow-indigo);
+}
+
+/* Glow cyan */
+.glow-cyan {
+  box-shadow: var(--glow-cyan);
+}
+
+/* Shimmer loading */
+.shimmer {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* Área segura mobile */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+}
+
+/* Ocultar scrollbar mas manter funcionalidade */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}

@@ -1,0 +1,9 @@
+<svg width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Dark background with rounded corners -->
+  <rect width="180" height="180" rx="36" fill="#081229"/>
+  <!-- Bold geometric V shape built from two paths -->
+  <!-- Left arm of V going down-right -->
+  <polygon points="22,38 54,38 90,128 72,128" fill="#6851FF"/>
+  <!-- Right arm of V going down-left -->
+  <polygon points="158,38 126,38 90,128 108,128" fill="#6851FF"/>
+</svg>
