@@ -52,7 +52,7 @@ export function InvestmentPools() {
                 <pool.icon className={`h-5 w-5 ${pool.iconColor}`} />
               </div>
               {/* Badge APY com cor de sucesso aprimorado */}
-              <Badge className="bg-[#4CAF50]/20 md:bg-[#4CAF50]/15 text-[#4CAF50] border border-[#4CAF50]/30 text-[11px] md:text-xs font-bold font-mono px-2 py-0.5 transition-colors group-hover:bg-[#4CAF50]/25">
+              <Badge className="bg-[#4CAF50]/20 md:bg-[#4CAF50]/15 text-[#4CAF50] border border-[#4CAF50]/30 text-[11px] md:text-xs font-bold font-sans px-2 py-0.5 transition-colors group-hover:bg-[#4CAF50]/25">
                 {pool.apy} APY
               </Badge>
             </div>
@@ -60,8 +60,8 @@ export function InvestmentPools() {
             <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1 mt-1 transition-colors group-hover:text-foreground/70">
               {pool.name}
             </p>
-            {/* Monospace obrigatório para dados financeiros */}
-            <p className="text-xl md:text-2xl font-bold text-foreground font-mono truncate">
+            {/* Sans obrigatório para dados financeiros para match da landing page */}
+            <p className="text-xl md:text-2xl font-bold tracking-tight text-foreground font-sans truncate">
               {pool.value}
             </p>
           </div>

@@ -37,15 +37,15 @@ export function BalanceCard() {
           </div>
         </div>
 
-        {/* Valor principal — JetBrains Mono */}
-        <p className="text-5xl font-bold tracking-tight font-mono text-primary dark:text-white mb-2">
+        {/* Valor principal */}
+        <p className="text-5xl font-bold tracking-tight font-sans text-primary dark:text-white mb-2">
           $1,740.23
         </p>
 
         {/* Variação 30d */}
         <div className="inline-flex items-center gap-2 bg-[#4CAF50]/10 dark:bg-white/10 px-3 py-1.5 rounded-xl mb-6">
           <TrendingUp className="h-3.5 w-3.5 text-[#4CAF50]" />
-          <span className="text-sm font-semibold font-mono">
+          <span className="text-sm font-semibold font-sans">
             <span className="text-[#4CAF50]">+$12.47</span>
             <span className="text-muted-foreground dark:text-white/60 ml-1">(0.72%)</span>
             <span className="text-muted-foreground/60 dark:text-white/40 ml-1">/ 30d</span>
@@ -58,10 +58,10 @@ export function BalanceCard() {
             <p className="text-[10px] font-bold text-muted-foreground dark:text-white/60 uppercase tracking-widest mb-1">
               Rendimento Total
             </p>
-            <p className="text-2xl font-bold font-mono text-foreground dark:text-white">$47.82</p>
+            <p className="text-2xl font-bold font-sans text-foreground dark:text-white">$47.82</p>
             <div className="mt-0.5 flex items-center gap-1">
               <ArrowUpRight className="h-3 w-3 text-[#4CAF50]" />
-              <span className="text-xs text-[#4CAF50] font-semibold font-mono">8.2% APY</span>
+              <span className="text-xs text-[#4CAF50] font-semibold font-sans">8.2% APY</span>
             </div>
           </div>
 

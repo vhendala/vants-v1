@@ -11,7 +11,7 @@ interface BottomNavigationProps {
 
 const navItems = [
   { id: "home" as const, icon: LayoutGrid, label: "Visão Geral" },
-  { id: "wallet" as const, icon: Wallet, label: "Ativos" },
+  { id: "wallet" as const, icon: Wallet, label: "Pagar" },
   { id: "yield" as const, icon: TrendingUp, label: "Mercados" },
   { id: "profile" as const, icon: Settings, label: "Ajustes" },
 ]
