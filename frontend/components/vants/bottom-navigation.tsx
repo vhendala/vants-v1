@@ -18,26 +18,26 @@ const navItems = [
 
 export function BottomNavigation({ activeView, onViewChange }: BottomNavigationProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50">
-      <div className="mx-auto max-w-md">
-        <div className="flex items-center justify-around backdrop-blur-xl bg-card/90 border-t border-border px-2 py-2 safe-bottom">
+    <nav className="fixed bottom-0 left-0 right-0 z-[60] md:relative md:z-auto">
+      <div className="mx-auto max-w-md md:max-w-none h-full">
+        <div className="flex items-center justify-around md:flex-col md:items-start md:justify-start md:gap-2 backdrop-blur-xl bg-card/90 md:bg-transparent border-t border-border md:border-none px-2 md:px-0 py-2 md:py-6 safe-bottom">
           {navItems.map((item) => {
             const isActive = activeView === item.id
             return (
               <button
                 key={item.id}
                 onClick={() => onViewChange(item.id)}
-                className={`relative flex flex-col items-center gap-1 px-5 py-2 rounded-2xl transition-all duration-200 ${
+                className={`relative flex flex-col md:flex-row md:w-full items-center md:justify-start gap-1 md:gap-4 px-5 py-3 rounded-2xl transition-all duration-200 ${
                   isActive
-                    ? "text-[#6851FF]"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "text-primary md:bg-primary/10"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
                 }`}
               >
                 {/* Ícone com fundo ativo */}
                 <div
                   className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 ${
                     isActive
-                      ? "bg-[#6851FF]/10 scale-110"
+                      ? "bg-primary/10 md:bg-transparent scale-110 md:scale-100"
                       : "scale-100"
                   }`}
                 >
@@ -47,13 +47,13 @@ export function BottomNavigation({ activeView, onViewChange }: BottomNavigationP
                   />
                 </div>
 
-                <span className="text-[9px] font-bold uppercase tracking-widest">
+                <span className="text-[9px] md:text-xs font-bold uppercase tracking-widest">
                   {item.label}
                 </span>
 
-                {/* Dot indicador ativo */}
+                {/* Dot indicador ativo (mobile apenas) */}
                 {isActive && (
-                  <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-[#6851FF]" />
+                  <span className="md:hidden absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
                 )}
               </button>
             )

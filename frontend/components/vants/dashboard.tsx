@@ -23,8 +23,16 @@ export function VantsDashboard() {
 
   return (
     <div className="min-h-screen bg-background text-foreground font-sans">
-      <div className="mx-auto max-w-md pb-24">
-        <Header />
+      <div className="mx-auto max-w-md md:max-w-5xl md:flex md:gap-8 pb-32 md:pb-8 pt-4">
+        
+        {/* Nav Lateral no Desktop (Escondido no mobile) */}
+        <aside className="hidden md:block w-64 shrink-0 px-4">
+          <BottomNavigation activeView={activeView} onViewChange={setActiveView} />
+        </aside>
+
+        {/* Célula do Conteúdo */}
+        <div className="flex-1 w-full max-w-md md:max-w-full mx-auto md:mx-0 relative">
+          <Header />
         
         {activeView === "home" && (
           <main className="px-4 py-4 flex flex-col gap-6">
@@ -59,7 +67,11 @@ export function VantsDashboard() {
           </main>
         )}
 
-        <BottomNavigation activeView={activeView} onViewChange={setActiveView} />
+        {/* Nav Inferior no Mobile (Escondido no desktop) */}
+        <div className="md:hidden">
+          <BottomNavigation activeView={activeView} onViewChange={setActiveView} />
+        </div>
+        </div>
       </div>
     </div>
   )

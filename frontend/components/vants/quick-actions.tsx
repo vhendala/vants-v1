@@ -44,22 +44,12 @@ export function QuickActions({ onPayBill }: QuickActionsProps) {
           className="group flex flex-col items-center gap-2.5"
         >
           <div
-            className={`flex h-16 w-16 items-center justify-center rounded-2xl transition-all duration-200 active:scale-95 hover:scale-105 ${
-              action.active
-                ? action.activeClass
-                // Usa variáveis do tema — sem hardcode incompatível
-                : "bg-card text-muted-foreground hover:bg-card/80 border border-border hover:border-[#6851FF]/20"
-            }`}
-            style={action.active ? action.activeStyle : {}}
+            className="flex h-16 w-16 items-center justify-center rounded-2xl bg-card border border-border shadow-sm transition-all duration-300 active:scale-95 group-hover:scale-105 group-hover:shadow-md group-hover:border-primary/30"
           >
-            <action.icon className="h-6 w-6" />
+            <action.icon className="h-6 w-6 text-foreground group-hover:text-primary transition-colors" strokeWidth={1.5} />
           </div>
           <span
-            className={`text-[10px] font-bold uppercase tracking-widest transition-colors ${
-              action.active
-                ? "text-[#6851FF]"
-                : "text-muted-foreground group-hover:text-foreground"
-            }`}
+            className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors"
           >
             {action.label}
           </span>

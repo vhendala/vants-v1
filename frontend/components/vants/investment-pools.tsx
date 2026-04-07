@@ -32,8 +32,8 @@ export function InvestmentPools() {
   return (
     <section>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-foreground">Pools Ativos</h2>
-        <button className="text-xs font-bold text-[#6851FF] hover:text-[#5842e6] transition-colors uppercase tracking-widest">
+        <h2 className="text-lg font-bold text-foreground capitalize">Pools Ativos</h2>
+        <button className="text-xs font-bold text-primary hover:text-primary/80 transition-colors uppercase tracking-widest active:scale-95">
           Gerenciar
         </button>
       </div>
@@ -42,8 +42,7 @@ export function InvestmentPools() {
         {pools.map((pool) => (
           <div
             key={pool.id}
-            className={`flex-shrink-0 w-48 rounded-2xl bg-card border border-border p-4 cursor-pointer transition-all duration-200 hover:scale-[1.02] hover:-translate-y-0.5 ${pool.borderHover}`}
-            style={{ transition: "all 0.2s ease" }}
+            className={`group flex-shrink-0 w-48 md:w-56 rounded-2xl bg-card border border-border p-4 md:p-5 cursor-pointer backdrop-blur-md transition-all duration-300 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-lg ${pool.borderHover}`}
           >
             <div className="flex items-start justify-between mb-4">
               <div
@@ -52,17 +51,17 @@ export function InvestmentPools() {
               >
                 <pool.icon className={`h-5 w-5 ${pool.iconColor}`} />
               </div>
-              {/* Badge APY com cor de sucesso — eco da landing page */}
-              <Badge className="bg-[#4CAF50]/15 text-[#4CAF50] border border-[#4CAF50]/20 text-[10px] font-bold font-mono px-2 py-0.5">
+              {/* Badge APY com cor de sucesso aprimorado */}
+              <Badge className="bg-[#4CAF50]/20 md:bg-[#4CAF50]/15 text-[#4CAF50] border border-[#4CAF50]/30 text-[11px] md:text-xs font-bold font-mono px-2 py-0.5 transition-colors group-hover:bg-[#4CAF50]/25">
                 {pool.apy} APY
               </Badge>
             </div>
 
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">
+            <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1 mt-1 transition-colors group-hover:text-foreground/70">
               {pool.name}
             </p>
             {/* Monospace obrigatório para dados financeiros */}
-            <p className="text-xl font-bold text-foreground font-mono">
+            <p className="text-xl md:text-2xl font-bold text-foreground font-mono truncate">
               {pool.value}
             </p>
           </div>
