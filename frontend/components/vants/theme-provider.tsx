@@ -5,7 +5,7 @@ import * as React from "react"
 type Theme = "dark" | "light"
 
 const THEME_STORAGE_KEY = "vants-theme"
-const DEFAULT_THEME: Theme = "dark"
+const DEFAULT_THEME: Theme = "light"
 
 interface ThemeContextType {
   theme: Theme
