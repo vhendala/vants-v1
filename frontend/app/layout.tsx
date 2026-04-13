@@ -40,6 +40,8 @@ export const viewport: Viewport = {
   userScalable: false,
 }
 
+import { ThemeProvider } from '@/components/vants/theme-provider'
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -48,9 +50,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
-        <PrivyProviderWrapper>
-          {children}
-        </PrivyProviderWrapper>
+        <ThemeProvider>
+          <PrivyProviderWrapper>
+            {children}
+          </PrivyProviderWrapper>
+        </ThemeProvider>
         <Analytics />
       </body>
     </html>

@@ -24,7 +24,7 @@ import { BottomNavigation } from "./bottom-navigation";
 import { InvestmentsView } from "./investments-view";
 import { PaymentView } from "./payment-view";
 import { WalletView } from "./wallet-view";
-import { PinSetup } from "./PinSetup";
+import { PasskeySetup } from "./PasskeySetup";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -41,7 +41,7 @@ const BACKEND_URL =
 // ─── Componente ───────────────────────────────────────────────────────────────
 
 export function VantsDashboard() {
-  const { ready, authenticated, getAccessToken } = usePrivy();
+  const { ready, authenticated, login, getAccessToken } = usePrivy();
   const [activeView, setActiveView] = useState<View>("home");
   const [showPayment, setShowPayment] = useState(false);
   const [accountStatus, setAccountStatus] = useState<AccountStatus>({
@@ -90,17 +90,27 @@ export function VantsDashboard() {
 
   // ─── Guards de renderização ─────────────────────────────────────────────────
 
-  // Enquanto o SDK Privy inicializa ou checamos o backend
-  if (!ready || accountStatus.state === "loading") {
+  // 1. Aguarda inicialização do SDK
+  if (!ready) {
     return <DashboardSkeleton />;
   }
 
-  // Usuário autenticado mas sem PIN configurado → onboarding invisível
-  if (authenticated && accountStatus.state === "no-account") {
+  // 2. Se não estiver autenticado, barrar imediatamente no botão de Login
+  if (!authenticated) {
+    return <LoginScreen onLogin={login} />;
+  }
+
+  // 3. Após autenticação Web2, aguardamos resolução do backend
+  if (accountStatus.state === "loading") {
+    return <DashboardSkeleton />;
+  }
+
+  // 4. Usuário logado mas sem biometria/conta backend ativa
+  if (accountStatus.state === "no-account") {
     return (
-      <PinSetup
-        onComplete={(publicKey) =>
-          setAccountStatus({ state: "has-account", publicKey })
+      <PasskeySetup
+        onComplete={(smartWalletAddress) =>
+          setAccountStatus({ state: "has-account", publicKey: smartWalletAddress })
         }
       />
     );
@@ -173,6 +183,38 @@ function DashboardSkeleton() {
       <div className="flex flex-col items-center gap-4">
         <div className="h-10 w-10 rounded-full border-2 border-[#6851FF] border-t-transparent animate-spin" />
         <p className="text-sm text-muted-foreground font-medium">Carregando…</p>
+      </div>
+    </div>
+  );
+}
+
+// ─── Tela de Login ─────────────────────────────────────────────────────────────
+
+function LoginScreen({ onLogin }: { onLogin: () => void }) {
+  return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6">
+      <div className="flex flex-col items-center gap-8 w-full max-w-sm">
+        <div className="flex flex-col items-center gap-3">
+          <img src="/icon.svg" alt="Vants" className="h-16 w-16" />
+          <h1 className="text-3xl font-bold tracking-tight text-foreground uppercase tracking-widest">VANTS</h1>
+          <p className="text-center text-muted-foreground text-sm leading-relaxed">
+            Uma conta global para pagar o mundo real com os seus próprios investimentos
+          </p>
+        </div>
+
+        <button
+          id="login-btn"
+          onClick={onLogin}
+          className="w-full rounded-xl bg-[#6851FF] px-6 py-4 text-white font-semibold text-base
+                     hover:bg-[#5a44d4] active:scale-[0.98] transition-all duration-150 shadow-lg shadow-[#6851FF]/30"
+        >
+          Entrar ou criar conta
+        </button>
+
+        <p className="text-xs text-muted-foreground text-center">
+          Ao continuar, você concorda com os nossos{" "}
+          <span className="underline cursor-pointer">Termos de Uso</span>
+        </p>
       </div>
     </div>
   );

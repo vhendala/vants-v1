@@ -9,6 +9,7 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import accountRoutes from "./routes/accountRoutes";
+import transactionRoutes from "./routes/transactionRoutes";
 
 // ─── Constantes de configuração ───────────────────────────────────────────────
 
@@ -50,6 +51,9 @@ app.get("/health", (_req, res) => {
 // Rotas de conta (Invisible Wallet)
 app.use("/api/account", accountRoutes);
 
+// Rotas de transações (Histórico)
+app.use("/api/transactions", transactionRoutes);
+
 // ─── 404 handler ─────────────────────────────────────────────────────────────
 
 app.use((_req, res) => {
@@ -64,3 +68,4 @@ app.listen(PORT, () => {
 });
 
 export default app;
+

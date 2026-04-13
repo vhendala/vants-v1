@@ -1,3 +1,8 @@
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __dirname = fileURLToPath(new URL(".", import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   typescript: {
@@ -7,25 +12,13 @@ const nextConfig = {
     unoptimized: true,
   },
   /**
-   * WHY: O Stellar SDK e suas dependências referenciam módulos Node.js
-   * (buffer, crypto, stream, etc.) que não existem nativamente no browser.
-   * Este fallback instrui o webpack a usar os shims corretos via polyfills.
+   * WHY: Next.js 16 usa Turbopack por padrão.
+   * - `root`: aponta para a raiz do monorepo para resolver o warning de múltiplos lockfiles.
+   * O Turbopack já trata módulos exclusivos do Node (fs, crypto, stream, etc.) como
+   * ausentes no bundle do browser, sem necessidade de configuração adicional.
    */
-  webpack: (config, { isServer }) => {
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-        crypto: false,
-        stream: false,
-        buffer: false,
-        path: false,
-        os: false,
-      };
-    }
-    return config;
+  turbopack: {
+    root: path.resolve(__dirname, ".."),
   },
 };
 

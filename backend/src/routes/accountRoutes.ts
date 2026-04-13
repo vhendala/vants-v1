@@ -3,10 +3,6 @@
  *
  * Rotas de gerenciamento de conta da "Invisible Wallet".
  *
- * WHY: O armazenamento in-memory com Map é intencional para este estágio
- * sem banco de dados. Quando o DB for integrado, apenas o AccountStore
- * será substituído — as rotas permanecem inalteradas. (Separation of Concerns)
- *
  * INVARIANTE DE SEGURANÇA:
  *   - O backend armazena APENAS { publicKey, encryptedSecret }.
  *   - Nunca há logging ou inspeção do conteúdo do encryptedSecret.
@@ -15,26 +11,9 @@
 
 import { Router, Request, Response } from "express";
 import { verifyPrivyToken } from "../middleware/verifyPrivyToken";
+import { prisma } from "../lib/prisma";
 
 const router = Router();
-
-// ─── Store in-memory (substituir por DB na produção) ──────────────────────────
-
-interface AccountRecord {
-  publicKey: string;
-  encryptedSecret: string;
-  createdAt: Date;
-}
-
-// Mapeamento: privyUserId → AccountRecord
-const accountStore = new Map<string, AccountRecord>();
-
-// ─── Validadores ──────────────────────────────────────────────────────────────
-
-function isValidStellarPublicKey(key: string): boolean {
-  // Chaves públicas Stellar começam com 'G' e têm 56 caracteres alfanuméricos
-  return /^G[A-Z0-9]{55}$/.test(key);
-}
 
 // ─── POST /api/account/secure ─────────────────────────────────────────────────
 
@@ -42,40 +21,47 @@ router.post(
   "/secure",
   verifyPrivyToken,
   async (req: Request, res: Response): Promise<void> => {
-    const { publicKey, encryptedSecret } = req.body as {
-      publicKey?: string;
-      encryptedSecret?: string;
+    const { email, passkeyCredentialId, passkeyPublicKey, smartWalletAddress } = req.body as {
+      email?: string;
+      passkeyCredentialId?: string;
+      passkeyPublicKey?: string;
+      smartWalletAddress?: string;
     };
 
-    // Fail fast: validação de input
-    if (!publicKey || typeof publicKey !== "string" || !isValidStellarPublicKey(publicKey)) {
-      res.status(400).json({ error: "publicKey inválida." });
-      return;
-    }
-
-    if (!encryptedSecret || typeof encryptedSecret !== "string" || encryptedSecret.length < 10) {
-      res.status(400).json({ error: "encryptedSecret inválido." });
+    // Fail fast: validação de base do Privy
+    if (!email || typeof email !== "string" || !email.includes("@")) {
+      res.status(400).json({ error: "Email inválido ou ausente." });
       return;
     }
 
     const userId = req.user.id;
 
-    // Idempotência: não reescreve uma conta já configurada
-    if (accountStore.has(userId)) {
-      res.status(409).json({ error: "Conta já configurada para este usuário." });
-      return;
+    try {
+      // Upsert: cria ou atualiza o status de smart wallet da conta invisível
+      const account = await prisma.user.upsert({
+        where: { id: userId },
+        update: {
+          ...(passkeyCredentialId && { passkeyCredentialId }),
+          ...(passkeyPublicKey && { passkeyPublicKey }),
+          ...(smartWalletAddress && { smartWalletAddress }),
+        },
+        create: {
+          id: userId,
+          email,
+          passkeyCredentialId: passkeyCredentialId || null,
+          passkeyPublicKey: passkeyPublicKey || null,
+          smartWalletAddress: smartWalletAddress || null,
+        },
+      });
+
+      res.status(201).json({
+        message: "Conta processada com sucesso.",
+        smartWalletAddress: account.smartWalletAddress,
+      });
+    } catch (error) {
+      console.error("[accountRoutes] Erro ao configurar Account Abstraction:", error);
+      res.status(500).json({ error: "Falha interna ao configurar a conta." });
     }
-
-    accountStore.set(userId, {
-      publicKey,
-      encryptedSecret,
-      createdAt: new Date(),
-    });
-
-    res.status(201).json({
-      message: "Conta configurada com sucesso.",
-      publicKey,
-    });
   }
 );
 
@@ -86,18 +72,31 @@ router.get(
   verifyPrivyToken,
   async (req: Request, res: Response): Promise<void> => {
     const userId = req.user.id;
-    const record = accountStore.get(userId);
 
-    if (!record) {
-      res.status(200).json({ hasAccount: false });
-      return;
+    try {
+      const record = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          smartWalletAddress: true,
+          passkeyCredentialId: true,
+        },
+      });
+
+      if (!record || !record.smartWalletAddress) {
+        res.status(200).json({ hasAccount: false });
+        return;
+      }
+
+      // Retorna sucesso para injetar estado no Frontend (dashboard)
+      res.status(200).json({
+        hasAccount: true,
+        smartWalletAddress: record.smartWalletAddress,
+        hasPasskey: !!record.passkeyCredentialId,
+      });
+    } catch (error) {
+      console.error("[accountRoutes] Erro ao buscar status:", error);
+      res.status(500).json({ error: "Falha interna ao buscar status da conta." });
     }
-
-    // Retorna apenas a publicKey — nunca o encryptedSecret
-    res.status(200).json({
-      hasAccount: true,
-      publicKey: record.publicKey,
-    });
   }
 );
 
