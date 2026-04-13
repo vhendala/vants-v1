@@ -62,7 +62,7 @@ app.use((_req, res) => {
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 
-app.listen(PORT, () => {
+app.listen(Number(PORT), "0.0.0.0", () => {
   console.log(`🚀 Vants Backend rodando em http://localhost:${PORT}`);
   console.log(`   Origens CORS permitidas: ${ALLOWED_ORIGINS.join(", ")}`);
 });

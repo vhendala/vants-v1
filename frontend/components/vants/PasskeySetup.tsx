@@ -4,11 +4,13 @@ import { useState } from "react";
 import { Fingerprint, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
 
+import { API_URL } from "../../lib/config";
+
+// ─── Tipos ────────────────────────────────────────────────────────────────────
+
 interface PasskeySetupProps {
   onComplete: (smartWalletAddress: string) => void;
 }
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000";
 
 export function PasskeySetup({ onComplete }: PasskeySetupProps) {
   const [step, setStep] = useState<"idle" | "loading" | "success" | "error">("idle");
@@ -92,7 +94,7 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
       const token = await getAccessToken();
 
       // 4. Salva a nova Identidade no Backend do Vants
-      const res = await fetch(`${BACKEND_URL}/api/account/secure`, {
+      const res = await fetch(`${API_URL}/api/account/secure`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",

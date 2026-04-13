@@ -26,6 +26,8 @@ import { PaymentView } from "./payment-view";
 import { WalletView } from "./wallet-view";
 import { PasskeySetup } from "./PasskeySetup";
 
+import { API_URL } from "../../lib/config";
+
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
 type View = "home" | "wallet" | "yield" | "profile" | "invest";
@@ -34,9 +36,6 @@ type AccountStatus =
   | { state: "loading" }
   | { state: "no-account" }
   | { state: "has-account"; publicKey: string };
-
-const BACKEND_URL =
-  process.env.NEXT_PUBLIC_BACKEND_URL ?? "http://localhost:4000";
 
 // ─── Componente ───────────────────────────────────────────────────────────────
 
@@ -55,7 +54,7 @@ export function VantsDashboard() {
   const fetchAccountStatus = useCallback(async () => {
     try {
       const token = await getAccessToken();
-      const res = await fetch(`${BACKEND_URL}/api/account/status`, {
+      const res = await fetch(`${API_URL}/api/account/status`, {
         headers: { Authorization: `Bearer ${token}` },
         credentials: "include",
       });
