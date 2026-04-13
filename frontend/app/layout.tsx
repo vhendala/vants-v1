@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next'
 import { Inter, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { PrivyProviderWrapper } from '@/components/providers/PrivyProviderWrapper'
+import { ThemeProvider } from '@/components/vants/theme-provider'
 import './globals.css'
 
 const inter = Inter({ 
@@ -40,7 +41,6 @@ export const viewport: Viewport = {
   userScalable: false,
 }
 
-import { ThemeProvider } from '@/components/vants/theme-provider'
 
 export default function RootLayout({
   children,
