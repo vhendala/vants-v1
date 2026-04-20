@@ -45,9 +45,21 @@ try {
     process.exit(0);
   }
 
+  // Final fallback: try to fetch the binary directly from the npm package tarball
+  try {
+    log('attempting to download binary from npm pack');
+    const pack = spawnSync('npm', ['pack', 'lightningcss@latest'], { stdio: 'pipe' });
+    if (pack.status === 0) {
+      const tarball = pack.stdout.toString().trim().split('\n').pop();
+      log('npm pack produced:', tarball);
+
+      const platform = process.platform; // e.g. linux
       const arch = process.arch; // e.g. x64
       const filename = `lightningcss.${platform}-${arch}-gnu.node`;
-      const entry = `package/node/${filename}`;
+      let entry = `package/node/${filename}`;
+      if (platform === 'linux' && arch === 'arm64') {
+        entry = `package/node/lightningcss.linux-arm64-gnu.node`;
+      }
 
       // Ensure destination folder
       const destDir = path.join(modPath, 'node');
