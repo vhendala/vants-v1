@@ -83,6 +83,7 @@
     "cross-env": "^7.0.3"
   },
   "optionalDependencies": {
-    "lightningcss-linux-x64-gnu": "*"
+    "lightningcss-linux-x64-gnu": "*",
+    "@tailwindcss/oxide-linux-x64-gnu": "*"
   }
 }

@@ -6,7 +6,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  serverExternalPackages: ['lightningcss'],
+  serverExternalPackages: ['lightningcss', '@tailwindcss/oxide'],
 };
 
 export default nextConfig;
