@@ -1,5 +1,6 @@
 'use client'
 
+import { useRouter } from 'next/navigation'
 import { usePrivy } from '@privy-io/react-auth'
 import { LogOut, User } from 'lucide-react'
 
@@ -15,7 +16,29 @@ function resolveDisplayName(user: ReturnType<typeof usePrivy>['user']): string {
 }
 
 export function LoginButton() {
+  const router = useRouter()
   const { ready, authenticated, login, logout, user } = usePrivy()
+
+  // Handle logout with proper async flow
+  const handleLogout = async () => {
+    try {
+      console.log('[LoginButton] Starting logout...')
+      
+      // IMPORTANT: Must await logout() to ensure Privy completely clears the session
+      // cookies, localStorage, and all authentication state
+      await logout()
+      
+      console.log('[LoginButton] Logout complete, redirecting to home...')
+      
+      // AFTER logout promise resolves, redirect to home page
+      // This ensures Privy state is fully cleared before the page transitions
+      router.push('/')
+    } catch (error) {
+      console.error('[LoginButton] Logout error:', error)
+      // Redirect anyway to allow user to recover
+      router.push('/')
+    }
+  }
 
   // Estado de loading — evita layout shift enquanto o SDK inicializa
   if (!ready) {
@@ -46,7 +69,7 @@ export function LoginButton() {
         {/* Sign out — ghost button discreto */}
         <button
           id="vants-signout-btn"
-          onClick={logout}
+          onClick={handleLogout}
           title="Sair da conta"
           className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-sans text-sm font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-100 hover:text-[#081229]"
         >

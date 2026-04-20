@@ -1,5 +1,6 @@
 "use client"
 
+import { useRouter } from "next/navigation"
 import { Bell, Moon, Sun, LogOut } from "lucide-react"
 import { useTheme } from "./theme-provider"
 import { Button } from "@/components/ui/button"
@@ -7,8 +8,30 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { usePrivy } from "@privy-io/react-auth"
 
 export function Header() {
+  const router = useRouter()
   const { theme, toggleTheme } = useTheme()
   const { logout } = usePrivy()
+
+  // Handle logout with proper async flow
+  const handleLogout = async () => {
+    try {
+      console.log('[Header] Starting logout...')
+      
+      // IMPORTANT: Must await logout() to ensure Privy completely clears the session
+      // cookies, localStorage, and all authentication state
+      await logout()
+      
+      console.log('[Header] Logout complete, redirecting to home...')
+      
+      // AFTER logout promise resolves, redirect to home page
+      // This ensures Privy state is fully cleared before the page transitions
+      router.push('/')
+    } catch (error) {
+      console.error('[Header] Logout error:', error)
+      // Redirect anyway to allow user to recover
+      router.push('/')
+    }
+  }
 
   return (
     <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 backdrop-blur-xl bg-background/80 border-b border-border">
@@ -50,11 +73,7 @@ export function Header() {
           size="icon"
           className="h-9 w-9 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-xl transition-all"
           aria-label="Sair"
-          onClick={async () => {
-            console.log('Logging out...');
-            await logout();
-            window.location.href = '/';
-          }}
+          onClick={handleLogout}
         >
           <LogOut className="h-4 w-4" />
         </Button>
