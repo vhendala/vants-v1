@@ -1,7 +1,7 @@
 import { Keypair, TransactionBuilder, Networks, Operation } from "@stellar/stellar-sdk";
-import StellarSDK from "@stellar/stellar-sdk";
+import { Horizon } from "@stellar/stellar-sdk";
 
-const Server = StellarSDK.Server;
+const Server = Horizon.Server;
 
 // Service that interacts with the Stellar Testnet for wallet provisioning.
 // Uses Operation.createAccount as a placeholder for a future Soroban contract
