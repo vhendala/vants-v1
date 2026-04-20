@@ -1,8 +1,8 @@
 /**
  * Attempt to ensure lightningcss native binary exists in node_modules.
- * This script is intentionally tolerant: it will not fail the install if
- * it cannot download or rebuild the binary, but it tries a few strategies
- * that commonly fix CI environments like Vercel.
+ * This script is tolerant: it will not fail the install if it cannot
+ * download or rebuild the binary, but it tries strategies that commonly
+ * fix CI environments like Vercel.
  */
 const { spawnSync } = require('child_process');
 const fs = require('fs');
