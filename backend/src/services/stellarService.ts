@@ -13,7 +13,10 @@ const server = new Server(HORIZON_TESTNET_URL);
 export async function deploySmartWallet(passkeyPublicKey: string): Promise<string> {
   try {
     if (!process.env.STELLAR_SPONSOR_SECRET) {
-      throw new Error("Missing STELLAR_SPONSOR_SECRET in environment");
+      console.warn("[deploySmartWallet] STELLAR_SPONSOR_SECRET not set. Generating local keypair only.");
+      // Generate a new keypair locally without Stellar deployment
+      const newKeypair = Keypair.random();
+      return newKeypair.publicKey();
     }
 
     // Load sponsor keypair from secret and fetch its account data

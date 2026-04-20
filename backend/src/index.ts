@@ -48,6 +48,24 @@ app.get("/health", (_req, res) => {
   res.status(200).json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
+// Debug endpoint para verificar configuração (apenas em dev)
+app.get("/debug/env", (_req, res) => {
+  if (process.env.NODE_ENV === "production") {
+    res.status(403).json({ error: "Not available in production" });
+    return;
+  }
+  
+  res.status(200).json({
+    nodeEnv: process.env.NODE_ENV,
+    hasStellarSecret: !!process.env.STELLAR_SPONSOR_SECRET,
+    hasDatabaseUrl: !!process.env.DATABASE_URL,
+    hasPrivyAppId: !!process.env.PRIVY_APP_ID,
+    hasPrivyAppSecret: !!process.env.PRIVY_APP_SECRET,
+    allowedOrigins: ALLOWED_ORIGINS,
+    port: PORT,
+  });
+});
+
 // Rotas de conta (Invisible Wallet)
 app.use("/api/account", accountRoutes);
 
