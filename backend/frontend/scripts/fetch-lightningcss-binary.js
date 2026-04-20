@@ -34,7 +34,44 @@ try {
     process.exit(0);
   }
 
-  log('could not rebuild lightningcss binary; continuing without native binary');
+  // Final fallback: try to fetch the binary directly from the npm package tarball
+  try {
+    log('attempting to download binary from npm pack');
+    const pack = spawnSync('npm', ['pack', 'lightningcss@latest'], { stdio: 'pipe' });
+    if (pack.status === 0) {
+      const tarball = pack.stdout.toString().trim().split('\n').pop();
+      log('npm pack produced:', tarball);
+
+      const platform = process.platform; // e.g. linux
+      const arch = process.arch; // e.g. x64
+      const filename = `lightningcss.${platform}-${arch}-gnu.node`;
+      const entry = `package/node/${filename}`;
+
+      // Ensure destination folder
+      const destDir = path.join(modPath, 'node');
+      try { fs.mkdirSync(destDir, { recursive: true }); } catch (e) {}
+
+      // Use tar to extract the specific file
+      const tarRes = spawnSync('tar', ['-xOf', tarball, entry], { stdio: ['ignore', 'pipe', 'inherit'] });
+      if (tarRes.status === 0 && tarRes.stdout && tarRes.stdout.length > 0) {
+        const outPath = path.join(destDir, filename);
+        fs.writeFileSync(outPath, tarRes.stdout);
+        log('extracted binary to', outPath);
+        // cleanup tarball
+        try { fs.unlinkSync(tarball); } catch (e) {}
+        process.exit(0);
+      } else {
+        log('tar extraction failed, status:', tarRes.status);
+        try { fs.unlinkSync(tarball); } catch (e) {}
+      }
+    } else {
+      log('npm pack failed with status', pack.status);
+    }
+  } catch (e) {
+    log('failed to download/extract binary via npm pack:', e && e.message);
+  }
+
+  log('could not rebuild or download lightningcss binary; continuing without native binary');
 } catch (e) {
   console.error('[fetch-lightningcss-binary] error', e);
 }
