@@ -66,9 +66,20 @@ router.post(
         message: "Conta processada com sucesso.",
         smartWalletAddress: account.smartWalletAddress,
       });
-    } catch (error) {
-      console.error("[accountRoutes] Erro ao configurar Account Abstraction:", error);
-      res.status(500).json({ error: "Falha interna ao configurar a conta." });
+    } catch (error: any) {
+      console.error("[accountRoutes] Erro ao configurar Account Abstraction:", {
+        error: error?.message || String(error),
+        stack: error?.stack,
+        response: error?.response?.data,
+      });
+      
+      // Provide more specific error message based on error type
+      const errorMessage = 
+        error?.message?.includes("Stellar") || error?.response?.data
+          ? "Erro ao criar wallet na rede Stellar. Tente novamente."
+          : "Falha interna ao configurar a conta.";
+      
+      res.status(500).json({ error: errorMessage });
     }
   }
 );

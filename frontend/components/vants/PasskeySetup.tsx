@@ -57,6 +57,7 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
         },
         pubKeyCredParams: [
           { alg: -7, type: "public-key" }, // ES256 (secp256r1)
+          { alg: -257, type: "public-key" }, // RS256
         ],
         authenticatorSelection: {
           authenticatorAttachment: "platform", // FaceID / TouchID / Windows Hello
