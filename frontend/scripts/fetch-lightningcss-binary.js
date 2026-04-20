@@ -11,12 +11,23 @@ const path = require('path');
 function log(...args) { console.log('[fetch-lightningcss-binary]', ...args); }
 
 try {
-  const modPath = path.resolve(process.cwd(), 'node_modules', 'lightningcss');
-
-  if (!fs.existsSync(modPath)) {
-    log('lightningcss not installed; skipping binary fetch');
-    process.exit(0);
+  let modPath;
+  try {
+    const pkgPath = require.resolve('lightningcss/package.json');
+    modPath = path.dirname(pkgPath);
+  } catch (e) {
+    // If require.resolve fails, try finding it in node_modules manually
+    const localModPath = path.resolve(process.cwd(), 'node_modules', 'lightningcss');
+    const rootModPath = path.resolve(process.cwd(), '..', 'node_modules', 'lightningcss');
+    if (fs.existsSync(localModPath)) modPath = localModPath;
+    else if (fs.existsSync(rootModPath)) modPath = rootModPath;
+    else {
+      log('lightningcss not found; skipping binary fetch');
+      process.exit(0);
+    }
   }
+
+  log('Found lightningcss at:', modPath);
 
   // Try npm rebuild with update-binary
   log('running: npm rebuild lightningcss --update-binary');
@@ -34,15 +45,6 @@ try {
     process.exit(0);
   }
 
-  // Final fallback: try to fetch the binary directly from the npm package tarball
-  try {
-    log('attempting to download binary from npm pack');
-    const pack = spawnSync('npm', ['pack', 'lightningcss@latest'], { stdio: 'pipe' });
-    if (pack.status === 0) {
-      const tarball = pack.stdout.toString().trim().split('\n').pop();
-      log('npm pack produced:', tarball);
-
-      const platform = process.platform; // e.g. linux
       const arch = process.arch; // e.g. x64
       const filename = `lightningcss.${platform}-${arch}-gnu.node`;
       const entry = `package/node/${filename}`;
