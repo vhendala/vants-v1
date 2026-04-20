@@ -100,4 +100,43 @@ export async function deploySmartWallet(passkeyPublicKey: string): Promise<strin
   }
 }
 
-export default { deploySmartWallet };
+export async function getWalletBalance(publicKey: string): Promise<string> {
+  try {
+    console.log("[getWalletBalance] Fetching balance for:", publicKey);
+
+    // Load account from Horizon
+    const account = await server.loadAccount(publicKey);
+    console.log("[getWalletBalance] Account loaded successfully");
+
+    // Find the native (XLM) balance
+    const nativeBalance = account.balances.find(
+      (balance: any) => balance.asset_type === "native"
+    );
+
+    if (!nativeBalance) {
+      console.warn("[getWalletBalance] No native balance found for account:", publicKey);
+      return "0.00";
+    }
+
+    const balance = String(nativeBalance.balance);
+    console.log("[getWalletBalance] Native balance:", balance);
+
+    return balance;
+  } catch (err: any) {
+    // If account not found (404), return 0.00
+    if (err?.response?.status === 404 || err?.message?.includes("Not Found")) {
+      console.warn("[getWalletBalance] Account not found on Horizon:", publicKey);
+      return "0.00";
+    }
+
+    // For other errors, log and re-throw
+    console.error("[getWalletBalance] Error fetching balance:", {
+      message: err?.message,
+      status: err?.response?.status,
+      horizonResponse: err?.response?.data,
+    });
+    throw err;
+  }
+}
+
+export default { deploySmartWallet, getWalletBalance };

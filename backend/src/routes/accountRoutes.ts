@@ -12,7 +12,7 @@
 import { Router, Request, Response } from "express";
 import { verifyPrivyToken } from "../middleware/verifyPrivyToken";
 import { prisma } from "../lib/prisma";
-import { deploySmartWallet } from "../services/stellarService";
+import { deploySmartWallet, getWalletBalance } from "../services/stellarService";
 
 const router = Router();
 
@@ -115,6 +115,43 @@ router.get(
     } catch (error) {
       console.error("[accountRoutes] Erro ao buscar status:", error);
       res.status(500).json({ error: "Falha interna ao buscar status da conta." });
+    }
+  }
+);
+
+// ─── GET /api/account/balance ──────────────────────────────────────────────────
+
+router.get(
+  "/balance",
+  verifyPrivyToken,
+  async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user.id;
+
+    try {
+      // Query user record to get their smart wallet address
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: {
+          smartWalletAddress: true,
+        },
+      });
+
+      // If user doesn't have a wallet address yet, return 0.00
+      if (!user || !user.smartWalletAddress) {
+        console.log("[accountRoutes] User has no wallet address yet:", userId);
+        res.status(200).json({ balance: "0.00" });
+        return;
+      }
+
+      console.log("[accountRoutes] Fetching balance for wallet:", user.smartWalletAddress);
+
+      // Fetch balance from Stellar
+      const balance = await getWalletBalance(user.smartWalletAddress);
+
+      res.status(200).json({ balance });
+    } catch (error) {
+      console.error("[accountRoutes] Erro ao buscar saldo:", error);
+      res.status(500).json({ error: "Falha interna ao buscar saldo da conta." });
     }
   }
 );
