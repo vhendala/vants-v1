@@ -1,4 +1,5 @@
-import { Keypair, TransactionBuilder, Networks, Server, Operation } from "@stellar/stellar-sdk";
+import { Keypair, TransactionBuilder, Networks, Operation } from "@stellar/stellar-sdk";
+import { Server } from "@stellar/stellar-sdk/rpc";
 
 // Service that interacts with the Stellar Testnet for wallet provisioning.
 // Uses Operation.createAccount as a placeholder for a future Soroban contract
