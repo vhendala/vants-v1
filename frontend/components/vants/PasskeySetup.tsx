@@ -93,8 +93,16 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
 
       // Pegar token Privy para envio seguro
       const token = await getAccessToken();
+      console.log("[PasskeySetup] Got Privy token, length:", token?.length);
 
       // 4. Salva a nova Identidade no Backend do Vants
+      console.log("[PasskeySetup] Sending to backend:", {
+        email,
+        passkeyCredentialId: passkeyCredentialId.substring(0, 20) + "...",
+        passkeyPublicKeyLength: passkeyPublicKeyBase64.length,
+        apiUrl: API_URL,
+      });
+
       const res = await fetch(`${API_URL}/api/account/secure`, {
         method: "POST",
         headers: { 
@@ -109,13 +117,20 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
         }),
       });
 
+      console.log("[PasskeySetup] Response status:", res.status);
+
       if (!res.ok) {
+        const errorData = await res.json().catch(() => ({ error: "Unknown error" }));
+        console.error("[PasskeySetup] Backend error response:", errorData);
         throw new Error(`Erro do servidor: ${res.status}`);
       }
 
+      const successData = await res.json();
+      console.log("[PasskeySetup] Success response:", successData);
+
       setStep("success");
       // Retorna string mock p/ simular sucesso on-UI até termos o contrato
-      setTimeout(() => onComplete("G_VANTS_PENDING_WALLET_..."), 1500);
+      setTimeout(() => onComplete(successData.smartWalletAddress || "G_VANTS_PENDING_WALLET_..."), 1500);
     } catch (err: unknown) {
       console.error(err);
       const message = err instanceof Error ? err.message : "Erro inesperado.";
