@@ -12,6 +12,7 @@
 import { Router, Request, Response } from "express";
 import { verifyPrivyToken } from "../middleware/verifyPrivyToken";
 import { prisma } from "../lib/prisma";
+import { deploySmartWallet } from "../services/stellarService";
 
 const router = Router();
 
@@ -21,11 +22,10 @@ router.post(
   "/secure",
   verifyPrivyToken,
   async (req: Request, res: Response): Promise<void> => {
-    const { email, passkeyCredentialId, passkeyPublicKey, smartWalletAddress } = req.body as {
+    const { email, passkeyCredentialId, passkeyPublicKey } = req.body as {
       email?: string;
       passkeyCredentialId?: string;
       passkeyPublicKey?: string;
-      smartWalletAddress?: string;
     };
 
     // Fail fast: validação de base do Privy
@@ -34,23 +34,31 @@ router.post(
       return;
     }
 
+    if (!passkeyPublicKey || typeof passkeyPublicKey !== "string") {
+      res.status(400).json({ error: "passkeyPublicKey é obrigatório." });
+      return;
+    }
+
     const userId = req.user.id;
 
     try {
+      // Call deploySmartWallet to create and fund the wallet on Stellar Testnet
+      const smartWalletAddress = await deploySmartWallet(passkeyPublicKey);
+
       // Upsert: cria ou atualiza o status de smart wallet da conta invisível
       const account = await prisma.user.upsert({
         where: { id: userId },
         update: {
-          ...(passkeyCredentialId && { passkeyCredentialId }),
-          ...(passkeyPublicKey && { passkeyPublicKey }),
-          ...(smartWalletAddress && { smartWalletAddress }),
+          passkeyCredentialId,
+          passkeyPublicKey,
+          smartWalletAddress,
         },
         create: {
           id: userId,
           email,
           passkeyCredentialId: passkeyCredentialId || null,
-          passkeyPublicKey: passkeyPublicKey || null,
-          smartWalletAddress: smartWalletAddress || null,
+          passkeyPublicKey,
+          smartWalletAddress,
         },
       });
 
