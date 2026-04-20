@@ -14,6 +14,11 @@ import { PrivyClient } from "@privy-io/server-auth";
 const PRIVY_APP_ID = process.env.PRIVY_APP_ID as string;
 const PRIVY_APP_SECRET = process.env.PRIVY_APP_SECRET as string;
 
+// Validação na inicialização
+if (!PRIVY_APP_ID || !PRIVY_APP_SECRET) {
+  console.error("[verifyPrivyToken] Missing PRIVY_APP_ID or PRIVY_APP_SECRET in environment");
+}
+
 // Cliente Privy compartilhado — instanciado uma única vez (singleton)
 const privy = new PrivyClient(PRIVY_APP_ID, PRIVY_APP_SECRET);
 
@@ -44,7 +49,11 @@ export async function verifyPrivyToken(
     const { userId } = await privy.verifyAuthToken(token);
     req.user = { id: userId };
     next();
-  } catch {
+  } catch (error: any) {
+    console.error("[verifyPrivyToken] Token verification failed:", {
+      error: error?.message,
+      stack: error?.stack,
+    });
     res.status(401).json({ error: "Token inválido ou expirado." });
   }
 }
