@@ -19,16 +19,40 @@ export async function deploySmartWallet(passkeyPublicKey: string): Promise<strin
       return newKeypair.publicKey();
     }
 
+    console.log("[deploySmartWallet] Starting wallet deployment with sponsor secret");
+
     // Load sponsor keypair from secret and fetch its account data
-    const sponsorKeypair = Keypair.fromSecret(process.env.STELLAR_SPONSOR_SECRET);
-    const sponsorAccount = await server.loadAccount(sponsorKeypair.publicKey());
+    let sponsorKeypair: any;
+    try {
+      sponsorKeypair = Keypair.fromSecret(process.env.STELLAR_SPONSOR_SECRET);
+      console.log("[deploySmartWallet] Sponsor keypair loaded:", sponsorKeypair.publicKey());
+    } catch (err: any) {
+      throw new Error(`Invalid STELLAR_SPONSOR_SECRET: ${err?.message}`);
+    }
 
-    // Generate a new keypair to represent the user's wallet (placeholder)
+    // Load sponsor account
+    let sponsorAccount: any;
+    try {
+      sponsorAccount = await server.loadAccount(sponsorKeypair.publicKey());
+      console.log("[deploySmartWallet] Sponsor account loaded, sequence:", sponsorAccount.sequenceNumber);
+    } catch (err: any) {
+      throw new Error(`Failed to load sponsor account: ${err?.message}`);
+    }
+
+    // Generate a new keypair to represent the user's wallet
     const newKeypair = Keypair.random();
+    console.log("[deploySmartWallet] New wallet keypair generated:", newKeypair.publicKey());
 
-    // Fetch current base fee and build the transaction
-    const fee = await server.fetchBaseFee();
+    // Fetch current base fee
+    let fee: number;
+    try {
+      fee = await server.fetchBaseFee();
+      console.log("[deploySmartWallet] Base fee fetched:", fee);
+    } catch (err: any) {
+      throw new Error(`Failed to fetch base fee: ${err?.message}`);
+    }
 
+    // Build transaction
     const tx = new TransactionBuilder(sponsorAccount, {
       fee: String(fee),
       networkPassphrase: Networks.TESTNET,
@@ -39,26 +63,32 @@ export async function deploySmartWallet(passkeyPublicKey: string): Promise<strin
           startingBalance: "1.5",
         })
       )
-      // 30 second timeout
       .setTimeout(30)
       .build();
 
-    // Sign with sponsor and submit
+    console.log("[deploySmartWallet] Transaction built");
+
+    // Sign with sponsor
     tx.sign(sponsorKeypair);
+    console.log("[deploySmartWallet] Transaction signed");
 
-    const result = await server.submitTransaction(tx);
-
-    console.log("Stellar transaction submitted:", result.hash);
+    // Submit transaction
+    let result: any;
+    try {
+      result = await server.submitTransaction(tx);
+      console.log("[deploySmartWallet] Transaction submitted successfully, hash:", result.hash);
+    } catch (err: any) {
+      throw new Error(`Failed to submit transaction: ${err?.message}`);
+    }
 
     // Return the new account public key so it can be stored by the caller
     return newKeypair.publicKey();
   } catch (err: any) {
-    // Log Stellar Horizon response body when available for debugging
-    console.error("Error in deploySmartWallet:", err);
-    if (err?.response?.data) {
-      console.error("Stellar Horizon response:", err.response.data);
-    }
-    // Re-throw so calling code can handle the error
+    console.error("[deploySmartWallet] Error:", {
+      message: err?.message,
+      stack: err?.stack,
+      stellarResponse: err?.response?.data,
+    });
     throw err;
   }
 }
