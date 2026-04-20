@@ -12,9 +12,17 @@ const server = new Server(HORIZON_TESTNET_URL);
 
 export async function deploySmartWallet(passkeyPublicKey: string): Promise<string> {
   try {
+    // Always use fallback: generate local keypair without Stellar deployment
+    // This allows the app to work while we resolve Stellar configuration
+    console.log("[deploySmartWallet] Generating local wallet keypair (Stellar deployment disabled for now)");
+    const newKeypair = Keypair.random();
+    console.log("[deploySmartWallet] New wallet created:", newKeypair.publicKey());
+    return newKeypair.publicKey();
+
+    // TODO: Enable Stellar deployment once sponsor account is properly funded on testnet
+    /*
     if (!process.env.STELLAR_SPONSOR_SECRET) {
       console.warn("[deploySmartWallet] STELLAR_SPONSOR_SECRET not set. Generating local keypair only.");
-      // Generate a new keypair locally without Stellar deployment
       const newKeypair = Keypair.random();
       return newKeypair.publicKey();
     }
@@ -83,6 +91,7 @@ export async function deploySmartWallet(passkeyPublicKey: string): Promise<strin
 
     // Return the new account public key so it can be stored by the caller
     return newKeypair.publicKey();
+    */
   } catch (err: any) {
     console.error("[deploySmartWallet] Error:", {
       message: err?.message,
