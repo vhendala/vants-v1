@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect } from 'react'
 import { PrivyProvider } from '@privy-io/react-auth'
 import { useTheme } from '@/components/vants/theme-provider'
 
@@ -7,6 +8,30 @@ const PRIVY_APP_ID = process.env.NEXT_PUBLIC_PRIVY_APP_ID as string
 
 export function PrivyProviderWrapper({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme()
+
+  // Suppress the Privy "Scam" security console warning
+  useEffect(() => {
+    const suppressMessage = (originalFn: any) => (...args: any[]) => {
+      if (
+        typeof args[0] === 'string' && 
+        args[0].includes('You are reading this message because you opened the browser console')
+      ) {
+        return
+      }
+      originalFn(...args)
+    }
+
+    const originalLog = console.log
+    const originalWarn = console.warn
+    
+    console.log = suppressMessage(originalLog)
+    console.warn = suppressMessage(originalWarn)
+
+    return () => {
+      console.log = originalLog
+      console.warn = originalWarn
+    }
+  }, [])
 
   return (
     <PrivyProvider
