@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Fingerprint, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { Fingerprint, CheckCircle, AlertCircle, Loader2, LogOut } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
 
 import { API_URL } from "../../lib/config";
@@ -15,7 +16,8 @@ interface PasskeySetupProps {
 export function PasskeySetup({ onComplete }: PasskeySetupProps) {
   const [step, setStep] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMessage, setErrorMessage] = useState("");
-  const { user, getAccessToken } = usePrivy();
+  const { user, getAccessToken, logout } = usePrivy();
+  const router = useRouter();
 
   function resolveUserEmail(user: any): string {
     if (!user) return "user@domain.xyz";
@@ -139,6 +141,19 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
     }
   }
 
+  async function handleLogout() {
+    try {
+      console.log("[PasskeySetup] Logging out...");
+      await logout();
+      console.log("[PasskeySetup] Logout successful, redirecting to home");
+      router.push("/");
+    } catch (err) {
+      console.error("[PasskeySetup] Logout error:", err);
+      // Fallback redirect even if logout fails
+      router.push("/");
+    }
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm p-4">
       <div className="w-full max-w-sm animate-fade-up">
@@ -211,6 +226,17 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
                 </div>
              )}
           </div>
+        </div>
+
+        {/* Botão "Sair" abaixo do card */}
+        <div className="mt-4 flex justify-center">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-slate-200/80 text-slate-700 hover:bg-slate-300 transition-colors duration-200 text-sm font-medium"
+          >
+            <LogOut className="h-4 w-4" />
+            Sair
+          </button>
         </div>
       </div>
     </div>
