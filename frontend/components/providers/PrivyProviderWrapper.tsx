@@ -13,7 +13,7 @@ export function PrivyProviderWrapper({ children }: { children: React.ReactNode }
   useEffect(() => {
     const suppressMessage = (originalFn: any) => (...args: any[]) => {
       if (
-        typeof args[0] === 'string' && 
+        typeof args[0] === 'string' &&
         args[0].includes('You are reading this message because you opened the browser console')
       ) {
         return
@@ -23,7 +23,7 @@ export function PrivyProviderWrapper({ children }: { children: React.ReactNode }
 
     const originalLog = console.log
     const originalWarn = console.warn
-    
+
     console.log = suppressMessage(originalLog)
     console.warn = suppressMessage(originalWarn)
 
@@ -45,8 +45,9 @@ export function PrivyProviderWrapper({ children }: { children: React.ReactNode }
           walletList: [],
           logo: '/icon.svg',
         },
+        // Desativa a criação de wallets embutidas para evitar erros de iframe do Privy
         embeddedWallets: {
-          createOnLogin: 'never',
+          createOnLogin: 'off',
         },
       }}
     >
@@ -54,3 +55,4 @@ export function PrivyProviderWrapper({ children }: { children: React.ReactNode }
     </PrivyProvider>
   )
 }
+

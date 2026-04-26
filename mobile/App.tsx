@@ -10,6 +10,8 @@ import {ThemeProvider, useTheme} from './src/theme/ThemeContext';
 import {WalletProvider, useWallet} from './src/contexts/WalletContext';
 import {WelcomeScreen} from './src/screens/WelcomeScreen';
 import {OnboardingScreen} from './src/screens/OnboardingScreen';
+import {LoginScreen} from './src/screens/LoginScreen';
+import {SplashOnboardingScreen} from './src/screens/SplashOnboardingScreen';
 import {WalletConnectScreen} from './src/screens/WalletConnectScreen';
 import {HomeScreen} from './src/screens/HomeScreen';
 import {CardScreen} from './src/screens/CardScreen';
@@ -62,6 +64,8 @@ const AppNavigator = () => {
         }}>
         {!isConnected ? (
           <>
+            <Stack.Screen name="SplashOnboarding" component={SplashOnboardingScreen} />
+            <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Welcome" component={WelcomeScreen} />
             <Stack.Screen name="Onboarding" component={OnboardingScreen} />
             <Stack.Screen name="WalletConnect" component={WalletConnectScreen} />
@@ -69,6 +73,8 @@ const AppNavigator = () => {
         ) : (
           <>
             <Stack.Screen name="Main" component={MainTabs} />
+            <Stack.Screen name="SplashOnboarding" component={SplashOnboardingScreen} />
+            <Stack.Screen name="Login" component={LoginScreen} />
             <Stack.Screen name="Welcome" component={WelcomeScreen} />
             <Stack.Screen name="Onboarding" component={OnboardingScreen} />
             <Stack.Screen name="WalletConnect" component={WalletConnectScreen} />
