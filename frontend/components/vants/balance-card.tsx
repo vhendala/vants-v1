@@ -24,7 +24,7 @@ export function BalanceCard() {
   return (
     <div
       className="relative overflow-hidden rounded-[24px] text-white"
-      style={{ backgroundColor: "#081329" }}
+      style={{ backgroundColor: "#0F1A2C" }}
     >
       {/* Efeito radial decorativo */}
       <div

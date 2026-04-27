@@ -121,7 +121,7 @@ function TxIcon({ type }: { type: TxType }) {
 }
 
 function TxRow({ tx }: { tx: Transaction }) {
-  let amountColor = "#081329"
+  let amountColor = "#0F1A2C"
   if (tx.type === "yield") amountColor = "#10B981"
   if (tx.type === "deposit") amountColor = "#6366F1"
 
@@ -189,7 +189,7 @@ export function RecentActivity({ showFilters = false }: { showFilters?: boolean 
     <main className="bg-slate-50 min-h-screen pb-28">
       {/* Título */}
       <div className="px-5 pt-6 pb-4">
-        <h1 className="text-[28px] font-bold text-[#081329]">Activity</h1>
+        <h1 className="text-[28px] font-bold text-[#0F1A2C]">Activity</h1>
       </div>
 
       {/* Filtros */}
@@ -202,9 +202,9 @@ export function RecentActivity({ showFilters = false }: { showFilters?: boolean 
               onClick={() => setActiveFilter(f)}
               className="flex-shrink-0 px-4 py-1.5 rounded-full text-[14px] font-medium border transition-colors"
               style={{
-                backgroundColor: isActive ? "#081329" : "#FFFFFF",
+                backgroundColor: isActive ? "#0F1A2C" : "#FFFFFF",
                 color: isActive ? "#FFFFFF" : "#64748B",
-                borderColor: isActive ? "#081329" : "#E2E8F0",
+                borderColor: isActive ? "#0F1A2C" : "#E2E8F0",
               }}
             >
               {f}

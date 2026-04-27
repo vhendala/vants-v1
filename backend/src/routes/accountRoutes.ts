@@ -162,14 +162,20 @@ router.post(
   "/setup",
   verifyPrivyToken,
   async (req: Request, res: Response): Promise<void> => {
-    const { publicKey } = req.body as {
+    const { publicKey, email } = req.body as {
       publicKey?: string;
+      email?: string;
     };
 
     const userId = req.user.id;
 
     if (!publicKey || typeof publicKey !== "string") {
       res.status(400).json({ error: "publicKey é obrigatório." });
+      return;
+    }
+
+    if (!email || typeof email !== "string" || !email.includes("@")) {
+      res.status(400).json({ error: "Email inválido ou ausente." });
       return;
     }
 
@@ -189,10 +195,15 @@ router.post(
 
       console.log(`[accountRoutes] Friendbot success, txHash: ${txHash}`);
 
-      // 2. Update User
-      await prisma.user.update({
+      // 2. Update User (upsert para caso seja um novo usuário)
+      await prisma.user.upsert({
         where: { id: userId },
-        data: {
+        update: {
+          smartWalletAddress: publicKey,
+        },
+        create: {
+          id: userId,
+          email,
           smartWalletAddress: publicKey,
         },
       });

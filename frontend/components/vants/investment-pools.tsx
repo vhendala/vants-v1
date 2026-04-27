@@ -31,7 +31,7 @@ const pools = [
     id: "balanced",
     name: "Balanced",
     iconLetter: "B",
-    iconBg: "#081329",
+    iconBg: "#0F1A2C",
     apy: "12.1% return",
     value: "$340.00",
     returns: "+$4.27",

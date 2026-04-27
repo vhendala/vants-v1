@@ -88,7 +88,7 @@ export function WalletView({ onPayBill }: WalletViewProps) {
       {/* Bottom Sheet */}
       <div className="bg-[#F8FAFC] rounded-t-3xl pt-5 px-5 pb-12 z-20">
         <div className="flex items-center justify-between mb-4 px-1">
-          <h2 className="text-[15px] font-bold text-[#081329]">Recent payees</h2>
+          <h2 className="text-[15px] font-bold text-[#0F1A2C]">Recent payees</h2>
           <button
             onClick={onPayBill}
             className="text-[14px] font-medium"
@@ -115,7 +115,7 @@ export function WalletView({ onPayBill }: WalletViewProps) {
               </div>
               
               <div className="flex-1">
-                <p className="font-bold text-[15px] text-[#081329] mb-0.5">{payee.name}</p>
+                <p className="font-bold text-[15px] text-[#0F1A2C] mb-0.5">{payee.name}</p>
                 <p className="text-[13px] font-mono text-slate-500">{payee.clabe}</p>
               </div>
 

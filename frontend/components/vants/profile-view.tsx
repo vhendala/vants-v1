@@ -23,7 +23,7 @@ export function ProfileView() {
     <main className="bg-[#F8FAFC] min-h-screen pb-28">
       {/* Cabeçalho */}
       <div className="px-5 pt-8 pb-4">
-        <h1 className="text-[32px] font-bold text-[#081329]">Profile</h1>
+        <h1 className="text-[32px] font-bold text-[#0F1A2C]">Profile</h1>
       </div>
 
       <div className="px-5 flex flex-col gap-4">
@@ -33,7 +33,7 @@ export function ProfileView() {
             <span className="text-white font-bold text-xl tracking-wider">WM</span>
           </div>
           <div>
-            <h2 className="text-[17px] font-bold text-[#081329]">Wlad Mendes</h2>
+            <h2 className="text-[17px] font-bold text-[#0F1A2C]">Wlad Mendes</h2>
             <p className="text-[14px] text-slate-500 mb-0.5">wlad@vants.xyz</p>
             <p className="text-[11px] font-semibold text-slate-400">Member since Mar 2026</p>
           </div>
@@ -43,7 +43,7 @@ export function ProfileView() {
         <div className="flex gap-3">
           <div className="flex-1 bg-white rounded-2xl border border-slate-200 p-4">
             <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-1">PAID</p>
-            <p className="text-[16px] font-bold text-[#081329]">$245.00</p>
+            <p className="text-[16px] font-bold text-[#0F1A2C]">$245.00</p>
           </div>
           <div className="flex-1 bg-white rounded-2xl border border-slate-200 p-4">
             <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-1">EARNED</p>
@@ -51,7 +51,7 @@ export function ProfileView() {
           </div>
           <div className="flex-1 bg-white rounded-2xl border border-slate-200 p-4">
             <p className="text-[10px] font-bold tracking-widest text-slate-500 uppercase mb-1">STREAK</p>
-            <p className="text-[16px] font-bold text-[#081329]">23 days</p>
+            <p className="text-[16px] font-bold text-[#0F1A2C]">23 days</p>
           </div>
         </div>
 
@@ -63,7 +63,7 @@ export function ProfileView() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100">
                   <link.icon className="h-4 w-4 text-slate-500" />
                 </div>
-                <span className="font-bold text-[14px] text-[#081329]">{link.label}</span>
+                <span className="font-bold text-[14px] text-[#0F1A2C]">{link.label}</span>
               </div>
               <div className="flex items-center gap-2">
                 {link.value && <span className="text-[13px] text-slate-500">{link.value}</span>}
@@ -81,7 +81,7 @@ export function ProfileView() {
                 <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100">
                   <link.icon className="h-4 w-4 text-slate-500" />
                 </div>
-                <span className="font-bold text-[14px] text-[#081329]">{link.label}</span>
+                <span className="font-bold text-[14px] text-[#0F1A2C]">{link.label}</span>
               </div>
               <ChevronRight className="h-4 w-4 text-slate-400" />
             </button>

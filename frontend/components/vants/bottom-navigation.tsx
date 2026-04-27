@@ -84,7 +84,7 @@ export function BottomNavigation({ activeView, onViewChange }: BottomNavigationP
             <button
               onClick={() => onViewChange("wallet" as View)}
               className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition-transform active:scale-95"
-              style={{ backgroundColor: "#081329" }}
+              style={{ backgroundColor: "#0F1A2C" }}
               aria-label="Scan QR"
             >
               <QrIcon />

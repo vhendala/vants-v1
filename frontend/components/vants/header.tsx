@@ -22,7 +22,7 @@ export function Header() {
       {/* Logo — Deep Navy, bold, letter-spaced */}
       <span
         className="text-base font-extrabold tracking-[0.18em] select-none"
-        style={{ color: "#081329" }}
+        style={{ color: "#0F1A2C" }}
       >
         VANTS
       </span>
@@ -41,7 +41,7 @@ export function Header() {
         <button
           onClick={handleLogout}
           className="flex h-9 w-9 items-center justify-center rounded-full text-white text-xs font-bold transition-opacity hover:opacity-80"
-          style={{ backgroundColor: "#081329" }}
+          style={{ backgroundColor: "#0F1A2C" }}
           aria-label="Perfil / Sair"
           title="Clique para sair"
         >

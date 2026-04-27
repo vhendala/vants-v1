@@ -61,7 +61,7 @@ export function LoginButton() {
           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-[#6851FF]">
             <User className="h-3.5 w-3.5 text-white" />
           </div>
-          <span className="max-w-[120px] truncate font-sans text-sm font-medium text-[#081229]">
+          <span className="max-w-[120px] truncate font-sans text-sm font-medium text-[#0F1A2C]">
             {displayName}
           </span>
         </div>
@@ -71,7 +71,7 @@ export function LoginButton() {
           id="vants-signout-btn"
           onClick={handleLogout}
           title="Sair da conta"
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-sans text-sm font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-100 hover:text-[#081229]"
+          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 font-sans text-sm font-medium text-slate-600 transition-colors duration-150 hover:bg-slate-100 hover:text-[#0F1A2C]"
         >
           <LogOut className="h-4 w-4" />
           <span>Sair</span>

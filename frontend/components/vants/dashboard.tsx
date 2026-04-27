@@ -151,7 +151,7 @@ function DashboardSkeleton() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <div className="h-10 w-10 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#081329 transparent #081329 #081329" }} />
+        <div className="h-10 w-10 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#0F1A2C transparent #0F1A2C #0F1A2C" }} />
         <p className="text-sm text-muted-foreground font-medium">Carregando…</p>
       </div>
     </div>

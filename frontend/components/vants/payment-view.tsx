@@ -39,7 +39,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
 
   if (isPaid) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] text-[#081329] flex flex-col font-sans">
+      <div className="min-h-screen bg-[#F8FAFC] text-[#0F1A2C] flex flex-col font-sans">
         <div className="mx-auto max-w-md w-full flex-1 flex flex-col pt-12 pb-8">
           {/* Sucesso centralizado */}
           <main className="flex-1 flex flex-col items-center pt-8 px-6">
@@ -49,12 +49,12 @@ export function PaymentView({ onBack }: PaymentViewProps) {
               </div>
             </div>
 
-            <h1 className="text-[28px] font-bold text-[#081329] mb-4">Payment Complete</h1>
+            <h1 className="text-[28px] font-bold text-[#0F1A2C] mb-4">Payment Complete</h1>
             
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-[40px] font-bold text-[#081329] leading-none">$100.00</span>
+              <span className="text-[40px] font-bold text-[#0F1A2C] leading-none">$100.00</span>
               <span className="text-[24px] text-slate-400">→</span>
-              <span className="text-[40px] font-bold text-[#081329] leading-none">1,850.00</span>
+              <span className="text-[40px] font-bold text-[#0F1A2C] leading-none">1,850.00</span>
             </div>
             <p className="text-[18px] font-bold text-slate-500 mb-8">MXN</p>
 
@@ -72,7 +72,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
               <div className="flex h-8 w-8 items-center justify-center rounded-lg shrink-0 mt-0.5" style={{ backgroundColor: "#DDE0FE" }}>
                 <Asterisk className="h-4 w-4" style={{ color: "#6366F1" }} />
               </div>
-              <p className="text-[13px] text-[#081329] leading-relaxed">
+              <p className="text-[13px] text-[#0F1A2C] leading-relaxed">
                 Your remaining <span className="font-bold">$1,100</span> keeps growing at <span className="font-bold" style={{ color: "#10B981" }}>8.2% a year</span> — without you lifting a finger.
               </p>
             </div>
@@ -81,7 +81,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
           {/* Botões Bottom */}
           <div className="px-5 mt-auto pt-8 flex gap-3">
             <button
-              className="flex-1 h-14 rounded-full border border-slate-200 bg-white flex items-center justify-center gap-2 text-[15px] font-bold text-[#081329] hover:bg-slate-50 transition-colors"
+              className="flex-1 h-14 rounded-full border border-slate-200 bg-white flex items-center justify-center gap-2 text-[15px] font-bold text-[#0F1A2C] hover:bg-slate-50 transition-colors"
             >
               <Share2 className="h-4 w-4" />
               Share Receipt
@@ -89,7 +89,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
             <button
               onClick={onBack}
               className="flex-1 h-14 rounded-full text-white font-bold text-[15px] hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#081329" }}
+              style={{ backgroundColor: "#0F1A2C" }}
             >
               Done
             </button>
@@ -100,17 +100,17 @@ export function PaymentView({ onBack }: PaymentViewProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#081329] flex flex-col font-sans pb-10">
+    <div className="min-h-screen bg-[#F8FAFC] text-[#0F1A2C] flex flex-col font-sans pb-10">
       <div className="mx-auto max-w-md w-full">
         {/* Header */}
         <header className="flex items-center justify-between px-4 py-4 mb-4">
           <button
             onClick={onBack}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-[#081329] hover:bg-slate-50 transition-colors"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-[#0F1A2C] hover:bg-slate-50 transition-colors"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <span className="text-[15px] font-bold text-[#081329]">Review Payment</span>
+          <span className="text-[15px] font-bold text-[#0F1A2C]">Review Payment</span>
           <div className="w-10" />
         </header>
 
@@ -119,7 +119,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
           <p className="text-[11px] font-medium text-slate-500 uppercase tracking-widest mb-3">YOU'RE PAYING</p>
           <div className="flex items-baseline justify-center gap-1 mb-2">
             <span className="text-[28px] font-bold text-slate-400">$</span>
-            <span className="text-[56px] font-extrabold text-[#081329] leading-none tracking-tight">100.00</span>
+            <span className="text-[56px] font-extrabold text-[#0F1A2C] leading-none tracking-tight">100.00</span>
             <span className="text-[16px] font-bold text-slate-500 ml-1">USD</span>
           </div>
           <p className="text-[13px] text-slate-500">≈ 1,850.00 MXN · 1 USD = 18.50 MXN</p>
@@ -134,7 +134,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
             </div>
             <div>
               <div className="flex items-center gap-1.5 mb-1">
-                <p className="font-bold text-[15px] text-[#081329]">CFE Suministrador</p>
+                <p className="font-bold text-[15px] text-[#0F1A2C]">CFE Suministrador</p>
                 <div className="flex h-4 w-4 items-center justify-center rounded-full" style={{ backgroundColor: "#10B981" }}>
                   <Check className="h-3 w-3 text-white" strokeWidth={3} />
                 </div>
@@ -145,7 +145,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
 
           {/* Fonte do Pagamento */}
           <section>
-            <h2 className="text-[17px] font-bold text-[#081329] mb-4">Pay from</h2>
+            <h2 className="text-[17px] font-bold text-[#0F1A2C] mb-4">Pay from</h2>
             <div className="flex flex-col gap-3">
               {paymentSources.map((source) => {
                 const isSelected = selectedSource === source.id
@@ -177,8 +177,8 @@ export function PaymentView({ onBack }: PaymentViewProps) {
 
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
-                          <p className="font-bold text-[15px] text-[#081329]">{source.name}</p>
-                          <p className="font-bold text-[13px] text-[#081329]">{source.fee}</p>
+                          <p className="font-bold text-[15px] text-[#0F1A2C]">{source.name}</p>
+                          <p className="font-bold text-[13px] text-[#0F1A2C]">{source.fee}</p>
                         </div>
                         <p className="text-[13px] text-slate-500 whitespace-pre-line">{source.description}</p>
                       </div>
@@ -191,9 +191,9 @@ export function PaymentView({ onBack }: PaymentViewProps) {
 
           {/* Resumo - Fee Breakdown */}
           <button className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 hover:bg-slate-50 transition-colors">
-            <span className="text-[14px] text-[#081329]">Fee breakdown</span>
+            <span className="text-[14px] text-[#0F1A2C]">Fee breakdown</span>
             <div className="flex items-center gap-1">
-              <span className="font-bold text-[14px] text-[#081329]">Total $100.70</span>
+              <span className="font-bold text-[14px] text-[#0F1A2C]">Total $100.70</span>
               <ChevronRight className="h-4 w-4 text-slate-400" />
             </div>
           </button>
@@ -204,7 +204,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
           <button
             onClick={() => setIsPaid(true)}
             className="flex w-full h-[60px] items-center justify-center gap-2 rounded-full text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
-            style={{ backgroundColor: "#081329" }}
+            style={{ backgroundColor: "#0F1A2C" }}
           >
             <Lock className="h-4 w-4" />
             <span className="font-bold text-[16px]">Confirm Payment · $100.70</span>

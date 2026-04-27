@@ -92,7 +92,7 @@ const POSITIONS: Position[] = [
   {
     id: "balanced",
     iconLetter: "B",
-    iconBg: "#081329",
+    iconBg: "#0F1A2C",
     name: "Balanced",
     risk: "Medium Risk · Growth",
     returnPct: "12.1% return",
@@ -219,7 +219,7 @@ function EarnCard({ card }: { card: EarnCard }) {
 
       <button
         className="w-full py-3 rounded-xl text-[14px] font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
-        style={{ backgroundColor: "#081329" }}
+        style={{ backgroundColor: "#0F1A2C" }}
       >
         Invest
       </button>

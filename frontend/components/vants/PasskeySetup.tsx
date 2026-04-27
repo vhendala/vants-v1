@@ -122,6 +122,7 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
         },
         credentials: "include",
         body: JSON.stringify({
+          email: email,
           publicKey: publicKey,
         }),
       });
@@ -162,7 +163,6 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
   }
 
   return (
-  return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-50 p-4">
       <div className="w-full max-w-sm animate-fade-up flex flex-col gap-4">
         {/* Card principal */}
@@ -170,15 +170,15 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
           <div className="text-center">
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
               {step === "loading" ? (
-                <Loader2 className="h-8 w-8 text-[#081329] animate-spin" />
+                <Loader2 className="h-8 w-8 text-[#0F1A2C] animate-spin" />
               ) : step === "success" ? (
                 <CheckCircle className="h-8 w-8 text-[#10B981]" />
               ) : (
-                <Fingerprint className="h-8 w-8 text-[#081329]" />
+                <Fingerprint className="h-8 w-8 text-[#0F1A2C]" />
               )}
             </div>
             
-            <h1 className="text-xl font-bold text-[#081329]">
+            <h1 className="text-xl font-bold text-[#0F1A2C]">
               {step === "success" ? "Conta segura!" : "Ativar Biometria"}
             </h1>
             <p className="mt-2 text-sm text-slate-500">
@@ -193,7 +193,7 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
                 <button
                   onClick={handleCreatePasskey}
                   className="w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
-                  style={{ backgroundColor: "#081329" }}
+                  style={{ backgroundColor: "#0F1A2C" }}
                 >
                   Registrar Dispositivo
                 </button>
@@ -204,7 +204,7 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
                  <p className="text-sm text-slate-500 text-center font-medium">Preparando sua carteira...</p>
                  <div className="flex gap-1">
                    {[0, 1, 2].map((i) => (
-                     <div key={i} className="h-2 w-2 rounded-full animate-bounce" style={{ backgroundColor: "#081329", animationDelay: `${i * 0.15}s` }} />
+                     <div key={i} className="h-2 w-2 rounded-full animate-bounce" style={{ backgroundColor: "#0F1A2C", animationDelay: `${i * 0.15}s` }} />
                    ))}
                  </div>
                </div>
@@ -222,10 +222,10 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
                     <AlertCircle className="h-7 w-7 text-red-500" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-bold text-[#081329]">Algo deu errado</p>
+                    <p className="text-sm font-bold text-[#0F1A2C]">Algo deu errado</p>
                     <p className="mt-1 text-xs text-slate-500">{errorMessage}</p>
                   </div>
-                  <button onClick={() => setStep("idle")} className="w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98]" style={{ backgroundColor: "#081329" }}>
+                  <button onClick={() => setStep("idle")} className="w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98]" style={{ backgroundColor: "#0F1A2C" }}>
                     Tentar novamente
                   </button>
                 </div>
