@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Fingerprint, CheckCircle, AlertCircle, Loader2, LogOut } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
+import { Keypair } from "@stellar/stellar-sdk";
 
 import { API_URL } from "../../lib/config";
 
@@ -97,15 +98,23 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
       const token = await getAccessToken();
       console.log("[PasskeySetup] Got Privy token, length:", token?.length);
 
-      // 4. Salva a nova Identidade no Backend do Vants
-      console.log("[PasskeySetup] Sending to backend:", {
+      // 4. Gerar Carteira Não-Custodial (Stellar)
+      const keypair = Keypair.random();
+      const publicKey = keypair.publicKey();
+      const secret = keypair.secret();
+
+      // Armazenamento Local (Criptografado ou Seguro conforme requisito)
+      localStorage.setItem("vants_wallet_public_key", publicKey);
+      localStorage.setItem("vants_wallet_secret", secret); // Em prod, usar criptografia baseada no PIN/Passkey
+
+      // 5. Salva a nova Identidade e ativa a carteira no Backend
+      console.log("[PasskeySetup] Setup logic:", {
         email,
-        passkeyCredentialId: passkeyCredentialId.substring(0, 20) + "...",
-        passkeyPublicKeyLength: passkeyPublicKeyBase64.length,
+        publicKey,
         apiUrl: API_URL,
       });
 
-      const res = await fetch(`${API_URL}/api/account/secure`, {
+      const res = await fetch(`${API_URL}/api/account/setup`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -113,13 +122,11 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
         },
         credentials: "include",
         body: JSON.stringify({
-          email: email,
-          passkeyCredentialId: passkeyCredentialId,
-          passkeyPublicKey: passkeyPublicKeyBase64,
+          publicKey: publicKey,
         }),
       });
 
-      console.log("[PasskeySetup] Response status:", res.status);
+      console.log("[PasskeySetup] Setup response status:", res.status);
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({ error: "Unknown error" }));
@@ -128,11 +135,11 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
       }
 
       const successData = await res.json();
-      console.log("[PasskeySetup] Success response:", successData);
+      console.log("[PasskeySetup] Setup Success response:", successData);
 
       setStep("success");
-      // Retorna string mock p/ simular sucesso on-UI até termos o contrato
-      setTimeout(() => onComplete(successData.smartWalletAddress || "G_VANTS_PENDING_WALLET_..."), 1500);
+      // Retorna a chave pública para o dashboard
+      setTimeout(() => onComplete(publicKey), 1500);
     } catch (err: unknown) {
       console.error(err);
       const message = err instanceof Error ? err.message : "Erro inesperado.";
@@ -194,7 +201,7 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
 
              {step === "loading" && (
                <div className="flex flex-col items-center gap-4 py-2">
-                 <p className="text-sm text-slate-500 text-center">Aguardando confirmação do seu celular...</p>
+                 <p className="text-sm text-slate-500 text-center font-medium">Preparando sua carteira...</p>
                  <div className="flex gap-1">
                    {[0, 1, 2].map((i) => (
                      <div key={i} className="h-2 w-2 rounded-full animate-bounce" style={{ backgroundColor: "#081329", animationDelay: `${i * 0.15}s` }} />

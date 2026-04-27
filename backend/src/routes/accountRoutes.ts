@@ -156,4 +156,70 @@ router.get(
   }
 );
 
+// ─── POST /api/account/setup ──────────────────────────────────────────────────
+
+router.post(
+  "/setup",
+  verifyPrivyToken,
+  async (req: Request, res: Response): Promise<void> => {
+    const { publicKey } = req.body as {
+      publicKey?: string;
+    };
+
+    const userId = req.user.id;
+
+    if (!publicKey || typeof publicKey !== "string") {
+      res.status(400).json({ error: "publicKey é obrigatório." });
+      return;
+    }
+
+    try {
+      console.log(`[accountRoutes] Funding account via Friendbot: ${publicKey}`);
+
+      // 1. Friendbot Activation
+      const friendbotUrl = `https://friendbot.stellar.org/?addr=${publicKey}`;
+      const fbResponse = await fetch(friendbotUrl);
+      
+      if (!fbResponse.ok) {
+        throw new Error("Falha ao financiar conta via Friendbot.");
+      }
+      
+      const fbData = (await fbResponse.json()) as { hash: string };
+      const txHash = fbData.hash;
+
+      console.log(`[accountRoutes] Friendbot success, txHash: ${txHash}`);
+
+      // 2. Update User
+      await prisma.user.update({
+        where: { id: userId },
+        data: {
+          smartWalletAddress: publicKey,
+        },
+      });
+
+      // 3. Create initial funding transaction
+      await prisma.transaction.create({
+        data: {
+          userId,
+          type: "DEPOSIT",
+          amount: "10000.00",
+          asset: "XLM",
+          status: "COMPLETED",
+          txHash,
+          description: "Initial Funding - Vants Testnet",
+        },
+      });
+
+      res.status(200).json({
+        success: true,
+        message: "Carteira configurada e financiada com sucesso.",
+        txHash,
+      });
+    } catch (error: any) {
+      console.error("[accountRoutes] Erro no setup da conta:", error);
+      res.status(500).json({ error: "Falha ao configurar e financiar a carteira." });
+    }
+  }
+);
+
 export default router;

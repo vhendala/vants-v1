@@ -20,9 +20,11 @@ model User {
 model Transaction {
   id          String   @id @default(uuid())
   userId      String
-  amount      Decimal
-  currency    String
+  type        String   @default("DEPOSIT")
+  amount      String
+  asset       String   @default("XLM")
   status      String   @default("COMPLETED")
+  txHash      String   @unique
   description String
   createdAt   DateTime @default(now())
 
