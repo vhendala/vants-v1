@@ -1,190 +1,185 @@
 "use client"
 
-import { useState } from "react"
-import { ArrowUp, ArrowDown } from "lucide-react"
+import { useState, useEffect, useCallback } from "react"
+import { ArrowUp, ArrowDown, Receipt, Inbox } from "lucide-react"
+import { usePrivy } from "@privy-io/react-auth"
+import { API_URL } from "../../lib/config"
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
-type TxType = "payment" | "yield" | "deposit"
-
 interface Transaction {
-  id: number
-  title: string
-  subtitle: string
+  id: string
+  type: "DEPOSIT" | "PAYMENT" | "YIELD" | "WITHDRAWAL"
   amount: string
-  type: TxType
-  settled?: boolean
+  asset: string
+  status: string
+  description: string
+  createdAt: string
+  txHash: string
 }
 
-interface DateGroup {
-  label: string
-  transactions: Transaction[]
-}
+// ─── Componentes Visuais ──────────────────────────────────────────────────────
 
-// ─── Dados ────────────────────────────────────────────────────────────────────
-
-const TRANSACTION_GROUPS: DateGroup[] = [
-  {
-    label: "TODAY",
-    transactions: [
-      {
-        id: 1,
-        title: "Paid CFE Electric",
-        subtitle: "4:32 PM",
-        amount: "−$100.00",
-        type: "payment",
-        settled: true,
-      },
-    ],
-  },
-  {
-    label: "YESTERDAY",
-    transactions: [
-      {
-        id: 2,
-        title: "Returns earned",
-        subtitle: "Core Yield · 11:00 PM",
-        amount: "+$0.27",
-        type: "yield",
-      },
-      {
-        id: 3,
-        title: "Returns earned",
-        subtitle: "Balanced · 11:00 PM",
-        amount: "+$0.14",
-        type: "yield",
-      },
-    ],
-  },
-  {
-    label: "MARCH 12",
-    transactions: [
-      {
-        id: 4,
-        title: "Deposited",
-        subtitle: "Core Yield · 2:15 PM",
-        amount: "+$500.00",
-        type: "deposit",
-      },
-      {
-        id: 5,
-        title: "Paid Telmex",
-        subtitle: "10:22 AM",
-        amount: "−$45.00",
-        type: "payment",
-        settled: true,
-      },
-    ],
-  },
-]
-
-// ─── Sub-componentes ──────────────────────────────────────────────────────────
-
-function ReturnIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4" style={{ color: "#10B981" }}>
-      <line x1="12" y1="4" x2="12" y2="20" />
-      <line x1="4" y1="12" x2="20" y2="12" />
-      <line x1="6.34" y1="6.34" x2="17.66" y2="17.66" />
-      <line x1="6.34" y1="17.66" x2="17.66" y2="6.34" />
-    </svg>
-  )
-}
-
-function TxIcon({ type }: { type: TxType }) {
-  if (type === "yield") {
+function TxIcon({ type }: { type: Transaction["type"] }) {
+  if (type === "DEPOSIT" || type === "YIELD") {
     return (
-      <div
-        className="flex h-10 w-10 items-center justify-center rounded-full shrink-0"
-        style={{ backgroundColor: "#ECFDF5" }}
-      >
-        <ReturnIcon />
+      <div className="flex h-10 w-10 items-center justify-center rounded-full shrink-0 bg-[#ECFDF5]">
+        <ArrowDown className="h-4 w-4 text-[#10B981]" />
       </div>
     )
   }
-  if (type === "deposit") {
-    return (
-      <div
-        className="flex h-10 w-10 items-center justify-center rounded-full shrink-0"
-        style={{ backgroundColor: "#F5F3FF" }}
-      >
-        <ArrowDown className="h-4 w-4" style={{ color: "#6366F1" }} />
-      </div>
-    )
-  }
-  // payment
+  
   return (
-    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-100 shrink-0">
+    <div className="flex h-10 w-10 items-center justify-center rounded-full shrink-0 bg-slate-100">
       <ArrowUp className="h-4 w-4 text-slate-700" />
     </div>
   )
 }
 
 function TxRow({ tx }: { tx: Transaction }) {
-  let amountColor = "#0F1A2C"
-  if (tx.type === "yield") amountColor = "#10B981"
-  if (tx.type === "deposit") amountColor = "#6366F1"
+  const isPositive = tx.type === "DEPOSIT" || tx.type === "YIELD"
+  const amountColor = isPositive ? "#10B981" : "#0F1A2C"
+  const sign = isPositive ? "+" : "−"
+
+  // Formatação do valor numérico
+  const formattedAmount = parseFloat(tx.amount).toLocaleString("en-US", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+
+  // Formatação de data "Apr 26 · Completed"
+  const dateObj = new Date(tx.createdAt)
+  const dateStr = dateObj.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+  const statusStr = tx.status.charAt(0).toUpperCase() + tx.status.slice(1).toLowerCase()
+  const subtitle = `${dateStr} · ${statusStr}`
 
   return (
     <div className="flex items-center gap-3 px-4 py-3.5">
       <TxIcon type={tx.type} />
 
       <div className="flex-1 min-w-0">
-        <p className="text-[15px] font-semibold text-slate-900 leading-tight">{tx.title}</p>
-        <p className="text-[13px] text-slate-500 mt-0.5">{tx.subtitle}</p>
+        <p className="text-[15px] font-semibold text-[#0F1A2C] leading-tight truncate">
+          {tx.description || tx.type}
+        </p>
+        <p className="text-[13px] text-slate-500 mt-0.5">{subtitle}</p>
       </div>
 
       <div className="flex flex-col items-end gap-1 shrink-0">
         <span
-          className="text-[15px] font-semibold"
+          className="text-[15px] font-bold"
           style={{ color: amountColor }}
         >
-          {tx.amount}
+          {sign}{formattedAmount} {tx.asset}
         </span>
-        {tx.settled && (
-          <span
-            className="text-[11px] font-medium px-2 py-0.5 rounded-full"
-            style={{ backgroundColor: "#ECFDF5", color: "#10B981" }}
-          >
-            Settled
-          </span>
-        )}
       </div>
     </div>
   )
 }
 
-// ─── Filtros ──────────────────────────────────────────────────────────────────
+function SkeletonRow() {
+  return (
+    <div className="flex items-center gap-3 px-4 py-3.5 animate-pulse">
+      <div className="h-10 w-10 rounded-full bg-slate-200 shrink-0" />
+      <div className="flex-1 space-y-2">
+        <div className="h-4 bg-slate-200 rounded w-1/2" />
+        <div className="h-3 bg-slate-200 rounded w-1/3" />
+      </div>
+      <div className="h-5 bg-slate-200 rounded w-20" />
+    </div>
+  )
+}
+
+function EmptyState() {
+  return (
+    <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
+      <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center mb-3">
+        <Inbox className="h-6 w-6 text-slate-400" />
+      </div>
+      <p className="text-[15px] font-semibold text-slate-700">Nenhuma transação ainda</p>
+      <p className="text-[13px] text-slate-500 mt-1">
+        Suas movimentações aparecerão aqui.
+      </p>
+    </div>
+  )
+}
+
+// ─── Componente Principal ─────────────────────────────────────────────────────
 
 const FILTERS = ["All", "Payments", "Deposits", "Withdrawals", "Returns"]
 
-// ─── Componente principal ─────────────────────────────────────────────────────
-
 export function RecentActivity({ showFilters = false }: { showFilters?: boolean }) {
   const [activeFilter, setActiveFilter] = useState("All")
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const { getAccessToken, authenticated } = usePrivy()
 
-  // Quando usado como widget no Home, renderiza apenas 3 transações sem filtros
+  const fetchTransactions = useCallback(async () => {
+    if (!authenticated) return
+
+    setIsLoading(true)
+    try {
+      const token = await getAccessToken()
+      const limitQuery = showFilters ? "" : "?limit=5"
+      const res = await fetch(`${API_URL}/api/transactions/history${limitQuery}`, {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      })
+
+      if (res.ok) {
+        const data = await res.json()
+        setTransactions(data.transactions || [])
+      }
+    } catch (error) {
+      console.error("Erro ao buscar transações:", error)
+    } finally {
+      setIsLoading(false)
+    }
+  }, [getAccessToken, authenticated, showFilters])
+
+  useEffect(() => {
+    fetchTransactions()
+  }, [fetchTransactions])
+
+  // Filtragem no client-side para a tela de Activity (opcional, pode ser movido para o backend)
+  const filteredTransactions = transactions.filter((tx) => {
+    if (activeFilter === "All") return true
+    if (activeFilter === "Payments" && tx.type === "PAYMENT") return true
+    if (activeFilter === "Deposits" && tx.type === "DEPOSIT") return true
+    if (activeFilter === "Withdrawals" && tx.type === "WITHDRAWAL") return true
+    if (activeFilter === "Returns" && tx.type === "YIELD") return true
+    return false
+  })
+
   if (!showFilters) {
-    const flatTx = TRANSACTION_GROUPS.flatMap((g) => g.transactions).slice(0, 3)
+    // VISÃO DE WIDGET (HOME)
     return (
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[17px] font-bold text-slate-900">Recent activity</h2>
+          <h2 className="text-[17px] font-bold text-[#0F1A2C]">Recent activity</h2>
           <button className="text-[13px] font-medium" style={{ color: "#6366F1" }}>
             All
           </button>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden divide-y divide-slate-100">
-          {flatTx.map((tx) => (
-            <TxRow key={tx.id} tx={tx} />
-          ))}
+        <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden divide-y divide-slate-100 shadow-sm">
+          {isLoading ? (
+            <>
+              <SkeletonRow />
+              <SkeletonRow />
+              <SkeletonRow />
+            </>
+          ) : transactions.length > 0 ? (
+            transactions.slice(0, 5).map((tx) => <TxRow key={tx.id} tx={tx} />)
+          ) : (
+            <EmptyState />
+          )}
         </div>
       </section>
     )
   }
 
-  // Tela completa de Activity
+  // VISÃO COMPLETA (TELA DE ACTIVITY)
   return (
     <main className="bg-slate-50 min-h-screen pb-28">
       {/* Título */}
@@ -213,20 +208,25 @@ export function RecentActivity({ showFilters = false }: { showFilters?: boolean 
         })}
       </div>
 
-      {/* Grupos de transações */}
+      {/* Lista de Transações */}
       <div className="flex flex-col gap-6 px-5">
-        {TRANSACTION_GROUPS.map((group) => (
-          <section key={group.label}>
-            <p className="text-[11px] font-bold tracking-widest text-slate-500 uppercase mb-3">
-              {group.label}
-            </p>
-            <div className="bg-white rounded-[20px] border border-slate-200 overflow-hidden divide-y divide-slate-100">
-              {group.transactions.map((tx) => (
-                <TxRow key={tx.id} tx={tx} />
-              ))}
-            </div>
-          </section>
-        ))}
+        <section>
+          <div className="bg-white rounded-[20px] border border-slate-200 overflow-hidden divide-y divide-slate-100 shadow-sm">
+            {isLoading ? (
+              <>
+                <SkeletonRow />
+                <SkeletonRow />
+                <SkeletonRow />
+                <SkeletonRow />
+                <SkeletonRow />
+              </>
+            ) : filteredTransactions.length > 0 ? (
+              filteredTransactions.map((tx) => <TxRow key={tx.id} tx={tx} />)
+            ) : (
+              <EmptyState />
+            )}
+          </div>
+        </section>
       </div>
     </main>
   )

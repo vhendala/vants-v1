@@ -12,11 +12,14 @@ router.get(
   async (req: Request, res: Response): Promise<void> => {
     const userId = req.user.id;
 
+    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : undefined;
+
     try {
       // Busca transações ordenadas pela mais recente
       const transactions = await prisma.transaction.findMany({
         where: { userId },
         orderBy: { createdAt: "desc" },
+        ...(limit ? { take: limit } : {}),
       });
 
       res.status(200).json({ transactions });
