@@ -118,7 +118,7 @@ export function VantsDashboard() {
 
           {activeView === "home" && (
             <main className="px-4 py-4 flex flex-col gap-5 bg-white md:bg-slate-50">
-              <BalanceCard />
+              <BalanceCard publicKey={accountStatus.publicKey as string} />
               <InvestmentPools />
               <QuickActions onPayBill={() => setShowPayment(true)} />
               <RecentActivity />
