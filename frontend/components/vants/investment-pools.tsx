@@ -1,69 +1,87 @@
 "use client"
 
-import { Landmark, Coins } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+// Mini line chart idêntico ao das imagens
+function MiniChart() {
+  return (
+    <svg viewBox="0 0 80 24" className="w-full h-6 mt-2" preserveAspectRatio="none">
+      <polyline
+        points="0,22 10,20 20,18 30,17 40,15 50,12 60,9 70,7 80,3"
+        fill="none"
+        stroke="#10B981"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="80" cy="3" r="2.5" fill="#10B981" />
+    </svg>
+  )
+}
 
 const pools = [
   {
-    id: "usdc",
-    name: "USDC POOL",
-    icon: Landmark,
-    apy: "8.2%",
+    id: "core-yield",
+    name: "Core Yield",
+    iconLetter: "C",
+    iconBg: "#1A56DB",
+    apy: "8.2% return",
     value: "$1,200.23",
-    iconBg: "bg-[#00D2FF]/15",
-    iconColor: "text-[#00D2FF]",
-    glowColor: "rgba(0, 210, 255, 0.15)",
-    borderHover: "hover:border-[#00D2FF]/30",
+    returns: "+$8.20",
   },
   {
-    id: "xlm",
-    name: "XLM POOL",
-    icon: Coins,
-    apy: "12.1%",
+    id: "balanced",
+    name: "Balanced",
+    iconLetter: "B",
+    iconBg: "#081329",
+    apy: "12.1% return",
     value: "$340.00",
-    iconBg: "bg-[#ECC94B]/15",
-    iconColor: "text-[#ECC94B]",
-    glowColor: "rgba(236, 201, 75, 0.15)",
-    borderHover: "hover:border-[#ECC94B]/30",
+    returns: "+$4.27",
   },
 ]
 
 export function InvestmentPools() {
   return (
     <section>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-foreground capitalize">Pools Ativos</h2>
-        <button className="text-xs font-bold text-primary hover:text-primary/80 transition-colors uppercase tracking-widest active:scale-95">
-          Gerenciar
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-[17px] font-bold text-slate-900">My investments</h2>
+        <button className="text-[13px] font-medium" style={{ color: "#6366F1" }}>
+          See all
         </button>
       </div>
 
-      <div className="flex gap-4 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-hide">
+      <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
         {pools.map((pool) => (
           <div
             key={pool.id}
-            className={`group flex-shrink-0 w-48 md:w-56 rounded-2xl bg-card border border-border p-4 md:p-5 cursor-pointer backdrop-blur-md transition-all duration-300 hover:scale-[1.03] hover:-translate-y-1 hover:shadow-lg ${pool.borderHover}`}
+            className="flex-shrink-0 w-44 bg-white rounded-2xl border border-slate-200 p-4"
           >
-            <div className="flex items-start justify-between mb-4">
+            {/* Header: ícone + nome */}
+            <div className="flex items-center gap-2 mb-3">
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-xl ${pool.iconBg}`}
-                style={{ boxShadow: `0 0 12px ${pool.glowColor}` }}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-white text-[11px] font-bold shrink-0"
+                style={{ backgroundColor: pool.iconBg }}
               >
-                <pool.icon className={`h-5 w-5 ${pool.iconColor}`} />
+                {pool.iconLetter}
               </div>
-              {/* Badge APY com cor de sucesso aprimorado */}
-              <Badge className="bg-[#4CAF50]/20 md:bg-[#4CAF50]/15 text-[#4CAF50] border border-[#4CAF50]/30 text-[11px] md:text-xs font-bold font-sans px-2 py-0.5 transition-colors group-hover:bg-[#4CAF50]/25">
-                {pool.apy} APY
-              </Badge>
+              <p className="text-[13px] font-semibold text-slate-700">{pool.name}</p>
             </div>
 
-            <p className="text-[10px] md:text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1 mt-1 transition-colors group-hover:text-foreground/70">
-              {pool.name}
-            </p>
-            {/* Sans obrigatório para dados financeiros para match da landing page */}
-            <p className="text-xl md:text-2xl font-bold tracking-tight text-foreground font-sans truncate">
-              {pool.value}
-            </p>
+            {/* Valor */}
+            <p className="text-[20px] font-bold text-slate-900 mb-2">{pool.value}</p>
+
+            {/* APY badge + returns */}
+            <div className="flex items-center justify-between">
+              <span
+                className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                style={{ backgroundColor: "#ECFDF5", color: "#10B981" }}
+              >
+                {pool.apy}
+              </span>
+              <span className="text-[12px] font-semibold" style={{ color: "#10B981" }}>
+                {pool.returns}
+              </span>
+            </div>
+
+            <MiniChart />
           </div>
         ))}
       </div>

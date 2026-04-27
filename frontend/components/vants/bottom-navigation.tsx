@@ -1,63 +1,105 @@
 "use client"
 
-import { LayoutGrid, Wallet, TrendingUp, Settings } from "lucide-react"
+import { Home, TrendingUp, Activity, User } from "lucide-react"
 
-type View = "home" | "wallet" | "yield" | "profile" | "invest"
+// WHY: A navegação inferior tem 5 itens conforme o design de referência:
+// Home | Invest | [QR central elevado] | Activity | Profile
+// O tipo de view foi expandido para incluir "activity".
+type View = "home" | "invest" | "wallet" | "activity" | "profile"
 
 interface BottomNavigationProps {
   activeView: View
   onViewChange: (view: View) => void
 }
 
-const navItems = [
-  { id: "home" as const, icon: LayoutGrid, label: "Visão Geral" },
-  { id: "wallet" as const, icon: Wallet, label: "Pagar" },
-  { id: "yield" as const, icon: TrendingUp, label: "Mercados" },
-  { id: "profile" as const, icon: Settings, label: "Ajustes" },
+const LEFT_ITEMS = [
+  { id: "home" as const, icon: Home, label: "Home" },
+  { id: "invest" as const, icon: TrendingUp, label: "Invest" },
 ]
+
+const RIGHT_ITEMS = [
+  { id: "activity" as const, icon: Activity, label: "Activity" },
+  { id: "profile" as const, icon: User, label: "Profile" },
+]
+
+// Ícone de QR/Scan em SVG inline
+function QrIcon() {
+  return (
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2}>
+      <rect x="3" y="3" width="7" height="7" rx="1" />
+      <rect x="14" y="3" width="7" height="7" rx="1" />
+      <rect x="3" y="14" width="7" height="7" rx="1" />
+      <path d="M14 14h2v2h-2zM18 14h3v2h-3zM14 18h2v3h-2zM18 18h3v3h-3z" fill="currentColor" stroke="none" />
+    </svg>
+  )
+}
+
+function NavButton({
+  item,
+  isActive,
+  onViewChange,
+}: {
+  item: { id: View; icon: React.ElementType; label: string }
+  isActive: boolean
+  onViewChange: (view: View) => void
+}) {
+  return (
+    <button
+      key={item.id}
+      onClick={() => onViewChange(item.id)}
+      className="flex flex-col items-center gap-1 px-3 py-2 transition-colors"
+    >
+      <item.icon
+        className="h-6 w-6 transition-colors"
+        style={{ color: isActive ? "#6366F1" : "#94A3B8" }}
+        strokeWidth={isActive ? 2.5 : 1.8}
+      />
+      <span
+        className="text-[10px] font-medium"
+        style={{ color: isActive ? "#6366F1" : "#94A3B8" }}
+      >
+        {item.label}
+      </span>
+    </button>
+  )
+}
 
 export function BottomNavigation({ activeView, onViewChange }: BottomNavigationProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-[60] md:relative md:z-auto">
-      <div className="mx-auto max-w-md md:max-w-none h-full">
-        <div className="flex items-center justify-around md:flex-col md:items-start md:justify-start md:gap-2 backdrop-blur-xl bg-card/90 md:bg-transparent border-t border-border md:border-none px-2 md:px-0 py-2 md:py-6 safe-bottom">
-          {navItems.map((item) => {
-            const isActive = activeView === item.id
-            return (
-              <button
-                key={item.id}
-                onClick={() => onViewChange(item.id)}
-                className={`relative flex flex-col md:flex-row md:w-full items-center md:justify-start gap-1 md:gap-4 px-5 py-3 rounded-2xl transition-all duration-200 ${
-                  isActive
-                    ? "text-primary md:bg-primary/10"
-                    : "text-muted-foreground hover:text-foreground hover:bg-white/5"
-                }`}
-              >
-                {/* Ícone com fundo ativo */}
-                <div
-                  className={`flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-200 ${
-                    isActive
-                      ? "bg-primary/10 md:bg-transparent scale-110 md:scale-100"
-                      : "scale-100"
-                  }`}
-                >
-                  <item.icon
-                    className="h-5 w-5 transition-transform duration-200"
-                    strokeWidth={isActive ? 2.5 : 2}
-                  />
-                </div>
+    <nav className="fixed bottom-0 left-0 right-0 z-[60] bg-white border-t border-slate-200 safe-bottom">
+      <div className="mx-auto max-w-md">
+        <div className="flex items-end justify-around px-2 pt-2 pb-3">
+          {/* Esquerda */}
+          {LEFT_ITEMS.map((item) => (
+            <NavButton
+              key={item.id}
+              item={item}
+              isActive={activeView === item.id}
+              onViewChange={onViewChange}
+            />
+          ))}
 
-                <span className="text-[9px] md:text-xs font-bold uppercase tracking-widest">
-                  {item.label}
-                </span>
+          {/* Botão central QR — elevado e maior */}
+          <div className="flex flex-col items-center" style={{ marginTop: -20 }}>
+            <button
+              onClick={() => onViewChange("wallet" as View)}
+              className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-lg transition-transform active:scale-95"
+              style={{ backgroundColor: "#081329" }}
+              aria-label="Scan QR"
+            >
+              <QrIcon />
+            </button>
+          </div>
 
-                {/* Dot indicador ativo (mobile apenas) */}
-                {isActive && (
-                  <span className="md:hidden absolute -bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary" />
-                )}
-              </button>
-            )
-          })}
+          {/* Direita */}
+          {RIGHT_ITEMS.map((item) => (
+            <NavButton
+              key={item.id}
+              item={item}
+              isActive={activeView === item.id}
+              onViewChange={onViewChange}
+            />
+          ))}
         </div>
       </div>
     </nav>

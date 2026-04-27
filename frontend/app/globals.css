@@ -2,95 +2,59 @@
 
 /* @custom-variant dark (&:is(.dark *)); */
 
-:root {
-  /* Light Mode - Clean institutional design (aligned with landing page) */
-  --background: #ffffff;
-  --foreground: #081229;
-  --card: #ffffff;
-  --card-foreground: #081229;
-  --popover: #ffffff;
-  --popover-foreground: #081229;
-  --primary: #6851FF;
-  --primary-foreground: #ffffff;
-  --secondary: #f8fafc;
-  --secondary-foreground: #081229;
-  --muted: #f8fafc;
-  --muted-foreground: #64748b;
-  --accent: #4F46E5;
-  --accent-foreground: #ffffff;
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #6851FF;
-  --chart-1: #6851FF;
-  --chart-2: #00D2FF;
-  --chart-3: #4CAF50;
-  --chart-4: #ECC94B;
-  --chart-5: #ef4444;
-  --radius: 0.75rem;
-  --sidebar: #ffffff;
-  --sidebar-foreground: #1a1a2e;
-  --sidebar-primary: #6851FF;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #f1f5f9;
-  --sidebar-accent-foreground: #1a1a2e;
-  --sidebar-border: #e2e8f0;
-  --sidebar-ring: #6851FF;
-  /* Vants Protocol Brand Colors */
-  --vants-deep-space: #081229;
-  --vants-surface-navy: #151E32;
-  --vants-indigo: #6851FF;
-  --vants-indigo-hover: #5842e6;
-  --vants-cyan: #00D2FF;
-  --vants-success: #4CAF50;
-  --vants-warning: #ECC94B;
-  --vants-text-primary: #FFFFFF;
-  --vants-text-secondary: #8F9BBA;
-  /* Glow shadows (Zero shadow in light mode or very subtle neutral shadows) */
-  --glow-indigo: 0 4px 20px rgba(0, 0, 0, 0.05);
-  --glow-cyan: 0 4px 20px rgba(0, 0, 0, 0.05);
-  --glow-success: 0 4px 20px rgba(0, 0, 0, 0.05);
-}
-
-.dark {
-  /* Dark Mode - Vants Protocol Brand Book */
-  --background: #081229;
-  --foreground: #FFFFFF;
-  --card: #151E32;
-  --card-foreground: #FFFFFF;
-  --popover: #151E32;
-  --popover-foreground: #FFFFFF;
-  --primary: #6851FF;
+:root, .dark {
+  /* Light Mode — Deep Navy Design System */
+  --background: #F8FAFC;
+  --foreground: #081329;
+  --card: #FFFFFF;
+  --card-foreground: #081329;
+  --popover: #FFFFFF;
+  --popover-foreground: #081329;
+  --primary: #081329;
   --primary-foreground: #FFFFFF;
-  --secondary: #151E32;
-  --secondary-foreground: #FFFFFF;
-  --muted: #151E32;
-  --muted-foreground: #8F9BBA;
-  --accent: #00D2FF;
-  --accent-foreground: #081229;
-  --destructive: #ef4444;
+  --secondary: #F1F5F9;
+  --secondary-foreground: #081329;
+  --muted: #F1F5F9;
+  --muted-foreground: #64748B;
+  --accent: #F1F5F9;
+  --accent-foreground: #081329;
+  --destructive: #EF4444;
   --destructive-foreground: #FFFFFF;
-  --border: rgba(255, 255, 255, 0.07);
-  --input: rgba(255, 255, 255, 0.07);
-  --ring: #6851FF;
-  --chart-1: #6851FF;
-  --chart-2: #00D2FF;
-  --chart-3: #4CAF50;
-  --chart-4: #ECC94B;
-  --chart-5: #ef4444;
-  --sidebar: #151E32;
-  --sidebar-foreground: #FFFFFF;
-  --sidebar-primary: #6851FF;
+  --border: #E2E8F0;
+  --input: #E2E8F0;
+  --ring: #081329;
+  --chart-1: #10B981;
+  --chart-2: #081329;
+  --chart-3: #10B981;
+  --chart-4: #F59E0B;
+  --chart-5: #EF4444;
+  --radius: 0.75rem;
+  --sidebar: #FFFFFF;
+  --sidebar-foreground: #081329;
+  --sidebar-primary: #081329;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #151E32;
-  --sidebar-accent-foreground: #FFFFFF;
-  --sidebar-border: rgba(255, 255, 255, 0.07);
-  --sidebar-ring: #6851FF;
-  /* Glow shadows (dark mode — more visible) */
-  --glow-indigo: 0 0 60px rgba(104, 81, 255, 0.35);
-  --glow-cyan: 0 0 60px rgba(0, 210, 255, 0.35);
-  --glow-success: 0 0 30px rgba(76, 175, 80, 0.4);
+  --sidebar-accent: #F1F5F9;
+  --sidebar-accent-foreground: #081329;
+  --sidebar-border: #E2E8F0;
+  --sidebar-ring: #081329;
+
+  /* Vants Brand Tokens — cor oficial #081329 */
+  --vants-navy: #081329;
+  --vants-navy-hover: #0f2040;
+  /* Verde APENAS semântico — retornos positivos e ícones de sucesso */
+  --vants-success: #10B981;
+  --vants-warning: #F59E0B;
+  --vants-danger: #EF4444;
+  --vants-text-primary: #081329;
+  --vants-text-secondary: #64748B;
+  /* Roxo restrito aos slides de onboarding */
+  --vants-accent-purple: #6366F1;
+
+  --shadow-card: 0 1px 3px rgba(8,19,41,0.06), 0 1px 2px rgba(8,19,41,0.04);
+  --shadow-navy: 0 4px 16px rgba(8,19,41,0.2);
+  --glow-indigo: 0 0 60px rgba(99,102,241,0.15);
+  --glow-cyan: 0 0 60px rgba(8,19,41,0.08);
+  --glow-success: 0 0 30px rgba(16,185,129,0.3);
 }
 
 @theme inline {
@@ -156,34 +120,19 @@
 }
 
 /* ====================================================
-   ANIMAÇÕES (alinhadas à landing page)
+   ANIMAÇÕES
    ==================================================== */
 
-/* Fade + slide up para entradas de card */
 @keyframes fadeUpIn {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Pulse de glow no item ativo */
-@keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 12px rgba(104, 81, 255, 0.3); }
-  50%       { box-shadow: 0 0 24px rgba(104, 81, 255, 0.6); }
-}
-
-/* Shimmer para loading states */
 @keyframes shimmer {
   0%   { background-position: -200% 0; }
   100% { background-position: 200% 0; }
 }
 
-/* Flutuação suave (como os badges da hero da landing) */
 @keyframes floatY {
   0%, 100% { transform: translateY(0px); }
   50%       { transform: translateY(-6px); }
@@ -202,63 +151,37 @@
    UTILITÁRIOS
    ==================================================== */
 
-/* Entrada animada */
 .animate-fade-up {
   animation: fadeUpIn 0.5s ease forwards;
 }
 
-/* Glow pulsante */
-.animate-glow-pulse {
-  animation: glowPulse 2s ease-in-out infinite;
-}
-
-/* Float suave */
 .animate-float {
   animation: floatY 4s ease-in-out infinite;
 }
 
-/* Scan line QR */
 .scan-line {
   animation: scan 2s ease-in-out infinite;
 }
 
-/* Texto gradiente indigo (assinatura da landing page) */
-.gradient-text {
-  background: linear-gradient(135deg, #6851FF 0%, #818cf8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Glassmorphism card — dark */
-.glass-card {
-  background: rgba(21, 30, 50, 0.7);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-}
-
 /* Glassmorphism card — light */
 .glass-card-light {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(104, 81, 255, 0.1);
+  border: 1px solid rgba(11, 17, 32, 0.06);
 }
 
-/* Glow indigo (box-shadow) */
 .glow-indigo {
   box-shadow: var(--glow-indigo);
 }
 
-/* Glow cyan */
-.glow-cyan {
-  box-shadow: var(--glow-cyan);
+.glow-success {
+  box-shadow: var(--glow-success);
 }
 
 /* Shimmer loading */
 .shimmer {
-  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
   background-size: 200% 100%;
   animation: shimmer 1.5s ease-in-out infinite;
 }

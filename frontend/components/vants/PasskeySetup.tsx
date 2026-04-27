@@ -155,58 +155,56 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-sm p-4">
-      <div className="w-full max-w-sm animate-fade-up">
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-50 p-4">
+      <div className="w-full max-w-sm animate-fade-up flex flex-col gap-4">
         {/* Card principal */}
-        <div className="rounded-2xl border border-slate-100 bg-white shadow-xl shadow-slate-200/60 overflow-hidden">
-          <div className="bg-gradient-to-br from-[#6851FF] to-[#4F46E5] px-6 pt-8 pb-10 text-center relative overflow-hidden">
-            <div className="absolute -top-8 -right-8 w-32 h-32 rounded-full bg-white/10 blur-2xl" />
-            
-            <div className="relative">
-              <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm shadow-inner shadow-white/10">
-                {step === "loading" ? (
-                  <Loader2 className="h-8 w-8 text-white animate-spin" />
-                ) : step === "success" ? (
-                  <CheckCircle className="h-8 w-8 text-white" />
-                ) : (
-                  <Fingerprint className="h-8 w-8 text-white" />
-                )}
-              </div>
-              <h1 className="text-xl font-bold text-white">
-                {step === "success" ? "Conta segura!" : "Ativar Biometria"}
-              </h1>
-              <p className="mt-1 text-sm text-white/70">
-                {step === "success" ? "Passkey configurado perfeitamente." : "Proteja seu aplicativo Vants com sua face ou digital."}
-              </p>
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-xl overflow-hidden px-6 py-10">
+          <div className="text-center">
+            <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
+              {step === "loading" ? (
+                <Loader2 className="h-8 w-8 text-[#081329] animate-spin" />
+              ) : step === "success" ? (
+                <CheckCircle className="h-8 w-8 text-[#10B981]" />
+              ) : (
+                <Fingerprint className="h-8 w-8 text-[#081329]" />
+              )}
             </div>
+            
+            <h1 className="text-xl font-bold text-[#081329]">
+              {step === "success" ? "Conta segura!" : "Ativar Biometria"}
+            </h1>
+            <p className="mt-2 text-sm text-slate-500">
+              {step === "success" 
+                ? "Passkey configurado perfeitamente." 
+                : "Proteja seu aplicativo Vants com sua face ou digital."}
+            </p>
           </div>
 
-          <div className="px-6 py-8">
+          <div className="pt-8">
              {step === "idle" && (
                 <button
                   onClick={handleCreatePasskey}
-                  className="w-full rounded-xl bg-[#6851FF] py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:bg-[#5842e6] active:scale-[0.98] shadow-md shadow-[#6851FF]/30"
+                  className="w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+                  style={{ backgroundColor: "#081329" }}
                 >
                   Registrar Dispositivo
                 </button>
              )}
 
              {step === "loading" && (
-               <div className="flex flex-col items-center gap-4 py-4">
+               <div className="flex flex-col items-center gap-4 py-2">
                  <p className="text-sm text-slate-500 text-center">Aguardando confirmação do seu celular...</p>
                  <div className="flex gap-1">
                    {[0, 1, 2].map((i) => (
-                     <div key={i} className="h-2 w-2 rounded-full bg-[#6851FF] animate-bounce" style={{ animationDelay: `${i * 0.15}s` }} />
+                     <div key={i} className="h-2 w-2 rounded-full animate-bounce" style={{ backgroundColor: "#081329", animationDelay: `${i * 0.15}s` }} />
                    ))}
                  </div>
                </div>
              )}
 
              {step === "success" && (
-                <div className="flex flex-col items-center gap-4 py-4">
-                  <div className="h-16 w-16 rounded-full bg-emerald-50 border-2 border-emerald-200 flex items-center justify-center">
-                    <CheckCircle className="h-8 w-8 text-emerald-500" />
-                  </div>
+                <div className="flex flex-col items-center gap-4 py-2">
                   <p className="text-sm text-slate-500 text-center">Redirecionando para o seu painel…</p>
                 </div>
              )}
@@ -217,10 +215,10 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
                     <AlertCircle className="h-7 w-7 text-red-500" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-medium text-[#081229]">Algo deu errado</p>
+                    <p className="text-sm font-bold text-[#081329]">Algo deu errado</p>
                     <p className="mt-1 text-xs text-slate-500">{errorMessage}</p>
                   </div>
-                  <button onClick={() => setStep("idle")} className="w-full rounded-xl bg-[#6851FF] py-3.5 text-sm font-semibold text-white transition-all hover:bg-[#5842e6]">
+                  <button onClick={() => setStep("idle")} className="w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98]" style={{ backgroundColor: "#081329" }}>
                     Tentar novamente
                   </button>
                 </div>
@@ -229,10 +227,10 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
         </div>
 
         {/* Botão "Sair" abaixo do card */}
-        <div className="mt-4 flex justify-center">
+        <div className="flex justify-center">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-2 px-6 py-2.5 rounded-lg bg-slate-200/80 text-slate-700 hover:bg-slate-300 transition-colors duration-200 text-sm font-medium"
+            className="flex items-center gap-2 px-6 py-2.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 transition-colors duration-200 text-sm font-medium shadow-sm"
           >
             <LogOut className="h-4 w-4" />
             Sair

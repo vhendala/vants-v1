@@ -1,6 +1,6 @@
 "use client"
 
-import { Receipt, Plus, ArrowLeftRight } from "lucide-react"
+import { CreditCard, Plus, ArrowLeftRight } from "lucide-react"
 
 interface QuickActionsProps {
   onPayBill?: () => void
@@ -9,48 +9,50 @@ interface QuickActionsProps {
 export function QuickActions({ onPayBill }: QuickActionsProps) {
   const actions = [
     {
-      icon: Receipt,
-      label: "PAGAR",
-      onClick: onPayBill,
-      // Ação primária: indigo (alinhado com a landing page — hover dos botões CTA)
-      active: true,
-      activeClass: "bg-[#6851FF] text-white shadow-lg",
-      activeStyle: { boxShadow: "0 4px 20px rgba(104, 81, 255, 0.4)" },
+      id: "pay",
+      icon: CreditCard,
+      label: "Pay",
+      // Botão navy com ícone e label brancos — exatamente como na imagem
+      buttonStyle: { backgroundColor: "#081329" },
+      iconClass: "text-white",
+      labelClass: "text-slate-900",
+      isNavy: true,
     },
     {
+      id: "deposit",
       icon: Plus,
-      label: "DEPOSITAR",
-      onClick: () => {},
-      active: false,
-      activeClass: "",
-      activeStyle: {},
+      label: "Deposit",
+      buttonStyle: { backgroundColor: "#FFFFFF" },
+      iconClass: "text-slate-700",
+      labelClass: "text-slate-900",
+      isNavy: false,
     },
     {
+      id: "swap",
       icon: ArrowLeftRight,
-      label: "CONVERTER",
-      onClick: () => {},
-      active: false,
-      activeClass: "",
-      activeStyle: {},
+      label: "Swap",
+      buttonStyle: { backgroundColor: "#FFFFFF" },
+      iconClass: "text-slate-700",
+      labelClass: "text-slate-900",
+      isNavy: false,
     },
   ]
 
   return (
-    <div className="flex justify-center gap-8">
+    <div className="flex gap-3">
       {actions.map((action) => (
         <button
-          key={action.label}
-          onClick={action.onClick}
-          className="group flex flex-col items-center gap-2.5"
+          key={action.id}
+          onClick={action.id === "pay" ? onPayBill : undefined}
+          className="flex flex-1 flex-col items-center gap-2"
         >
           <div
-            className="flex h-16 w-16 items-center justify-center rounded-2xl bg-card border border-border shadow-sm transition-all duration-300 active:scale-95 group-hover:scale-105 group-hover:shadow-md group-hover:border-primary/30"
+            className="flex w-full h-16 items-center justify-center rounded-2xl border border-slate-200 transition-all active:scale-95 hover:opacity-90"
+            style={action.buttonStyle}
           >
-            <action.icon className="h-6 w-6 text-foreground group-hover:text-primary transition-colors" strokeWidth={1.5} />
+            <action.icon className={`h-6 w-6 ${action.iconClass}`} strokeWidth={1.8} />
           </div>
-          <span
-            className="text-[10px] md:text-xs font-bold uppercase tracking-widest text-muted-foreground group-hover:text-foreground transition-colors"
-          >
+          <span className={`text-[12px] font-semibold ${action.labelClass}`}>
             {action.label}
           </span>
         </button>

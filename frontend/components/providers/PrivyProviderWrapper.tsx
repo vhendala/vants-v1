@@ -39,8 +39,8 @@ export function PrivyProviderWrapper({ children }: { children: React.ReactNode }
       config={{
         loginMethods: ['email', 'google'],
         appearance: {
-          theme: theme === 'dark' ? '#081229' : 'light',
-          accentColor: '#6851FF',
+          theme: theme === 'dark' ? '#081329' : 'light',
+          accentColor: '#081329',
           showWalletLoginFirst: false,
           walletList: [],
           logo: '/icon.svg',
