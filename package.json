@@ -3,8 +3,6 @@
   "private": true,
   "workspaces": [
     "frontend",
-    "backend",
-    "landingpage",
-    "mobile"
+    "backend"
   ]
 }
