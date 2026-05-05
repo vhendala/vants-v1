@@ -11,7 +11,7 @@ interface BalanceCardProps {
   publicKey: string
 }
 
-type Currency = "XLM" | "USD" | "BRL"
+type Currency = "USD" | "BRL"
 
 // Mini linha chart SVG decorativa dentro do card navy
 function BalanceChart() {
@@ -101,12 +101,6 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
         value = usdcBalance * brlRate
         symbol = "R$"
         break
-      case "XLM":
-        // WHY: botão XLM permanece no JSX (não pode ser alterado).
-        // Exibe o saldo USDC como fallback, sinalizando que é USDC.
-        value = usdcBalance
-        symbol = ""
-        break
     }
 
     const formattedValue = value.toLocaleString("en-US", {
@@ -116,7 +110,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
 
     return {
       symbol,
-      value: selectedCurrency === "XLM" ? `${formattedValue} USDC` : formattedValue
+      value: formattedValue
     }
   }
 
@@ -144,7 +138,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
           
           {/* Seletor Minimalista de Moeda (Pill) */}
           <div className="flex bg-black/20 rounded-full p-1 border border-white/5">
-            {(["XLM", "USD", "BRL"] as Currency[]).map((currency) => (
+            {(["USD", "BRL"] as Currency[]).map((currency) => (
               <button
                 key={currency}
                 onClick={() => setSelectedCurrency(currency)}
@@ -190,7 +184,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
             </p>
             <p className="text-[15px] font-bold text-white/80">
               {/* O valor investido aqui continua mockado mas reativo simbolicamente */}
-              {isLoading ? "..." : selectedCurrency === "USD" ? "$0.00" : selectedCurrency === "BRL" ? "R$0.00" : "0.00 XLM"}
+              {isLoading ? "..." : selectedCurrency === "USD" ? "$0.00" : "R$0.00"}
             </p>
           </div>
           <div
