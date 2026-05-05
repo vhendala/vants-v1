@@ -4,6 +4,9 @@ import { useState, useEffect } from "react"
 import { Loader2 } from "lucide-react"
 import * as StellarSdk from "@stellar/stellar-sdk"
 
+const ISSUER_PUBLIC_KEY = process.env.NEXT_PUBLIC_ISSUER_PUBLIC_KEY ?? ""
+const HORIZON_URL = "https://horizon-testnet.stellar.org"
+
 interface BalanceCardProps {
   publicKey: string
 }
@@ -30,8 +33,10 @@ function BalanceChart() {
 
 export function BalanceCard({ publicKey }: BalanceCardProps) {
   // 1. Gestão de Estados
-  const [xlmBalance, setXlmBalance] = useState<number>(0)
-  const [exchangeRates, setExchangeRates] = useState<{ usd: number; brl: number }>({ usd: 0, brl: 0 })
+  // WHY: usdcBalance substitui xlmBalance — com Hi-Li, o saldo relevante é USDC.
+  // USDC é 1:1 com USD, então não precisamos de taxa usd. Mantemos brl para conversão.
+  const [usdcBalance, setUsdcBalance] = useState<number>(0)
+  const [brlRate, setBrlRate] = useState<number>(0)
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>("USD")
   const [isLoading, setIsLoading] = useState<boolean>(true)
 
@@ -40,33 +45,35 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
     async function fetchData() {
       setIsLoading(true)
       try {
-        const server = new StellarSdk.Horizon.Server("https://horizon-testnet.stellar.org")
-        
-        // Promise.all para buscar saldo e cotações em paralelo
+        const server = new StellarSdk.Horizon.Server(HORIZON_URL)
+
+        // Busca saldo USDC e taxa BRL em paralelo
         const [accountResponse, ratesResponse] = await Promise.all([
-          server.loadAccount(publicKey).catch(() => null), // Permite falhar graciosamente caso a conta não exista
-          fetch("https://api.coingecko.com/api/v3/simple/price?ids=stellar&vs_currencies=usd,brl").then(res => res.json())
+          server.loadAccount(publicKey).catch(() => null),
+          fetch("https://api.coingecko.com/api/v3/simple/price?ids=usd-coin&vs_currencies=brl")
+            .then(res => res.json())
+            .catch(() => null)
         ])
 
-        // Lendo saldo nativo (XLM)
-        let nativeBalance = 0
-        if (accountResponse) {
-          const nativeLine = accountResponse.balances.find((b: any) => b.asset_type === "native")
-          if (nativeLine) {
-            nativeBalance = parseFloat(nativeLine.balance)
-          }
+        // Lendo saldo USDC exclusivamente (ignora XLM conforme arquitetura Hi-Li)
+        let balance = 0
+        if (accountResponse && ISSUER_PUBLIC_KEY) {
+          const usdcLine = accountResponse.balances.find(
+            (b: StellarSdk.Horizon.HorizonApi.BalanceLine) =>
+              b.asset_type === "credit_alphanum4" &&
+              (b as StellarSdk.Horizon.HorizonApi.BalanceLine<"credit_alphanum4">).asset_code === "USDC" &&
+              (b as StellarSdk.Horizon.HorizonApi.BalanceLine<"credit_alphanum4">).asset_issuer === ISSUER_PUBLIC_KEY
+          )
+          if (usdcLine) balance = parseFloat(usdcLine.balance)
         }
-        setXlmBalance(nativeBalance)
+        setUsdcBalance(balance)
 
-        // Lendo cotações do CoinGecko
-        if (ratesResponse && ratesResponse.stellar) {
-          setExchangeRates({
-            usd: ratesResponse.stellar.usd || 0,
-            brl: ratesResponse.stellar.brl || 0
-          })
+        // Taxa USD/BRL via CoinGecko (USDC proxy)
+        if (ratesResponse?.["usd-coin"]?.brl) {
+          setBrlRate(ratesResponse["usd-coin"].brl)
         }
       } catch (error) {
-        console.error("Erro ao buscar dados do saldo:", error)
+        console.error("Erro ao buscar saldo USDC:", error)
       } finally {
         setIsLoading(false)
       }
@@ -78,6 +85,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
   }, [publicKey])
 
   // 3. Cálculo de Conversão
+  // USDC é 1:1 com USD. Para BRL usamos taxa real. "XLM" no seletor exibe USDC.
   const getFormattedBalance = () => {
     if (isLoading) return { symbol: "", value: "..." }
 
@@ -86,20 +94,21 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
 
     switch (selectedCurrency) {
       case "USD":
-        value = xlmBalance * exchangeRates.usd
+        value = usdcBalance
         symbol = "$"
         break
       case "BRL":
-        value = xlmBalance * exchangeRates.brl
+        value = usdcBalance * brlRate
         symbol = "R$"
         break
       case "XLM":
-        value = xlmBalance
+        // WHY: botão XLM permanece no JSX (não pode ser alterado).
+        // Exibe o saldo USDC como fallback, sinalizando que é USDC.
+        value = usdcBalance
         symbol = ""
         break
     }
 
-    // Formatação de string com 2 casas decimais e separador de milhares
     const formattedValue = value.toLocaleString("en-US", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -107,7 +116,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
 
     return {
       symbol,
-      value: selectedCurrency === "XLM" ? `${formattedValue} XLM` : formattedValue
+      value: selectedCurrency === "XLM" ? `${formattedValue} USDC` : formattedValue
     }
   }
 

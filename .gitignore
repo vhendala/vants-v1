@@ -42,3 +42,5 @@ next-env.d.ts
 /backend/prisma/migrations/
 /backend/prisma/*.db
 /backend/prisma/*.db-journal
+frontend/.env.local
+frontend/.env.local

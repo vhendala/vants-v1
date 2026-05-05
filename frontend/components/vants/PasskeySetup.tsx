@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Fingerprint, CheckCircle, AlertCircle, Loader2, LogOut } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
-import { Keypair } from "@stellar/stellar-sdk";
+import * as StellarSdk from "@stellar/stellar-sdk";
 
 import { API_URL } from "../../lib/config";
 
@@ -28,118 +28,86 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
     return "user@domain.xyz";
   }
 
-  // ─── Auxiliary WebAuthn Parser ──────────────────────────────────────────────
-  
-  function bufferToBase64url(buffer: ArrayBuffer): string {
-    const bytes = new Uint8Array(buffer);
-    let str = "";
-    for (const charCode of bytes) {
-      str += String.fromCharCode(charCode);
-    }
-    const base64String = btoa(str);
-    return base64String.replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
-  }
-
   async function handleCreatePasskey() {
     setStep("loading");
     try {
       const email = resolveUserEmail(user);
-      const userId = user?.id || "unknown-user-id";
-
-      // 1. Configurações da Credencial FIDO2 (Secp256r1 é req para Soroban)
-      const publicKeyCredentialCreationOptions: PublicKeyCredentialCreationOptions = {
-        challenge: window.crypto.getRandomValues(new Uint8Array(32)),
-        rp: {
-          name: "Vants App",
-          id: window.location.hostname,
-        },
-        user: {
-          id: new TextEncoder().encode(userId),
-          name: email,
-          displayName: email,
-        },
-        pubKeyCredParams: [
-          { alg: -7, type: "public-key" }, // ES256 (secp256r1)
-          { alg: -257, type: "public-key" }, // RS256
-        ],
-        authenticatorSelection: {
-          authenticatorAttachment: "platform", // FaceID / TouchID / Windows Hello
-          requireResidentKey: true,
-          userVerification: "required",
-        },
-        timeout: 60000,
-        attestation: "direct", // Permite extrair o hardware data se necessário
-      };
-
-      // 2. Chama a biometria do sistema
-      const credential = (await navigator.credentials.create({
-        publicKey: publicKeyCredentialCreationOptions,
-      })) as PublicKeyCredential;
-
-      if (!credential) {
-        throw new Error("Criação de Passkey cancelada ou falhou.");
-      }
-
-      // 3. Extrai raw public key em Base64
-      const response = credential.response as AuthenticatorAttestationResponse;
-      let passkeyPublicKeyBase64 = "";
-
-      // Browsers modernos fornecem o getPublicKey()
-      if (typeof response.getPublicKey === "function") {
-        const pubKeyBuffer = response.getPublicKey();
-        if (pubKeyBuffer) {
-          passkeyPublicKeyBase64 = bufferToBase64url(pubKeyBuffer);
-        }
-      }
-
-      const passkeyCredentialId = credential.id;
-
-      // Pegar token Privy para envio seguro
       const token = await getAccessToken();
-      console.log("[PasskeySetup] Got Privy token, length:", token?.length);
 
-      // 4. Gerar Carteira Não-Custodial (Stellar)
-      const keypair = Keypair.random();
+      if (!token) throw new Error("Sessão inválida. Faça login novamente.");
+
+      // 1. Gera keypair localmente (não-custodial — secret nunca vai ao servidor)
+      const keypair = StellarSdk.Keypair.random();
       const publicKey = keypair.publicKey();
-      const secret = keypair.secret();
 
-      // Armazenamento Local (Criptografado ou Seguro conforme requisito)
-      localStorage.setItem("vants_wallet_public_key", publicKey);
-      localStorage.setItem("vants_wallet_secret", secret); // Em prod, usar criptografia baseada no PIN/Passkey
+      // WHY: sessionStorage é escopado à aba e não persiste entre sessões.
+      // Em produção deve ser criptografado com PIN do usuário.
+      sessionStorage.setItem("vants_wallet_public_key", publicKey);
+      sessionStorage.setItem("vants_wallet_secret_tmp", keypair.secret());
 
-      // 5. Salva a nova Identidade e ativa a carteira no Backend
-      console.log("[PasskeySetup] Setup logic:", {
-        email,
-        publicKey,
-        apiUrl: API_URL,
-      });
-
-      const res = await fetch(`${API_URL}/api/account/setup`, {
+      // 2. Backend ativa a conta via Friendbot
+      const setupRes = await fetch(`${API_URL}/api/account/setup`, {
         method: "POST",
-        headers: { 
+        headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Authorization": `Bearer ${token}`,
         },
-        credentials: "include",
-        body: JSON.stringify({
-          email: email,
-          publicKey: publicKey,
-        }),
+        body: JSON.stringify({ publicKey, email }),
       });
 
-      console.log("[PasskeySetup] Setup response status:", res.status);
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({ error: "Unknown error" }));
-        console.error("[PasskeySetup] Backend error response:", errorData);
-        throw new Error(`Erro do servidor: ${res.status}`);
+      if (!setupRes.ok) {
+        const errorData = await setupRes.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(errorData.error ?? `Erro do servidor: ${setupRes.status}`);
       }
 
-      const successData = await res.json();
-      console.log("[PasskeySetup] Setup Success response:", successData);
+      console.log("[PasskeySetup] Friendbot activation successful");
+
+      // 3. Frontend assina a Trustline USDC (não-custodial)
+      const issuerPublicKey = process.env.NEXT_PUBLIC_ISSUER_PUBLIC_KEY;
+      if (!issuerPublicKey) throw new Error("NEXT_PUBLIC_ISSUER_PUBLIC_KEY não configurado.");
+
+      // WHY: Aguarda a conta propagar no Horizon antes de loadAccount.
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+
+      const horizonServer = new StellarSdk.Horizon.Server("https://horizon-testnet.stellar.org");
+      const account = await horizonServer.loadAccount(publicKey);
+
+      // WHY: Asset instanciado aqui (lazy) — evita erro de module evaluation
+      // quando a env ainda não foi resolvida pelo Next.js.
+      const usdcAsset = new StellarSdk.Asset("USDC", issuerPublicKey);
+
+      const trustlineTx = new StellarSdk.TransactionBuilder(account, {
+        fee: StellarSdk.BASE_FEE,
+        networkPassphrase: StellarSdk.Networks.TESTNET,
+      })
+        .addOperation(StellarSdk.Operation.changeTrust({ asset: usdcAsset }))
+        .setTimeout(30)
+        .build();
+
+      // Assina com a chave do usuário — nunca enviada ao servidor
+      trustlineTx.sign(keypair);
+      const trustlineXdr = trustlineTx.toXDR();
+
+      console.log("[PasskeySetup] Trustline signed, submitting via backend");
+
+      // 4. Backend submete XDR + emite 10.000 USDC (mock Hi-Li PIX)
+      const fundRes = await fetch(`${API_URL}/api/account/fund-usdc`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify({ trustlineXdr }),
+      });
+
+      if (!fundRes.ok) {
+        const errorData = await fundRes.json().catch(() => ({ error: "Unknown error" }));
+        throw new Error(errorData.error ?? `Erro HTTP ${fundRes.status}`);
+      }
+
+      console.log("[PasskeySetup] USDC funded successfully");
 
       setStep("success");
-      // Retorna a chave pública para o dashboard
       setTimeout(() => onComplete(publicKey), 1500);
     } catch (err: unknown) {
       console.error(err);
