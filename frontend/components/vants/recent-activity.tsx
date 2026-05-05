@@ -143,6 +143,9 @@ export function RecentActivity({ showFilters = false }: { showFilters?: boolean 
 
   // Filtragem no client-side para a tela de Activity (opcional, pode ser movido para o backend)
   const filteredTransactions = transactions.filter((tx) => {
+    // WHY: Oculta transações de ativação/fomento interno em XLM
+    if (tx.asset === "XLM") return false
+
     if (activeFilter === "All") return true
     if (activeFilter === "Payments" && tx.type === "PAYMENT") return true
     if (activeFilter === "Deposits" && tx.type === "DEPOSIT") return true
@@ -169,8 +172,8 @@ export function RecentActivity({ showFilters = false }: { showFilters?: boolean 
               <SkeletonRow />
               <SkeletonRow />
             </>
-          ) : transactions.length > 0 ? (
-            transactions.slice(0, 5).map((tx) => <TxRow key={tx.id} tx={tx} />)
+          ) : filteredTransactions.length > 0 ? (
+            filteredTransactions.slice(0, 5).map((tx) => <TxRow key={tx.id} tx={tx} />)
           ) : (
             <EmptyState />
           )}
