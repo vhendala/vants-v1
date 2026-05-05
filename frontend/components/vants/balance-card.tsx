@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { Loader2 } from "lucide-react"
+import { useLanguage } from "../providers/LanguageProvider"
 import * as StellarSdk from "@stellar/stellar-sdk"
 
 const ISSUER_PUBLIC_KEY = process.env.NEXT_PUBLIC_ISSUER_PUBLIC_KEY ?? ""
@@ -32,6 +33,7 @@ function BalanceChart() {
 }
 
 export function BalanceCard({ publicKey }: BalanceCardProps) {
+  const { t } = useLanguage()
   // 1. Gestão de Estados
   // WHY: usdcBalance substitui xlmBalance — com Hi-Li, o saldo relevante é USDC.
   // USDC é 1:1 com USD, então não precisamos de taxa usd. Mantemos brl para conversão.
@@ -134,7 +136,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
       <div className="relative z-10 px-5 pt-5 pb-4">
         {/* Cabeçalho do Card: Label e Toggle de Moedas */}
         <div className="flex items-center justify-between mb-4">
-          <p className="text-[13px] font-medium text-white/50">Total Balance</p>
+          <p className="text-[13px] font-medium text-white/50">{t("totalBalance")}</p>
           
           {/* Seletor Minimalista de Moeda (Pill) */}
           <div className="flex bg-black/20 rounded-full p-1 border border-white/5">
@@ -159,7 +161,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
           {isLoading ? (
             <div className="flex items-center gap-2">
               <Loader2 className="h-6 w-6 text-white/50 animate-spin" />
-              <span className="text-white/50 text-sm font-medium">Sincronizando...</span>
+              <span className="text-white/50 text-sm font-medium">{t("syncing")}</span>
             </div>
           ) : (
             <p className="text-[42px] font-bold tracking-tight leading-none animate-in fade-in slide-in-from-bottom-2 duration-500" key={selectedCurrency}>
@@ -180,7 +182,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
         >
           <div>
             <p className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-0.5">
-              INVESTED
+              {t("invested")}
             </p>
             <p className="text-[15px] font-bold text-white/80">
               {/* O valor investido aqui continua mockado mas reativo simbolicamente */}
@@ -193,7 +195,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
           />
           <div>
             <p className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-0.5">
-              ACCOUNT
+              {t("account")}
             </p>
             <p className="text-[15px] font-bold text-white">
               {isLoading ? "..." : `${symbol}${value}`}
@@ -209,7 +211,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
           >
             ▲ +$0.00 (+0.00%)
           </span>
-          <span className="text-[13px] text-white/40">this month</span>
+          <span className="text-[13px] text-white/40">{t("thisMonth")}</span>
         </div>
 
         {/* Mini chart */}

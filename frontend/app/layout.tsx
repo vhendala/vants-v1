@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
 import { PrivyProviderWrapper } from '@/components/providers/PrivyProviderWrapper'
 import { ThemeProvider } from '@/components/vants/theme-provider'
+import { LanguageProvider } from '@/components/providers/LanguageProvider'
 import './globals.css'
 
 const inter = Inter({ 
@@ -50,11 +51,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
-        <ThemeProvider>
-          <PrivyProviderWrapper>
-            {children}
-          </PrivyProviderWrapper>
-        </ThemeProvider>
+        <LanguageProvider>
+          <ThemeProvider>
+            <PrivyProviderWrapper>
+              {children}
+            </PrivyProviderWrapper>
+          </ThemeProvider>
+        </LanguageProvider>
         <Analytics />
       </body>
     </html>

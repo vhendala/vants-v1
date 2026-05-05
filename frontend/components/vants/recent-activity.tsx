@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { ArrowUp, ArrowDown, Receipt, Inbox } from "lucide-react"
 import { usePrivy } from "@privy-io/react-auth"
+import { useLanguage } from "../providers/LanguageProvider"
 import { API_URL } from "../../lib/config"
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -90,14 +91,15 @@ function SkeletonRow() {
 }
 
 function EmptyState() {
+  const { t } = useLanguage()
   return (
     <div className="flex flex-col items-center justify-center py-10 px-4 text-center">
       <div className="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center mb-3">
         <Inbox className="h-6 w-6 text-slate-400" />
       </div>
-      <p className="text-[15px] font-semibold text-slate-700">Nenhuma transação ainda</p>
+      <p className="text-[15px] font-semibold text-slate-700">{t("noTransactions")}</p>
       <p className="text-[13px] text-slate-500 mt-1">
-        Suas movimentações aparecerão aqui.
+        {t("transactionsAppearHere")}
       </p>
     </div>
   )
@@ -105,10 +107,10 @@ function EmptyState() {
 
 // ─── Componente Principal ─────────────────────────────────────────────────────
 
-const FILTERS = ["All", "Payments", "Deposits", "Withdrawals", "Returns"]
-
 export function RecentActivity({ showFilters = false }: { showFilters?: boolean }) {
-  const [activeFilter, setActiveFilter] = useState("All")
+  const { t } = useLanguage()
+  const filters = [t("all"), "Payments", "Deposits", "Withdrawals", "Returns"]
+  const [activeFilter, setActiveFilter] = useState(t("all"))
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const { getAccessToken, authenticated } = usePrivy()
@@ -146,7 +148,7 @@ export function RecentActivity({ showFilters = false }: { showFilters?: boolean 
     // WHY: Oculta transações de ativação/fomento interno em XLM
     if (tx.asset === "XLM") return false
 
-    if (activeFilter === "All") return true
+    if (activeFilter === t("all")) return true
     if (activeFilter === "Payments" && tx.type === "PAYMENT") return true
     if (activeFilter === "Deposits" && tx.type === "DEPOSIT") return true
     if (activeFilter === "Withdrawals" && tx.type === "WITHDRAWAL") return true
@@ -159,9 +161,9 @@ export function RecentActivity({ showFilters = false }: { showFilters?: boolean 
     return (
       <section>
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-[17px] font-bold text-[#0F1A2C]">Recent activity</h2>
+          <h2 className="text-[17px] font-bold text-[#0F1A2C]">{t("recentActivity")}</h2>
           <button className="text-[13px] font-medium" style={{ color: "#6366F1" }}>
-            All
+            {t("all")}
           </button>
         </div>
 
@@ -192,7 +194,7 @@ export function RecentActivity({ showFilters = false }: { showFilters?: boolean 
 
       {/* Filtros */}
       <div className="flex gap-2 px-5 pb-6 overflow-x-auto scrollbar-hide">
-        {FILTERS.map((f) => {
+        {filters.map((f) => {
           const isActive = f === activeFilter
           return (
             <button

@@ -13,8 +13,10 @@
  * evitar re-renders desnecessários e não bloquear a UI principal.
  */
 
-import { useState, useEffect, useCallback } from "react";
-import { Mail } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Mail, Globe } from "lucide-react";
+import { useLanguage } from "../providers/LanguageProvider";
+import { Language } from "../../lib/translations";
 import { usePrivy, useLoginWithEmail, useLoginWithOAuth } from "@privy-io/react-auth";
 import { Header } from "./header";
 import { BalanceCard } from "./balance-card";
@@ -42,6 +44,7 @@ type AccountStatus =
 // ─── Componente principal ─────────────────────────────────────────────────────
 
 export function VantsDashboard() {
+  const { t } = useLanguage();
   const { ready, authenticated, login, getAccessToken } = usePrivy();
   const [activeView, setActiveView] = useState<View>("home");
   const [showPayment, setShowPayment] = useState(false);
@@ -152,7 +155,7 @@ function DashboardSkeleton() {
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
         <div className="h-10 w-10 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#0F1A2C transparent #0F1A2C #0F1A2C" }} />
-        <p className="text-sm text-muted-foreground font-medium">Carregando…</p>
+        <p className="text-sm text-muted-foreground font-medium">{t("syncing")}</p>
       </div>
     </div>
   );
@@ -160,35 +163,81 @@ function DashboardSkeleton() {
 
 // ─── Dados dos slides de onboarding ───────────────────────────────────────────
 
-const ONBOARDING_SLIDES = [
+const getOnboardingSlides = (t: any) => [
   {
-    tag: "GROW YOUR MONEY",
+    tag: t("growMoneyTag"),
     stat: "12%",
-    statSub: "annual return",
-    title: "Earn up to\n12% a year",
-    description:
-      "High-yield accounts that outperform your bank — without the complexity.",
+    statSub: t("growMoneyDesc").split(" — ")[0], // Pega a parte do rendimento se houver
+    title: t("growMoneyTitle"),
+    description: t("growMoneyDesc"),
   },
   {
-    tag: "ALWAYS ON",
+    tag: t("alwaysOnTag"),
     stat: "24/7",
-    statSub: "growing",
-    title: "Your money\nnever sleeps",
-    description:
-      "Your money grows every second, day and night. Available anytime, no waiting.",
+    statSub: t("alwaysOnTitle").split("\n")[1],
+    title: t("alwaysOnTitle"),
+    description: t("alwaysOnDesc"),
   },
   {
-    tag: "PAY SMARTER",
+    tag: t("paySmarterTag"),
     stat: "$0",
-    statSub: "conversion fees",
-    title: "Pay any bill\nin seconds",
-    description: "Convert just enough to cover it. The rest keeps earning.",
+    statSub: t("paySmarterDesc").split(". ")[0],
+    title: t("paySmarterTitle"),
+    description: t("paySmarterDesc"),
   },
 ];
+
+// ─── Seletor de Idioma ────────────────────────────────────────────────────────
+
+function LanguageSelector() {
+  const { language, setLanguage } = useLanguage();
+  const [isOpen, setIsOpen] = useState(false);
+
+  const langs: { id: Language; label: string; flag: string }[] = [
+    { id: "en", label: "English", flag: "🇺🇸" },
+    { id: "pt", label: "Português", flag: "🇧🇷" },
+    { id: "es", label: "Español", flag: "🇪🇸" },
+  ];
+
+  const current = langs.find((l) => l.id === language) || langs[0];
+
+  return (
+    <div className="relative inline-block text-left">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors text-xs font-semibold text-[#0F1A2C]"
+      >
+        <span>{current.flag}</span>
+        <span className="uppercase">{current.id}</span>
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-32 rounded-xl bg-white shadow-lg border border-slate-100 py-1 z-[60] animate-in fade-in zoom-in duration-200">
+          {langs.map((l) => (
+            <button
+              key={l.id}
+              onClick={() => {
+                setLanguage(l.id);
+                setIsOpen(false);
+              }}
+              className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-slate-50 transition-colors ${
+                language === l.id ? "font-bold text-[#0F1A2C]" : "text-slate-600"
+              }`}
+            >
+              <span>{l.flag}</span>
+              <span>{l.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ─── Tela de Login (onboarding + login num card centralizado) ─────────────────
 
 function LoginScreen() {
+  const { t } = useLanguage();
   const [step, setStep] = useState<"onboarding" | "login">("onboarding");
   const [otpStep, setOtpStep] = useState(false);
   const [slideIndex, setSlideIndex] = useState(0);
@@ -198,8 +247,9 @@ function LoginScreen() {
   const { sendCode, loginWithCode } = useLoginWithEmail();
   const { initOAuth } = useLoginWithOAuth();
 
-  const isLastSlide = slideIndex === ONBOARDING_SLIDES.length - 1;
-  const slide = ONBOARDING_SLIDES[slideIndex];
+  const onboardingSlides = useMemo(() => getOnboardingSlides(t), [t]);
+  const isLastSlide = slideIndex === onboardingSlides.length - 1;
+  const slide = onboardingSlides[slideIndex];
 
   const handleNext = () => {
     if (isLastSlide) {
@@ -249,12 +299,15 @@ function LoginScreen() {
               <span className="text-base font-extrabold tracking-[0.2em] text-foreground">
                 VANTS
               </span>
-              <button
-                onClick={() => setStep("login")}
-                className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Skip
-              </button>
+              <div className="flex items-center gap-4">
+                <LanguageSelector />
+                <button
+                  onClick={() => setStep("login")}
+                  className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {t("skip")}
+                </button>
+              </div>
             </div>
 
             {/* Tag — roxo acento, exclusivo do onboarding */}
@@ -289,7 +342,7 @@ function LoginScreen() {
 
             {/* Indicadores + CTA */}
             <div className="flex items-center gap-1.5 mb-5">
-              {ONBOARDING_SLIDES.map((_, i) => (
+              {onboardingSlides.map((_, i) => (
                 <button
                   key={i}
                   onClick={() => setSlideIndex(i)}
@@ -306,7 +359,7 @@ function LoginScreen() {
               onClick={handleNext}
               className="w-full h-[54px] rounded-[12px] text-white bg-primary font-semibold text-base tracking-wide transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
             >
-              {isLastSlide ? "Get Started →" : "Continue →"}
+              {isLastSlide ? `${t("getStarted")} →` : `${t("continue")} →`}
             </button>
           </>
         ) : (
@@ -342,16 +395,16 @@ function LoginScreen() {
               // ── Fluxo OTP de Email ──────────────────────────────────────────
               <>
                 <h1 className="text-[1.6rem] font-bold text-foreground text-center mb-1">
-                  Check your email
+                  {t("checkEmail")}
                 </h1>
                 <p className="text-sm text-muted-foreground text-center mb-8">
-                  We sent a secure login code to <b className="text-foreground">{email}</b>.
+                  {t("sentCode")} <b className="text-foreground">{email}</b>.
                 </p>
 
                 {/* Campo Código */}
                 <div className="w-full mb-3">
                   <label className="block text-[11px] font-bold tracking-[0.12em] uppercase text-muted-foreground mb-2">
-                    Login Code
+                    {t("loginCode")}
                   </label>
                   <input
                     id="login-code-input"
@@ -370,17 +423,17 @@ function LoginScreen() {
                   onClick={handleCodeSubmit}
                   className="w-full h-[52px] rounded-[12px] text-white bg-primary font-semibold text-base mb-5 transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
                 >
-                  Verify Code
+                  {t("verifyCode")}
                 </button>
               </>
             ) : (
               // ── Seleção Email / OAuth ───────────────────────────────────────
               <>
                 <h1 className="text-[1.6rem] font-bold text-foreground text-center mb-1">
-                  Create your account
+                  {t("createAccount")}
                 </h1>
                 <p className="text-sm text-muted-foreground text-center mb-8">
-                  Start earning in under a minute.
+                  {t("startEarning")}
                 </p>
 
                 {/* Email */}
@@ -405,13 +458,13 @@ function LoginScreen() {
                   className="w-full h-[52px] rounded-[12px] text-white bg-primary flex items-center justify-center gap-3 font-semibold text-base mb-5 transition-all duration-150 hover:opacity-90 active:scale-[0.98]"
                 >
                   <Mail className="w-5 h-5" />
-                  Sign in with Email
+                  {t("signInWithEmail")}
                 </button>
 
                 {/* Divisor */}
                 <div className="flex items-center gap-4 w-full mb-5">
                   <div className="flex-1 h-px bg-border" />
-                  <span className="text-sm text-muted-foreground">or</span>
+                  <span className="text-sm text-muted-foreground">{t("or")}</span>
                   <div className="flex-1 h-px bg-border" />
                 </div>
 
@@ -427,7 +480,7 @@ function LoginScreen() {
                     <path d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.3 26.7 36 24 36c-5.2 0-9.5-3-11.3-7.3L6 33.6C9.4 39.6 16.1 44 24 44z" fill="#4CAF50"/>
                     <path d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.3 5.6l6.2 5.2C37 39.5 44 34 44 24c0-1.2-.1-2.4-.4-3.5z" fill="#1976D2"/>
                   </svg>
-                  Continue with Google
+                  {t("continueWithGoogle")}
                 </button>
 
                 {/* Apple */}
@@ -440,23 +493,23 @@ function LoginScreen() {
                     <path d="M14.94 11.54c-.02-2.3 1.88-3.41 1.97-3.47-1.08-1.57-2.75-1.79-3.34-1.81-1.42-.14-2.77.83-3.49.83-.72 0-1.84-.81-3.02-.79-1.56.02-3 .9-3.8 2.29-1.63 2.81-.42 6.97 1.17 9.25.78 1.12 1.71 2.37 2.92 2.33 1.17-.05 1.62-.76 3.04-.76 1.42 0 1.83.76 3.07.74 1.26-.02 2.06-1.15 2.83-2.28.9-1.31 1.27-2.58 1.29-2.64-.03-.01-2.63-1.01-2.64-4z" fill="#000000"/>
                     <path d="M12.68 4.49c.65-.79 1.09-1.88 .97-2.99-.94.04-2.07.63-2.74 1.41-.6.69-1.13 1.8-.99 2.86 1.04.08 2.11-.53 2.76-1.28z" fill="#000000"/>
                   </svg>
-                  Continue with Apple
+                  {t("continueWithApple")}
                 </button>
 
                 <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                  By continuing you agree to our{" "}
+                  {t("termsNotice")}{" "}
                   <button
                     onClick={() => {}}
                     className="text-primary font-medium hover:underline"
                   >
-                    Terms
+                    {t("terms")}
                   </button>
-                  {" "}and{" "}
+                  {" "}{t("and")}{" "}
                   <button
                     onClick={() => {}}
                     className="text-primary font-medium hover:underline"
                   >
-                    Privacy Policy
+                    {t("privacyPolicy")}
                   </button>.
                 </p>
               </>

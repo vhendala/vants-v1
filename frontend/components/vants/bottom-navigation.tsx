@@ -1,26 +1,16 @@
 "use client"
 
 import { Home, TrendingUp, Activity, User } from "lucide-react"
+import { useLanguage } from "../providers/LanguageProvider"
 
 // WHY: A navegação inferior tem 5 itens conforme o design de referência:
 // Home | Invest | [QR central elevado] | Activity | Profile
-// O tipo de view foi expandido para incluir "activity".
 type View = "home" | "invest" | "wallet" | "activity" | "profile"
 
 interface BottomNavigationProps {
   activeView: View
   onViewChange: (view: View) => void
 }
-
-const LEFT_ITEMS = [
-  { id: "home" as const, icon: Home, label: "Home" },
-  { id: "invest" as const, icon: TrendingUp, label: "Invest" },
-]
-
-const RIGHT_ITEMS = [
-  { id: "activity" as const, icon: Activity, label: "Activity" },
-  { id: "profile" as const, icon: User, label: "Profile" },
-]
 
 // Ícone de QR/Scan em SVG inline
 function QrIcon() {
@@ -55,7 +45,7 @@ function NavButton({
         strokeWidth={isActive ? 2.5 : 1.8}
       />
       <span
-        className="text-[10px] font-medium"
+        className="text-[10px] font-medium uppercase tracking-tight"
         style={{ color: isActive ? "#6366F1" : "#94A3B8" }}
       >
         {item.label}
@@ -65,12 +55,24 @@ function NavButton({
 }
 
 export function BottomNavigation({ activeView, onViewChange }: BottomNavigationProps) {
+  const { t } = useLanguage()
+
+  const leftItems = [
+    { id: "home" as const, icon: Home, label: t("home") },
+    { id: "invest" as const, icon: TrendingUp, label: t("invest") },
+  ]
+
+  const rightItems = [
+    { id: "activity" as const, icon: Activity, label: t("activity") },
+    { id: "profile" as const, icon: User, label: t("profile") },
+  ]
+
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-[60] bg-white border-t border-slate-200 safe-bottom">
       <div className="mx-auto max-w-md">
         <div className="flex items-end justify-around px-2 pt-2 pb-3">
           {/* Esquerda */}
-          {LEFT_ITEMS.map((item) => (
+          {leftItems.map((item) => (
             <NavButton
               key={item.id}
               item={item}
@@ -89,10 +91,13 @@ export function BottomNavigation({ activeView, onViewChange }: BottomNavigationP
             >
               <QrIcon />
             </button>
+            <span className="text-[10px] font-medium uppercase mt-1 text-[#94A3B8] tracking-tight">
+              {t("wallet")}
+            </span>
           </div>
 
           {/* Direita */}
-          {RIGHT_ITEMS.map((item) => (
+          {rightItems.map((item) => (
             <NavButton
               key={item.id}
               item={item}
