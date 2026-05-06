@@ -66,11 +66,16 @@ export function TransferView({ onBack }: TransferViewProps) {
         throw new Error(t("secretNotFound") || "Chave de assinatura não encontrada no dispositivo. Autentique novamente.");
       }
 
-      // 3. Pega o XDR não assinado do Backend
+      // 3. Sanitiza os inputs
+      const safeDestination = destination.trim();
+      const safeAmount = Number(amount).toFixed(7).replace(/\.?0+$/, ""); // Ex: 10.5000000 -> 10.5
+      if (Number(safeAmount) <= 0) throw new Error(t("invalidAmount") || "Valor inválido.");
+
+      // 4. Pega o XDR não assinado do Backend
       const buildRes = await fetch(`${API_URL}/api/transactions/transfer/build`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ destination, amount })
+        body: JSON.stringify({ destination: safeDestination, amount: safeAmount })
       });
 
       if (!buildRes.ok) {
@@ -90,7 +95,7 @@ export function TransferView({ onBack }: TransferViewProps) {
       const submitRes = await fetch(`${API_URL}/api/transactions/transfer/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ signedXdr, amount, destination })
+        body: JSON.stringify({ signedXdr, amount: safeAmount, destination: safeDestination })
       });
 
       if (!submitRes.ok) {

@@ -103,9 +103,25 @@ router.post(
       });
 
       res.status(200).json({ success: true, txHash });
-    } catch (error) {
+    } catch (error: any) {
       console.error("[transactionRoutes] Erro ao submeter transferência:", error);
-      res.status(500).json({ error: "Falha ao submeter a transação assinada." });
+      
+      let errorMessage = "Falha ao submeter a transação assinada.";
+      if (error.response?.data?.extras?.result_codes) {
+        const codes = error.response.data.extras.result_codes;
+        console.error("Result codes:", codes);
+        if (codes.operations?.includes("op_no_destination")) {
+          errorMessage = "Conta de destino não existe na rede Stellar.";
+        } else if (codes.operations?.includes("op_no_trust")) {
+          errorMessage = "A conta de destino não possui linha de confiança (Trustline) para USDC.";
+        } else if (codes.operations?.includes("op_underfunded")) {
+          errorMessage = "Saldo insuficiente para realizar a transferência.";
+        } else {
+          errorMessage = `Erro na rede Stellar: ${JSON.stringify(codes)}`;
+        }
+      }
+
+      res.status(500).json({ error: errorMessage });
     }
   }
 );
