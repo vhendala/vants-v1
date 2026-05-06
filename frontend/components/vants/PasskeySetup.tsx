@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Fingerprint, CheckCircle, AlertCircle, Loader2, LogOut } from "lucide-react";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePrivy, useLinkWithPasskey } from "@privy-io/react-auth";
 import * as StellarSdk from "@stellar/stellar-sdk";
 import { useLanguage } from "../providers/LanguageProvider";
 
@@ -22,14 +22,9 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
   const { user, getAccessToken, logout } = usePrivy();
   const router = useRouter();
 
-  // ─── Integração Backend Passkey ───────────────────────────────────────────
+  // ─── Privy Passkey Hook ──────────────────────────────────────────────────────
 
-  /**
-   * WHY: Persiste as credenciais WebAuthn no banco de dados do backend
-   * logo após o sucesso do setup da carteira, amarrando a carteira ao
-   * usuário de forma não-custodial. Usa a publicKey Stellar como identificador
-   * único da credencial nesta fase do MVP.
-   */
+  // WHY: Definida antes do hook pois é referenciada no callback onSuccess.
   async function savePasskeyToBackend(credentialId: string, publicKey: string): Promise<void> {
     const token = await getAccessToken();
     if (!token) throw new Error(t("invalidSession"));
@@ -45,11 +40,34 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({ error: "Unknown error" }));
-      // WHY: Falha na persistência da passkey não deve bloquear o usuário.
-      // Logamos o erro mas deixamos o fluxo principal continuar.
+      // WHY: Falha na persistência não deve bloquear o usuário. Logamos e seguimos.
       console.error("[PasskeySetup] Falha ao registrar passkey no backend:", data.error);
     }
   }
+
+  // WHY: useLinkWithPasskey vincula uma passkey ao usuário já autenticado.
+  // O onSuccess recebe o LinkedAccountWithMetadata do tipo 'passkey',
+  // que contém o credentialId e publicKey REAIS gerados pelo hardware do dispositivo.
+  const { linkWithPasskey } = useLinkWithPasskey({
+    onSuccess: ({ linkedAccount }) => {
+      // WHY: Extraimos as credenciais reais apenas no callback de sucesso do Privy,
+      // garantindo que nunca salvemos um estado intermediário ou inválido.
+      if (linkedAccount.type !== "passkey") return;
+
+      const realCredentialId = linkedAccount.credentialId;
+      const realPublicKey = linkedAccount.publicKey ?? realCredentialId;
+
+      // Persiste no backend de forma assíncrona — não bloqueia a UX.
+      savePasskeyToBackend(realCredentialId, realPublicKey).catch((err) =>
+        console.error("[PasskeySetup] Falha ao persistir passkey:", err)
+      );
+    },
+    onError: (error) => {
+      // WHY: Erro de biometria (usuário cancelou, dispositivo não suporta, etc.)
+      // é tratado aqui e propagado para o estado de erro do componente.
+      console.error("[PasskeySetup] Erro ao vincular passkey Privy:", error);
+    },
+  });
 
   function resolveUserEmail(user: any): string {
     if (!user) return "user@domain.xyz";
@@ -125,10 +143,9 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
         throw new Error(errorData.error ?? `Erro HTTP ${fundRes.status}`);
       }
 
-      // 5. Persiste a binding carteira ↔ dispositivo no backend
-      // WHY: credentialId = publicKey Stellar nesta fase MVP. Em versões futuras,
-      // o credentialId virá do authenticatorData da resposta WebAuthn nativa.
-      await savePasskeyToBackend(publicKey, publicKey);
+      // 5. Aciona biometria real do dispositivo via Privy SDK e persiste as
+      // credenciais WebAuthn reais no backend via callback onSuccess do hook.
+      await linkWithPasskey();
 
       setStep("success");
       setTimeout(() => onComplete(publicKey), 1500);
