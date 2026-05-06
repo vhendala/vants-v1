@@ -5,9 +5,10 @@ import { useLanguage } from "../providers/LanguageProvider"
 
 interface QuickActionsProps {
   onPayBill?: () => void
+  onTransfer?: () => void
 }
 
-export function QuickActions({ onPayBill }: QuickActionsProps) {
+export function QuickActions({ onPayBill, onTransfer }: QuickActionsProps) {
   const { t } = useLanguage()
   const actions = [
     {
@@ -30,9 +31,9 @@ export function QuickActions({ onPayBill }: QuickActionsProps) {
       isNavy: false,
     },
     {
-      id: "swap",
+      id: "transfer",
       icon: ArrowLeftRight,
-      label: t("swap"),
+      label: t("transfer") || "Transferir",
       buttonStyle: { backgroundColor: "#FFFFFF" },
       iconClass: "text-slate-700",
       labelClass: "text-slate-900",
@@ -45,7 +46,10 @@ export function QuickActions({ onPayBill }: QuickActionsProps) {
       {actions.map((action) => (
         <button
           key={action.id}
-          onClick={action.id === "pay" ? onPayBill : undefined}
+          onClick={
+            action.id === "pay" ? onPayBill : 
+            action.id === "transfer" ? onTransfer : undefined
+          }
           className="flex flex-1 flex-col items-center gap-2"
         >
           <div

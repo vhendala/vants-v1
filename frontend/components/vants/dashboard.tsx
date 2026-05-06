@@ -27,6 +27,7 @@ import { RecentActivity } from "./recent-activity";
 import { BottomNavigation } from "./bottom-navigation";
 import { InvestmentsView } from "./investments-view";
 import { PaymentView } from "./payment-view";
+import { TransferView } from "./transfer-view";
 import { WalletView } from "./wallet-view";
 import { PasskeySetup } from "./PasskeySetup";
 import { ProfileView } from "./profile-view";
@@ -49,6 +50,7 @@ export function VantsDashboard() {
   const { ready, authenticated, login, getAccessToken } = usePrivy();
   const [activeView, setActiveView] = useState<View>("home");
   const [showPayment, setShowPayment] = useState(false);
+  const [showTransfer, setShowTransfer] = useState(false);
   const [accountStatus, setAccountStatus] = useState<AccountStatus>({
     state: "loading",
   });
@@ -112,6 +114,10 @@ export function VantsDashboard() {
     return <PaymentView onBack={() => setShowPayment(false)} />;
   }
 
+  if (showTransfer) {
+    return <TransferView onBack={() => setShowTransfer(false)} />;
+  }
+
   // ─── Dashboard principal ───────────────────────────────────────────────────────
 
   return (
@@ -124,7 +130,10 @@ export function VantsDashboard() {
             <main className="px-4 py-4 flex flex-col gap-5 bg-white md:bg-slate-50">
               <BalanceCard publicKey={accountStatus.publicKey as string} />
               <InvestmentPools />
-              <QuickActions onPayBill={() => setShowPayment(true)} />
+              <QuickActions 
+                onPayBill={() => setShowPayment(true)} 
+                onTransfer={() => setShowTransfer(true)} 
+              />
               <RecentActivity />
             </main>
           )}

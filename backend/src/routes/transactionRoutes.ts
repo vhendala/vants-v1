@@ -30,4 +30,84 @@ router.get(
   }
 );
 
+// ─── POST /api/transactions/transfer/build ──────────────────────────────────────
+
+router.post(
+  "/transfer/build",
+  verifyPrivyToken,
+  async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user.id;
+    const { destination, amount } = req.body;
+
+    if (!destination || !amount) {
+      res.status(400).json({ error: "Parâmetros 'destination' e 'amount' são obrigatórios." });
+      return;
+    }
+
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { smartWalletAddress: true },
+      });
+
+      if (!user || !user.smartWalletAddress) {
+        res.status(404).json({ error: "Carteira do usuário não encontrada." });
+        return;
+      }
+
+      const { buildTransferUsdcTransaction } = await import("../services/stellarService");
+      const unsignedXdr = await buildTransferUsdcTransaction(
+        user.smartWalletAddress,
+        destination,
+        amount
+      );
+
+      res.status(200).json({ unsignedXdr });
+    } catch (error) {
+      console.error("[transactionRoutes] Erro ao construir transferência:", error);
+      res.status(500).json({ error: "Falha ao construir a transação." });
+    }
+  }
+);
+
+// ─── POST /api/transactions/transfer/submit ─────────────────────────────────────
+
+router.post(
+  "/transfer/submit",
+  verifyPrivyToken,
+  async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user.id;
+    const { signedXdr, amount, destination } = req.body;
+
+    if (!signedXdr || !amount || !destination) {
+      res.status(400).json({ error: "signedXdr, amount, destination são obrigatórios." });
+      return;
+    }
+
+    try {
+      const { submitSignedTransaction } = await import("../services/stellarService");
+      
+      const txHash = await submitSignedTransaction(signedXdr);
+
+      // Salva no banco de dados como PAYMENT para que apareça no histórico
+      await prisma.transaction.create({
+        data: {
+          userId,
+          type: "PAYMENT",
+          amount: amount,
+          asset: "USDC",
+          status: "COMPLETED",
+          txHash: txHash,
+          description: `Transferência para ${destination.substring(0, 4)}...${destination.slice(-4)}`,
+        },
+      });
+
+      res.status(200).json({ success: true, txHash });
+    } catch (error) {
+      console.error("[transactionRoutes] Erro ao submeter transferência:", error);
+      res.status(500).json({ error: "Falha ao submeter a transação assinada." });
+    }
+  }
+);
+
 export default router;

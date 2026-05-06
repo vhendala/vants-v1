@@ -88,3 +88,40 @@ export async function getUsdcBalance(publicKey: string): Promise<string> {
     throw err;
   }
 }
+
+/**
+ * Constrói uma transação de transferência de USDC não assinada (XDR).
+ */
+export async function buildTransferUsdcTransaction(
+  sourcePublicKey: string,
+  destinationPublicKey: string,
+  amount: string
+): Promise<string> {
+  if (!ISSUER_PUBLIC_KEY) {
+    throw new Error("Configuração do emissor USDC ausente no .env");
+  }
+
+  // 1. Carrega a conta de origem
+  const sourceAccount = await server.loadAccount(sourcePublicKey);
+  
+  // 2. Define o asset USDC
+  const usdcAsset = new StellarSdk.Asset("USDC", ISSUER_PUBLIC_KEY);
+
+  // 3. Constrói a transação
+  const tx = new StellarSdk.TransactionBuilder(sourceAccount, {
+    fee: StellarSdk.BASE_FEE,
+    networkPassphrase: StellarSdk.Networks.TESTNET,
+  })
+    .addOperation(
+      StellarSdk.Operation.payment({
+        destination: destinationPublicKey,
+        asset: usdcAsset,
+        amount: amount,
+      })
+    )
+    .setTimeout(60) // 60 segundos para o usuário assinar e submeter
+    .build();
+
+  // Retorna a transação em formato XDR (base64) para ser assinada no cliente
+  return tx.toXDR();
+}
