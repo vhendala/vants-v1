@@ -108,8 +108,21 @@ export const translations = {
     done: "Done",
     settledIn: "Settled in",
     seconds: "seconds",
-    keepsGrowing: "keeps growing at",
     aYear: "a year",
+
+    // Transfer
+    transfer: "Transfer",
+    transferComplete: "Transfer Complete",
+    sendUSDC: "Send USDC",
+    sendDesc: "Transfer USDC globally and in seconds on the Stellar network.",
+    destinationAddress: "Destination Stellar Address",
+    amount: "Amount (USDC)",
+    invalidAmount: "Invalid amount.",
+    confirmTransfer: "Confirm Transfer",
+    sentTo: "Sent to",
+    error: "Transaction Error",
+    secretNotFound: "Signing key not found on device. Please authenticate again.",
+    biometricsFailed: "Biometric verification failed.",
 
     // Investments
     portfolio: "PORTFOLIO",
@@ -250,8 +263,21 @@ export const translations = {
     done: "Concluído",
     settledIn: "Liquidado em",
     seconds: "segundos",
-    keepsGrowing: "continua rendendo",
     aYear: "ao ano",
+
+    // Transfer
+    transfer: "Transferir",
+    transferComplete: "Transferência Completa",
+    sendUSDC: "Enviar USDC",
+    sendDesc: "Transfira USDC globalmente e em segundos na rede Stellar.",
+    destinationAddress: "Endereço Stellar de Destino",
+    amount: "Valor (USDC)",
+    invalidAmount: "Valor inválido.",
+    confirmTransfer: "Confirmar Transferência",
+    sentTo: "Enviado para",
+    error: "Erro na transação",
+    secretNotFound: "Chave de assinatura não encontrada no dispositivo. Autentique novamente.",
+    biometricsFailed: "Falha na verificação biométrica.",
 
     // Investments
     portfolio: "PORTFÓLIO",
@@ -391,8 +417,21 @@ export const translations = {
     done: "Hecho",
     settledIn: "Liquidado en",
     seconds: "segundos",
-    keepsGrowing: "sigue creciendo al",
     aYear: "al año",
+
+    // Transfer
+    transfer: "Transferir",
+    transferComplete: "Transferencia Completa",
+    sendUSDC: "Enviar USDC",
+    sendDesc: "Transfiere USDC globalmente y en segundos en la red Stellar.",
+    destinationAddress: "Dirección Stellar de Destino",
+    amount: "Monto (USDC)",
+    invalidAmount: "Monto inválido.",
+    confirmTransfer: "Confirmar Transferencia",
+    sentTo: "Enviado a",
+    error: "Error en la transacción",
+    secretNotFound: "Clave de firma no encontrada en el dispositivo. Por favor, autentíquese de nuevo.",
+    biometricsFailed: "Fallo en la verificación biométrica.",
 
     // Investments
     portfolio: "PORTAFOLIO",
