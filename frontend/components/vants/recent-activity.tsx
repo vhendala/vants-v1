@@ -53,8 +53,8 @@ function TxRow({ tx }: { tx: Transaction }) {
 
   
   const formattedAmount = parseFloat(tx.amount).toLocaleString("pt-BR", {
-    minimumFractionDigits: isInitialDeposit ? 0 : 2,
-    maximumFractionDigits: isInitialDeposit ? 0 : 2,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   })
 
   // Formatação de data "Apr 26 · Completed"
@@ -79,7 +79,7 @@ function TxRow({ tx }: { tx: Transaction }) {
           className="text-[15px] font-bold"
           style={{ color: amountColor }}
         >
-          {sign}{formattedAmount} {!isInitialDeposit && tx.asset}
+          {sign}{formattedAmount} {tx.asset}
         </span>
       </div>
     </div>
