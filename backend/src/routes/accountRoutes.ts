@@ -123,7 +123,10 @@ router.get(
   async (req: Request, res: Response): Promise<void> => {
     const userId = req.user.id;
     const user = await prisma.user.findUnique({ where: { id: userId }, select: { smartWalletAddress: true } });
-    if (!user?.smartWalletAddress) return res.status(200).json({ balance: "0.00", asset: "USDC" });
+    if (!user?.smartWalletAddress) {
+      res.status(200).json({ balance: "0.00", asset: "USDC" });
+      return;
+    }
     const balance = await getUsdcBalance(user.smartWalletAddress);
     res.status(200).json({ balance, asset: "USDC" });
   }
