@@ -22,6 +22,35 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
   const { user, getAccessToken, logout } = usePrivy();
   const router = useRouter();
 
+  // ─── Integração Backend Passkey ───────────────────────────────────────────
+
+  /**
+   * WHY: Persiste as credenciais WebAuthn no banco de dados do backend
+   * logo após o sucesso do setup da carteira, amarrando a carteira ao
+   * usuário de forma não-custodial. Usa a publicKey Stellar como identificador
+   * único da credencial nesta fase do MVP.
+   */
+  async function savePasskeyToBackend(credentialId: string, publicKey: string): Promise<void> {
+    const token = await getAccessToken();
+    if (!token) throw new Error(t("invalidSession"));
+
+    const res = await fetch(`${API_URL}/api/passkey/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ credentialId, publicKey }),
+    });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => ({ error: "Unknown error" }));
+      // WHY: Falha na persistência da passkey não deve bloquear o usuário.
+      // Logamos o erro mas deixamos o fluxo principal continuar.
+      console.error("[PasskeySetup] Falha ao registrar passkey no backend:", data.error);
+    }
+  }
+
   function resolveUserEmail(user: any): string {
     if (!user) return "user@domain.xyz";
     if (user.email?.address) return user.email.address;
@@ -95,6 +124,11 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
         const errorData = await fundRes.json().catch(() => ({ error: "Unknown error" }));
         throw new Error(errorData.error ?? `Erro HTTP ${fundRes.status}`);
       }
+
+      // 5. Persiste a binding carteira ↔ dispositivo no backend
+      // WHY: credentialId = publicKey Stellar nesta fase MVP. Em versões futuras,
+      // o credentialId virá do authenticatorData da resposta WebAuthn nativa.
+      await savePasskeyToBackend(publicKey, publicKey);
 
       setStep("success");
       setTimeout(() => onComplete(publicKey), 1500);

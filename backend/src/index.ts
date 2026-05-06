@@ -10,6 +10,7 @@ import express from "express";
 import cors from "cors";
 import accountRoutes from "./routes/accountRoutes";
 import transactionRoutes from "./routes/transactionRoutes";
+import passkeyRoutes from "./routes/passkeyRoutes";
 
 // ─── Constantes de configuração ───────────────────────────────────────────────
 
@@ -71,6 +72,9 @@ app.use("/api/account", accountRoutes);
 
 // Rotas de transações (Histórico)
 app.use("/api/transactions", transactionRoutes);
+
+// Rotas de Passkeys (WebAuthn / Biometria)
+app.use("/api/passkey", passkeyRoutes);
 
 // ─── 404 handler ─────────────────────────────────────────────────────────────
 
