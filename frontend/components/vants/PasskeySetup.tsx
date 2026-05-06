@@ -159,6 +159,8 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
 
   async function handleLogout() {
     try {
+      sessionStorage.removeItem("vants_wallet_public_key");
+      sessionStorage.removeItem("vants_wallet_secret_tmp");
       await logout();
       router.push("/");
     } catch (err) {

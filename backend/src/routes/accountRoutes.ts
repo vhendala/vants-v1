@@ -80,21 +80,29 @@ router.post(
       // Submete Trustline
       await submitSignedTransaction(trustlineXdr!);
 
-      // Emite USDC (Depósito PIX)
-      const paymentTxHash = await sendUsdcPayment(user.smartWalletAddress);
-
-      // Salva como DEPOSIT para o front mostrar sinal "+"
-      await prisma.transaction.create({
-        data: {
-          userId,
-          type: "DEPOSIT",
-          amount: "10000.00",
-          asset: "USDC",
-          status: "COMPLETED",
-          txHash: paymentTxHash,
-          description: "Depósito PIX",
-        },
+      // Verifica se o usuário já tem o depósito inicial
+      const existingDeposit = await prisma.transaction.findFirst({
+        where: { userId, type: "DEPOSIT", description: "Depósito PIX" }
       });
+
+      let paymentTxHash = "already_funded";
+      if (!existingDeposit) {
+        // Emite USDC (Depósito PIX)
+        paymentTxHash = await sendUsdcPayment(user.smartWalletAddress);
+
+        // Salva como DEPOSIT para o front mostrar sinal "+"
+        await prisma.transaction.create({
+          data: {
+            userId,
+            type: "DEPOSIT",
+            amount: "10000.00",
+            asset: "USDC",
+            status: "COMPLETED",
+            txHash: paymentTxHash,
+            description: "Depósito PIX",
+          },
+        });
+      }
 
       res.status(200).json({ success: true, txHash: paymentTxHash });
     } catch (error) {

@@ -88,6 +88,12 @@ export function TransferView({ onBack }: TransferViewProps) {
       // 4. Assina o XDR localmente
       const keypair = StellarSdk.Keypair.fromSecret(secret);
       const tx = StellarSdk.TransactionBuilder.fromXDR(unsignedXdr, StellarSdk.Networks.TESTNET);
+      
+      // Verifica se a chave na sessão corresponde à conta do backend
+      if (tx.source !== keypair.publicKey()) {
+        throw new Error(t("invalidSession") || "Chave local não corresponde à sua conta. Saia e entre novamente.");
+      }
+
       tx.sign(keypair);
       const signedXdr = tx.toXDR();
 
