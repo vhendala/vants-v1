@@ -38,14 +38,23 @@ function TxIcon({ type }: { type: Transaction["type"] }) {
 }
 
 function TxRow({ tx }: { tx: Transaction }) {
-  const isPositive = tx.type === "DEPOSIT" || tx.type === "YIELD"
+  const isInitialDeposit = tx.amount === "10000.00" && (tx.type === "DEPOSIT" || tx.description?.includes("Depósito PIX"))
+  const isPositive = tx.type === "DEPOSIT" || tx.type === "YIELD" || isInitialDeposit
   const amountColor = isPositive ? "#10B981" : "#0F1A2C"
   const sign = isPositive ? "+" : "−"
 
-  // Formatação do valor numérico
-  const formattedAmount = parseFloat(tx.amount).toLocaleString("en-US", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+  // Normalização da descrição para o hackathon
+  let displayDescription = tx.description || tx.type
+  if (displayDescription.includes("Depósito PIX")) {
+    displayDescription = "Depósito PIX"
+  }
+
+  // Formatação do valor numérico (hackathon style: +10.000)
+
+  
+  const formattedAmount = parseFloat(tx.amount).toLocaleString("pt-BR", {
+    minimumFractionDigits: isInitialDeposit ? 0 : 2,
+    maximumFractionDigits: isInitialDeposit ? 0 : 2,
   })
 
   // Formatação de data "Apr 26 · Completed"
@@ -60,7 +69,7 @@ function TxRow({ tx }: { tx: Transaction }) {
 
       <div className="flex-1 min-w-0">
         <p className="text-[15px] font-semibold text-[#0F1A2C] leading-tight truncate">
-          {tx.description || tx.type}
+          {displayDescription}
         </p>
         <p className="text-[13px] text-slate-500 mt-0.5">{subtitle}</p>
       </div>
@@ -70,7 +79,7 @@ function TxRow({ tx }: { tx: Transaction }) {
           className="text-[15px] font-bold"
           style={{ color: amountColor }}
         >
-          {sign}{formattedAmount} {tx.asset}
+          {sign}{formattedAmount} {!isInitialDeposit && tx.asset}
         </span>
       </div>
     </div>
