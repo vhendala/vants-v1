@@ -16,6 +16,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { Mail, Globe } from "lucide-react";
 import { useLanguage } from "../providers/LanguageProvider";
+import { LanguageSelector } from "../providers/LanguageSelector";
 import { Language } from "../../lib/translations";
 import { usePrivy, useLoginWithEmail, useLoginWithOAuth } from "@privy-io/react-auth";
 import { Header } from "./header";
@@ -151,6 +152,7 @@ export function VantsDashboard() {
 // ─── Skeleton de carregamento ──────────────────────────────────────────────────
 
 function DashboardSkeleton() {
+  const { t } = useLanguage();
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
@@ -187,52 +189,6 @@ const getOnboardingSlides = (t: any) => [
   },
 ];
 
-// ─── Seletor de Idioma ────────────────────────────────────────────────────────
-
-function LanguageSelector() {
-  const { language, setLanguage } = useLanguage();
-  const [isOpen, setIsOpen] = useState(false);
-
-  const langs: { id: Language; label: string; flag: string }[] = [
-    { id: "en", label: "English", flag: "🇺🇸" },
-    { id: "pt", label: "Português", flag: "🇧🇷" },
-    { id: "es", label: "Español", flag: "🇪🇸" },
-  ];
-
-  const current = langs.find((l) => l.id === language) || langs[0];
-
-  return (
-    <div className="relative inline-block text-left">
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 transition-colors text-xs font-semibold text-[#0F1A2C]"
-      >
-        <span>{current.flag}</span>
-        <span className="uppercase">{current.id}</span>
-      </button>
-
-      {isOpen && (
-        <div className="absolute right-0 mt-2 w-32 rounded-xl bg-white shadow-lg border border-slate-100 py-1 z-[60] animate-in fade-in zoom-in duration-200">
-          {langs.map((l) => (
-            <button
-              key={l.id}
-              onClick={() => {
-                setLanguage(l.id);
-                setIsOpen(false);
-              }}
-              className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-slate-50 transition-colors ${
-                language === l.id ? "font-bold text-[#0F1A2C]" : "text-slate-600"
-              }`}
-            >
-              <span>{l.flag}</span>
-              <span>{l.label}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ─── Tela de Login (onboarding + login num card centralizado) ─────────────────
 

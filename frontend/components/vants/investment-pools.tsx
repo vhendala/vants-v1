@@ -1,4 +1,4 @@
-"use client"
+import { useLanguage } from "../providers/LanguageProvider"
 
 // Mini line chart idêntico ao das imagens
 function MiniChart() {
@@ -17,13 +17,13 @@ function MiniChart() {
   )
 }
 
-const pools = [
+const getPools = (t: any) => [
   {
     id: "core-yield",
     name: "Core Yield",
     iconLetter: "C",
     iconBg: "#1A56DB",
-    apy: "8.2% return",
+    apy: `8.2% ${t("returns").toLowerCase()}`,
     value: "$1,200.23",
     returns: "+$8.20",
   },
@@ -32,19 +32,22 @@ const pools = [
     name: "Balanced",
     iconLetter: "B",
     iconBg: "#0F1A2C",
-    apy: "12.1% return",
+    apy: `12.1% ${t("returns").toLowerCase()}`,
     value: "$340.00",
     returns: "+$4.27",
   },
 ]
 
 export function InvestmentPools() {
+  const { t } = useLanguage()
+  const pools = getPools(t)
+
   return (
     <section>
       <div className="flex items-center justify-between mb-3">
-        <h2 className="text-[17px] font-bold text-slate-900">My investments</h2>
+        <h2 className="text-[17px] font-bold text-slate-900">{t("myInvestments")}</h2>
         <button className="text-[13px] font-medium" style={{ color: "#6366F1" }}>
-          See all
+          {t("seeAll")}
         </button>
       </div>
 

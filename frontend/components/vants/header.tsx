@@ -3,8 +3,11 @@
 import { useRouter } from "next/navigation"
 import { Bell, LogOut } from "lucide-react"
 import { usePrivy } from "@privy-io/react-auth"
+import { useLanguage } from "../providers/LanguageProvider"
+import { LanguageSelector } from "../providers/LanguageSelector"
 
 export function Header() {
+  const { t } = useLanguage()
   const router = useRouter()
   const { logout } = usePrivy()
 
@@ -31,21 +34,22 @@ export function Header() {
         {/* Sino de notificação com badge */}
         <button
           className="relative flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 transition-colors"
-          aria-label="Notificações"
+          aria-label={t("notifications")}
         >
           <Bell className="h-4 w-4" />
           <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-red-500 border-2 border-white" />
         </button>
 
-        {/* Avatar "WM" — Deep Navy */}
+        <LanguageSelector />
+
+        {/* Botão de Sair — Cinza slate-500, combinando com o sino */}
         <button
           onClick={handleLogout}
-          className="flex h-9 w-9 items-center justify-center rounded-full text-white text-xs font-bold transition-opacity hover:opacity-80"
-          style={{ backgroundColor: "#0F1A2C" }}
-          aria-label="Perfil / Sair"
-          title="Clique para sair"
+          className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 transition-colors"
+          aria-label={t("logout")}
+          title={t("logout")}
         >
-          WM
+          <LogOut className="h-4 w-4" />
         </button>
       </div>
     </header>

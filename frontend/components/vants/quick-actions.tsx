@@ -1,17 +1,19 @@
 "use client"
 
 import { CreditCard, Plus, ArrowLeftRight } from "lucide-react"
+import { useLanguage } from "../providers/LanguageProvider"
 
 interface QuickActionsProps {
   onPayBill?: () => void
 }
 
 export function QuickActions({ onPayBill }: QuickActionsProps) {
+  const { t } = useLanguage()
   const actions = [
     {
       id: "pay",
       icon: CreditCard,
-      label: "Pay",
+      label: t("pay"),
       // Botão navy com ícone e label brancos — exatamente como na imagem
       buttonStyle: { backgroundColor: "#0F1A2C" },
       iconClass: "text-white",
@@ -21,7 +23,7 @@ export function QuickActions({ onPayBill }: QuickActionsProps) {
     {
       id: "deposit",
       icon: Plus,
-      label: "Deposit",
+      label: t("deposit"),
       buttonStyle: { backgroundColor: "#FFFFFF" },
       iconClass: "text-slate-700",
       labelClass: "text-slate-900",
@@ -30,7 +32,7 @@ export function QuickActions({ onPayBill }: QuickActionsProps) {
     {
       id: "swap",
       icon: ArrowLeftRight,
-      label: "Swap",
+      label: t("swap"),
       buttonStyle: { backgroundColor: "#FFFFFF" },
       iconClass: "text-slate-700",
       labelClass: "text-slate-900",

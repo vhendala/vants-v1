@@ -1,7 +1,8 @@
 "use client"
 
+import { useLanguage } from "../providers/LanguageProvider"
+
 // ─── Mini gráfico de linha decorativo SVG ────────────────────────────────────
-// Simula a curva ascendente que aparece nas imagens de referência
 function MiniLineChart({ color = "#10B981" }: { color?: string }) {
   return (
     <svg viewBox="0 0 120 36" className="w-full h-9" preserveAspectRatio="none">
@@ -13,7 +14,6 @@ function MiniLineChart({ color = "#10B981" }: { color?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      {/* Ponto final */}
       <circle cx="120" cy="2" r="3" fill={color} />
     </svg>
   )
@@ -21,18 +21,14 @@ function MiniLineChart({ color = "#10B981" }: { color?: string }) {
 
 // ─── Donut Chart SVG ──────────────────────────────────────────────────────────
 function DonutChart() {
-  // Core 69% (indigo #6366F1), Balanced 20% (green #10B981), Cash 11% (lavender)
-  // Circunferência de um círculo r=15.9: 2π × 15.9 ≈ 99.9
   const circumference = 99.9
   const coreOffset = 0
-  const balancedOffset = circumference * (1 - 0.69) // começa após Core
+  const balancedOffset = circumference * (1 - 0.69)
   const cashOffset = circumference * (1 - 0.69 - 0.20)
 
   return (
     <svg viewBox="0 0 42 42" className="w-28 h-28 -rotate-90">
-      {/* Track */}
       <circle cx="21" cy="21" r="15.9" fill="none" stroke="#E2E8F0" strokeWidth="4" />
-      {/* Cash 11% — lavender */}
       <circle
         cx="21" cy="21" r="15.9" fill="none"
         stroke="#C7D2FE"
@@ -41,7 +37,6 @@ function DonutChart() {
         strokeDashoffset={-cashOffset}
         strokeLinecap="round"
       />
-      {/* Balanced 20% — green */}
       <circle
         cx="21" cy="21" r="15.9" fill="none"
         stroke="#10B981"
@@ -50,7 +45,6 @@ function DonutChart() {
         strokeDashoffset={-balancedOffset}
         strokeLinecap="round"
       />
-      {/* Core 69% — indigo */}
       <circle
         cx="21" cy="21" r="15.9" fill="none"
         stroke="#6366F1"
@@ -64,7 +58,6 @@ function DonutChart() {
 }
 
 // ─── Card de posição ativa ────────────────────────────────────────────────────
-
 interface Position {
   id: string
   iconLetter: string
@@ -77,35 +70,9 @@ interface Position {
   returns: string
 }
 
-const POSITIONS: Position[] = [
-  {
-    id: "core",
-    iconLetter: "C",
-    iconBg: "#1A56DB",
-    name: "Core Yield",
-    risk: "Low Risk · Stable",
-    returnPct: "8.2% return",
-    current: "$1,200.23",
-    deposited: "$1,000.00",
-    returns: "+200.23",
-  },
-  {
-    id: "balanced",
-    iconLetter: "B",
-    iconBg: "#0F1A2C",
-    name: "Balanced",
-    risk: "Medium Risk · Growth",
-    returnPct: "12.1% return",
-    current: "$340.00",
-    deposited: "$300.00",
-    returns: "+40.00",
-  },
-]
-
-function PositionCard({ pos }: { pos: Position }) {
+function PositionCard({ pos, t }: { pos: Position; t: any }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
-      {/* Cabeçalho */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
           <div
@@ -127,42 +94,38 @@ function PositionCard({ pos }: { pos: Position }) {
         </span>
       </div>
 
-      {/* Stats: Current / Deposited / Returns */}
       <div className="grid grid-cols-3 gap-2 mb-4">
         <div>
-          <p className="text-[11px] text-slate-500 mb-0.5">Current</p>
+          <p className="text-[11px] text-slate-500 mb-0.5">{t("current")}</p>
           <p className="text-[15px] font-bold text-slate-900">{pos.current}</p>
         </div>
         <div>
-          <p className="text-[11px] text-slate-500 mb-0.5">Deposited</p>
+          <p className="text-[11px] text-slate-500 mb-0.5">{t("deposited")}</p>
           <p className="text-[15px] font-bold text-slate-900">{pos.deposited}</p>
         </div>
         <div>
-          <p className="text-[11px] text-slate-500 mb-0.5">Returns</p>
+          <p className="text-[11px] text-slate-500 mb-0.5">{t("returns")}</p>
           <p className="text-[15px] font-bold" style={{ color: "#10B981" }}>
             {pos.returns}
           </p>
         </div>
       </div>
 
-      {/* Mini chart */}
       <div className="mb-4">
         <MiniLineChart />
       </div>
 
-      {/* Botão Deposit More */}
       <button
         className="w-full py-3 rounded-2xl text-[14px] font-semibold transition-colors"
         style={{ backgroundColor: "#EEF2FF", color: "#6366F1" }}
       >
-        + Deposit More
+        + {t("depositMore")}
       </button>
     </div>
   )
 }
 
 // ─── Cards "Earn more" ────────────────────────────────────────────────────────
-
 interface EarnCard {
   id: string
   name: string
@@ -174,30 +137,7 @@ interface EarnCard {
   description: string
 }
 
-const EARN_CARDS: EarnCard[] = [
-  {
-    id: "reserve",
-    name: "Reserve+",
-    risk: "Very Low Risk",
-    riskColor: "#10B981",
-    riskBg: "#ECFDF5",
-    apy: "5.1%",
-    invested: "$112M invested",
-    description: "Liquid savings with a daily return. Always available, zero lock-up.",
-  },
-  {
-    id: "core",
-    name: "Core Yield",
-    risk: "Low Risk",
-    riskColor: "#10B981",
-    riskBg: "#ECFDF5",
-    apy: "8.2%",
-    invested: "$78M invested",
-    description: "Consistent returns from diversified fixed income. The reliable choice.",
-  },
-]
-
-function EarnCard({ card }: { card: EarnCard }) {
+function EarnCardItem({ card, t }: { card: EarnCard; t: any }) {
   return (
     <div className="flex-1 bg-white rounded-2xl border border-slate-200 p-4 flex flex-col">
       <div className="flex items-start justify-between mb-3">
@@ -212,7 +152,7 @@ function EarnCard({ card }: { card: EarnCard }) {
 
       <p className="text-[28px] font-bold mb-0.5" style={{ color: "#10B981" }}>
         {card.apy}
-        <span className="text-[14px] font-medium text-slate-500"> / yr</span>
+        <span className="text-[14px] font-medium text-slate-500"> / {t("yearAbbr")}</span>
       </p>
       <p className="text-[12px] text-slate-500 mb-3">{card.invested}</p>
       <p className="text-[12px] text-slate-600 flex-1 mb-4">{card.description}</p>
@@ -221,37 +161,82 @@ function EarnCard({ card }: { card: EarnCard }) {
         className="w-full py-3 rounded-xl text-[14px] font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
         style={{ backgroundColor: "#0F1A2C" }}
       >
-        Invest
+        {t("invest")}
       </button>
     </div>
   )
 }
 
 // ─── View principal ───────────────────────────────────────────────────────────
-
 export function InvestmentsView() {
+  const { t } = useLanguage()
+
+  const positions: Position[] = [
+    {
+      id: "core",
+      iconLetter: "C",
+      iconBg: "#1A56DB",
+      name: "Core Yield",
+      risk: `${t("lowRisk")} · ${t("stable")}`,
+      returnPct: `8.2% ${t("returns").toLowerCase()}`,
+      current: "$1,200.23",
+      deposited: "$1,000.00",
+      returns: "+200.23",
+    },
+    {
+      id: "balanced",
+      iconLetter: "B",
+      iconBg: "#0F1A2C",
+      name: "Balanced",
+      risk: `${t("mediumRisk")} · ${t("growth")}`,
+      returnPct: `12.1% ${t("returns").toLowerCase()}`,
+      current: "$340.00",
+      deposited: "$300.00",
+      returns: "+40.00",
+    },
+  ]
+
+  const earnCards: EarnCard[] = [
+    {
+      id: "reserve",
+      name: "Reserve+",
+      risk: t("lowRisk"),
+      riskColor: "#10B981",
+      riskBg: "#ECFDF5",
+      apy: "5.1%",
+      invested: `$112M ${t("investedAmount")}`,
+      description: "Liquid savings with a daily return. Always available, zero lock-up.",
+    },
+    {
+      id: "core",
+      name: "Core Yield",
+      risk: t("lowRisk"),
+      riskColor: "#10B981",
+      riskBg: "#ECFDF5",
+      apy: "8.2%",
+      invested: `$78M ${t("investedAmount")}`,
+      description: "Consistent returns from diversified fixed income. The reliable choice.",
+    },
+  ]
+
   return (
     <main className="bg-slate-50 min-h-screen pb-28">
-      {/* Cabeçalho */}
       <div className="bg-white px-5 pt-6 pb-5 border-b border-slate-100">
         <p className="text-[11px] font-bold tracking-widest text-slate-400 uppercase mb-1">
-          PORTFOLIO
+          {t("portfolio")}
         </p>
-        <h1 className="text-[26px] font-bold text-slate-900">Your Investments</h1>
+        <h1 className="text-[26px] font-bold text-slate-900">{t("yourInvestments")}</h1>
       </div>
 
       <div className="px-5 pt-5">
-        {/* Donut + stats */}
         <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-6">
           <div className="flex items-center gap-6">
-            {/* Donut */}
             <div className="shrink-0">
               <DonutChart />
             </div>
 
-            {/* Stats */}
             <div className="flex flex-col gap-1">
-              <p className="text-[12px] text-slate-500">Average annual return</p>
+              <p className="text-[12px] text-slate-500">{t("averageAnnualReturn")}</p>
               <p className="text-[28px] font-bold" style={{ color: "#10B981" }}>
                 8.9%
               </p>
@@ -273,20 +258,18 @@ export function InvestmentsView() {
           </div>
         </div>
 
-        {/* Active positions */}
         <section className="mb-6">
-          <h2 className="text-[17px] font-bold text-slate-900 mb-3">Active positions</h2>
-          {POSITIONS.map((pos) => (
-            <PositionCard key={pos.id} pos={pos} />
+          <h2 className="text-[17px] font-bold text-slate-900 mb-3">{t("activePositions")}</h2>
+          {positions.map((pos) => (
+            <PositionCard key={pos.id} pos={pos} t={t} />
           ))}
         </section>
 
-        {/* Earn more */}
         <section className="mb-6">
-          <h2 className="text-[17px] font-bold text-slate-900 mb-3">Earn more</h2>
+          <h2 className="text-[17px] font-bold text-slate-900 mb-3">{t("earnMore")}</h2>
           <div className="flex gap-3">
-            {EARN_CARDS.map((card) => (
-              <EarnCard key={card.id} card={card} />
+            {earnCards.map((card) => (
+              <EarnCardItem key={card.id} card={card} t={t} />
             ))}
           </div>
         </section>

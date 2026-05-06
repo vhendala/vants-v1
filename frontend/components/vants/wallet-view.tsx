@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { X, Zap, ChevronRight } from "lucide-react"
+import { useLanguage } from "../providers/LanguageProvider"
 
 interface RecentPayee {
   id: string
@@ -40,6 +41,7 @@ interface WalletViewProps {
 }
 
 export function WalletView({ onPayBill }: WalletViewProps) {
+  const { t } = useLanguage()
   // Tela estática mockando o scanner conforme a imagem 3.
   return (
     <div className="flex flex-col min-h-screen bg-[#1c1c1e]">
@@ -52,7 +54,7 @@ export function WalletView({ onPayBill }: WalletViewProps) {
             <X className="h-5 w-5" />
           </button>
           <div className="px-4 py-1.5 rounded-full bg-black/40 backdrop-blur-md">
-            <span className="text-white font-bold text-[14px]">Scan to Pay</span>
+            <span className="text-white font-bold text-[14px]">{t("scanToPay")}</span>
           </div>
           <button className="flex h-10 w-10 items-center justify-center rounded-full bg-black/40 text-white/90">
             <Zap className="h-5 w-5" />
@@ -79,8 +81,8 @@ export function WalletView({ onPayBill }: WalletViewProps) {
 
         {/* Instrução inferior */}
         <div className="flex justify-center mb-6">
-          <p className="text-white font-bold text-[14px]">
-            Align a QR or CLABE code inside the frame
+          <p className="text-white font-bold text-[14px] text-center px-6">
+            {t("alignQr")}
           </p>
         </div>
       </div>
@@ -88,13 +90,13 @@ export function WalletView({ onPayBill }: WalletViewProps) {
       {/* Bottom Sheet */}
       <div className="bg-[#F8FAFC] rounded-t-3xl pt-5 px-5 pb-12 z-20">
         <div className="flex items-center justify-between mb-4 px-1">
-          <h2 className="text-[15px] font-bold text-[#0F1A2C]">Recent payees</h2>
+          <h2 className="text-[15px] font-bold text-[#0F1A2C]">{t("recentPayees")}</h2>
           <button
             onClick={onPayBill}
             className="text-[14px] font-medium"
             style={{ color: "#6366F1" }}
           >
-            Enter manually
+            {t("enterManually")}
           </button>
         </div>
 
