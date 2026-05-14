@@ -1,65 +1,74 @@
+@import url('https://fonts.googleapis.com/css2?family=Zain:wght@700;800;900&display=swap');
 @import "tailwindcss";
 
 /* @custom-variant dark (&:is(.dark *)); */
 
 :root, .dark {
-  /* Light Mode — Deep Navy Design System */
-  --background: #F8FAFC;
-  --foreground: #0F1A2C;
-  --card: #FFFFFF;
-  --card-foreground: #0F1A2C;
-  --popover: #FFFFFF;
-  --popover-foreground: #0F1A2C;
-  --primary: #0F1A2C;
-  --primary-foreground: #FFFFFF;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #0F1A2C;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #F1F5F9;
-  --accent-foreground: #0F1A2C;
+  /* ── Paleta alinhada com Landing Page v2 (oklch hue 218 / 155) ── */
+  --background: oklch(98.5% 0.004 218);
+  --foreground: oklch(14% 0.008 218);
+  --card: oklch(99% 0.003 218);
+  --card-foreground: oklch(14% 0.008 218);
+  --popover: oklch(99% 0.003 218);
+  --popover-foreground: oklch(14% 0.008 218);
+  --primary: oklch(40% 0.115 218);
+  --primary-foreground: oklch(99% 0.003 218);
+  --secondary: oklch(96% 0.005 218);
+  --secondary-foreground: oklch(14% 0.008 218);
+  --muted: oklch(96% 0.005 218);
+  --muted-foreground: oklch(58% 0.006 218);
+  --accent: oklch(94% 0.036 218);
+  --accent-foreground: oklch(40% 0.115 218);
   --destructive: #EF4444;
-  --destructive-foreground: #FFFFFF;
-  --border: #E2E8F0;
-  --input: #E2E8F0;
-  --ring: #0F1A2C;
-  --chart-1: #10B981;
-  --chart-2: #0F1A2C;
-  --chart-3: #10B981;
+  --destructive-foreground: oklch(99% 0.003 218);
+  --border: oklch(91% 0.006 218);
+  --input: oklch(91% 0.006 218);
+  --ring: oklch(56% 0.13 218);
+  --chart-1: oklch(74% 0.13 155);
+  --chart-2: oklch(40% 0.115 218);
+  --chart-3: oklch(74% 0.13 155);
   --chart-4: #F59E0B;
   --chart-5: #EF4444;
   --radius: 0.75rem;
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #0F1A2C;
-  --sidebar-primary: #0F1A2C;
-  --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F1F5F9;
-  --sidebar-accent-foreground: #0F1A2C;
-  --sidebar-border: #E2E8F0;
-  --sidebar-ring: #0F1A2C;
+  --sidebar: oklch(99% 0.003 218);
+  --sidebar-foreground: oklch(14% 0.008 218);
+  --sidebar-primary: oklch(40% 0.115 218);
+  --sidebar-primary-foreground: oklch(99% 0.003 218);
+  --sidebar-accent: oklch(96% 0.005 218);
+  --sidebar-accent-foreground: oklch(14% 0.008 218);
+  --sidebar-border: oklch(91% 0.006 218);
+  --sidebar-ring: oklch(56% 0.13 218);
 
-  /* Vants Brand Tokens — cor oficial #0F1A2C */
-  --vants-navy: #0F1A2C;
-  --vants-navy-hover: #0f2040;
-  /* Verde APENAS semântico — retornos positivos e ícones de sucesso */
-  --vants-success: #10B981;
+  /* ── Vants Brand Tokens — paleta Landing Page v2 ── */
+  --vants-ink: oklch(14% 0.008 218);
+  --vants-blue: oklch(56% 0.13 218);
+  --vants-blue-deep: oklch(40% 0.115 218);
+  --vants-blue-light: oklch(94% 0.036 218);
+  --vants-hero-bg: oklch(44% 0.13 218);
+  --vants-green: oklch(74% 0.13 155);
+  --vants-green-deep: oklch(52% 0.12 155);
+  --vants-surface: oklch(96% 0.005 218);
+  --vants-base: oklch(98.5% 0.004 218);
+  --vants-border: oklch(91% 0.006 218);
+  --vants-muted: oklch(58% 0.006 218);
+  --vants-card-bg: oklch(18% 0.022 218);
+  /* Semânticos — mantidos */
+  --vants-success: oklch(74% 0.13 155);
   --vants-warning: #F59E0B;
   --vants-danger: #EF4444;
-  --vants-text-primary: #0F1A2C;
-  --vants-text-secondary: #64748B;
-  /* Roxo restrito aos slides de onboarding */
-  --vants-accent-purple: #6366F1;
+  /* Acento restrito ao onboarding */
+  --vants-accent-purple: oklch(56% 0.13 218);
 
-  --shadow-card: 0 1px 3px rgba(8,19,41,0.06), 0 1px 2px rgba(8,19,41,0.04);
-  --shadow-navy: 0 4px 16px rgba(8,19,41,0.2);
-  --glow-indigo: 0 0 60px rgba(99,102,241,0.15);
-  --glow-cyan: 0 0 60px rgba(8,19,41,0.08);
-  --glow-success: 0 0 30px rgba(16,185,129,0.3);
+  --shadow-card: 0 1px 3px oklch(14% 0.008 218 / 0.06), 0 1px 2px oklch(14% 0.008 218 / 0.04);
+  --shadow-navy: 0 4px 16px oklch(40% 0.115 218 / 0.25);
+  --glow-indigo: 0 0 60px oklch(56% 0.13 218 / 0.15);
+  --glow-cyan: 0 0 60px oklch(40% 0.115 218 / 0.08);
+  --glow-success: 0 0 30px oklch(74% 0.13 155 / 0.3);
 }
 
 @theme inline {
-  /* Typography - Inter for UI, JetBrains Mono for financial data */
-  --font-sans: var(--font-inter, 'Inter'), 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* Typography - Manrope for UI, JetBrains Mono for financial data */
+  --font-sans: var(--font-manrope, 'Manrope'), var(--font-inter, 'Inter'), 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --font-mono: var(--font-jetbrains-mono, 'JetBrains Mono'), 'JetBrains Mono', ui-monospace, 'SF Mono', 'Monaco', 'Consolas', 'Liberation Mono', monospace;
   --color-background: var(--background);
   --color-foreground: var(--foreground);

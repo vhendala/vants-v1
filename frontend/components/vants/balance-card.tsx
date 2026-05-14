@@ -21,13 +21,13 @@ function BalanceChart() {
       <polyline
         points="0,36 20,34 40,33 55,32 70,30 90,28 110,24 130,20 150,16 165,12 180,9 200,4"
         fill="none"
-        stroke="#10B981"
+        stroke="var(--vants-green)"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
         opacity="0.8"
       />
-      <circle cx="200" cy="4" r="3.5" fill="#10B981" />
+      <circle cx="200" cy="4" r="3.5" fill="var(--vants-green)" />
     </svg>
   )
 }
@@ -122,14 +122,14 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
   return (
     <div
       className="relative overflow-hidden rounded-[24px] text-white"
-      style={{ backgroundColor: "#0F1A2C" }}
+      style={{ backgroundColor: "var(--vants-hero-bg)" }}
     >
       {/* Efeito radial decorativo */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background:
-            "radial-gradient(ellipse at 70% 30%, rgba(99,102,241,0.15) 0%, transparent 65%)",
+            "radial-gradient(ellipse at 70% 30%, oklch(56% 0.13 218 / 0.15) 0%, transparent 65%)",
         }}
       />
 
@@ -207,7 +207,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
         <div className="flex items-center gap-3 mb-4">
           <span
             className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[12px] font-semibold"
-            style={{ backgroundColor: "rgba(16,185,129,0.2)", color: "#10B981" }}
+            style={{ backgroundColor: "oklch(74% 0.13 155 / 0.2)", color: "var(--vants-green)" }}
           >
             ▲ +$0.00 (+0.00%)
           </span>

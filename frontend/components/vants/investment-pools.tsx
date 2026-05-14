@@ -7,12 +7,12 @@ function MiniChart() {
       <polyline
         points="0,22 10,20 20,18 30,17 40,15 50,12 60,9 70,7 80,3"
         fill="none"
-        stroke="#10B981"
+        stroke="var(--vants-green)"
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="80" cy="3" r="2.5" fill="#10B981" />
+      <circle cx="80" cy="3" r="2.5" fill="var(--vants-green)" />
     </svg>
   )
 }
@@ -31,7 +31,7 @@ const getPools = (t: any) => [
     id: "balanced",
     name: "Balanced",
     iconLetter: "B",
-    iconBg: "#0F1A2C",
+    iconBg: "var(--vants-blue-deep)",
     apy: `12.1% ${t("returns").toLowerCase()}`,
     value: "$340.00",
     returns: "+$4.27",
@@ -46,7 +46,7 @@ export function InvestmentPools() {
     <section>
       <div className="flex items-center justify-between mb-3">
         <h2 className="text-[17px] font-bold text-slate-900">{t("myInvestments")}</h2>
-        <button className="text-[13px] font-medium" style={{ color: "#6366F1" }}>
+        <button className="text-[13px] font-medium" style={{ color: "var(--vants-blue)" }}>
           {t("seeAll")}
         </button>
       </div>
@@ -75,11 +75,11 @@ export function InvestmentPools() {
             <div className="flex items-center justify-between">
               <span
                 className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-                style={{ backgroundColor: "#ECFDF5", color: "#10B981" }}
+                style={{ backgroundColor: "oklch(74% 0.13 155 / 0.06)", color: "var(--vants-green)" }}
               >
                 {pool.apy}
               </span>
-              <span className="text-[12px] font-semibold" style={{ color: "#10B981" }}>
+              <span className="text-[12px] font-semibold" style={{ color: "var(--vants-green)" }}>
                 {pool.returns}
               </span>
             </div>

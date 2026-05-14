@@ -43,7 +43,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
 
   if (isPaid) {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] text-[#0F1A2C] flex flex-col font-sans">
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans" style={{ color: "var(--vants-ink)" }}>
         <div className="mx-auto max-w-md w-full flex-1 flex flex-col pt-12 pb-8">
           {/* Sucesso centralizado */}
           <main className="flex-1 flex flex-col items-center pt-8 px-6">
@@ -53,12 +53,12 @@ export function PaymentView({ onBack }: PaymentViewProps) {
               </div>
             </div>
 
-            <h1 className="text-[28px] font-bold text-[#0F1A2C] mb-4">{t("paymentComplete")}</h1>
+            <h1 className="text-[28px] font-bold mb-4" style={{ color: "var(--vants-ink)" }}>{t("paymentComplete")}</h1>
             
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-[40px] font-bold text-[#0F1A2C] leading-none">$100.00</span>
+              <span className="text-[40px] font-bold leading-none" style={{ color: "var(--vants-ink)" }}>$100.00</span>
               <span className="text-[24px] text-slate-400">→</span>
-              <span className="text-[40px] font-bold text-[#0F1A2C] leading-none">1,850.00</span>
+              <span className="text-[40px] font-bold leading-none" style={{ color: "var(--vants-ink)" }}>1,850.00</span>
             </div>
             <p className="text-[18px] font-bold text-slate-500 mb-8">MXN</p>
 
@@ -72,12 +72,12 @@ export function PaymentView({ onBack }: PaymentViewProps) {
             </div>
 
             {/* Banner Roxo de Rendimento */}
-            <div className="w-full rounded-xl border border-indigo-100 p-4 flex gap-3 items-start" style={{ backgroundColor: "#F3F4FE" }}>
+            <div className="w-full rounded-xl border border-indigo-100 p-4 flex gap-3 items-start" style={{ backgroundColor: "var(--vants-blue-light)" }}>
               <div className="flex h-8 w-8 items-center justify-center rounded-lg shrink-0 mt-0.5" style={{ backgroundColor: "#DDE0FE" }}>
-                <Asterisk className="h-4 w-4" style={{ color: "#6366F1" }} />
+                <Asterisk className="h-4 w-4" style={{ color: "var(--vants-blue)" }} />
               </div>
-              <p className="text-[13px] text-[#0F1A2C] leading-relaxed">
-                {t("syncing") === "Syncing..." ? "Your remaining" : "Seu saldo restante de"} <span className="font-bold">$1,100</span> {t("keepsGrowing")} <span className="font-bold" style={{ color: "#10B981" }}>8.2% {t("aYear")}</span>.
+              <p className="text-[13px] leading-relaxed" style={{ color: "var(--vants-ink)" }}>
+                {t("syncing") === "Syncing..." ? "Your remaining" : "Seu saldo restante de"} <span className="font-bold">$1,100</span> {t("keepsGrowing")} <span className="font-bold" style={{ color: "var(--vants-green)" }}>8.2% {t("aYear")}</span>.
               </p>
             </div>
           </main>
@@ -85,7 +85,8 @@ export function PaymentView({ onBack }: PaymentViewProps) {
           {/* Botões Bottom */}
           <div className="px-5 mt-auto pt-8 flex gap-3">
             <button
-              className="flex-1 h-14 rounded-full border border-slate-200 bg-white flex items-center justify-center gap-2 text-[15px] font-bold text-[#0F1A2C] hover:bg-slate-50 transition-colors"
+              className="flex-1 h-14 rounded-full border border-slate-200 bg-white flex items-center justify-center gap-2 text-[15px] font-bold hover:bg-slate-50 transition-colors"
+              style={{ color: "var(--vants-ink)" }}
             >
               <Share2 className="h-4 w-4" />
               {t("shareReceipt")}
@@ -93,7 +94,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
             <button
               onClick={onBack}
               className="flex-1 h-14 rounded-full text-white font-bold text-[15px] hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#0F1A2C" }}
+              style={{ backgroundColor: "var(--vants-blue-deep)" }}
             >
               {t("done")}
             </button>
@@ -104,17 +105,18 @@ export function PaymentView({ onBack }: PaymentViewProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F1A2C] flex flex-col font-sans pb-10">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans pb-10" style={{ color: "var(--vants-ink)" }}>
       <div className="mx-auto max-w-md w-full">
         {/* Header */}
         <header className="flex items-center justify-between px-4 py-4 mb-4">
           <button
             onClick={onBack}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-[#0F1A2C] hover:bg-slate-50 transition-colors"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+            style={{ color: "var(--vants-ink)" }}
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <span className="text-[15px] font-bold text-[#0F1A2C]">{t("reviewPayment")}</span>
+          <span className="text-[15px] font-bold" style={{ color: "var(--vants-ink)" }}>{t("reviewPayment")}</span>
           <div className="w-10" />
         </header>
 
@@ -123,7 +125,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
           <p className="text-[11px] font-medium text-slate-500 uppercase tracking-widest mb-3">{t("youArePaying")}</p>
           <div className="flex items-baseline justify-center gap-1 mb-2">
             <span className="text-[28px] font-bold text-slate-400">$</span>
-            <span className="text-[56px] font-extrabold text-[#0F1A2C] leading-none tracking-tight">100.00</span>
+            <span className="text-[56px] font-extrabold leading-none tracking-tight" style={{ color: "var(--vants-ink)" }}>100.00</span>
             <span className="text-[16px] font-bold text-slate-500 ml-1">USD</span>
           </div>
           <p className="text-[13px] text-slate-500">≈ 1,850.00 MXN · 1 USD = 18.50 MXN</p>
@@ -138,7 +140,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
             </div>
             <div>
               <div className="flex items-center gap-1.5 mb-1">
-                <p className="font-bold text-[15px] text-[#0F1A2C]">CFE Suministrador</p>
+                <p className="font-bold text-[15px]" style={{ color: "var(--vants-ink)" }}>CFE Suministrador</p>
                 <div className="flex h-4 w-4 items-center justify-center rounded-full" style={{ backgroundColor: "#10B981" }}>
                   <Check className="h-3 w-3 text-white" strokeWidth={3} />
                 </div>
@@ -149,7 +151,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
 
           {/* Fonte do Pagamento */}
           <section>
-            <h2 className="text-[17px] font-bold text-[#0F1A2C] mb-4">{t("payFrom")}</h2>
+            <h2 className="text-[17px] font-bold mb-4" style={{ color: "var(--vants-ink)" }}>{t("payFrom")}</h2>
             <div className="flex flex-col gap-3">
               {sources.map((source) => {
                 const isSelected = selectedSource === source.id
@@ -158,13 +160,14 @@ export function PaymentView({ onBack }: PaymentViewProps) {
                     key={source.id}
                     onClick={() => setSelectedSource(source.id)}
                     className={`relative w-full rounded-2xl border p-4 text-left transition-all ${
-                      isSelected ? "border-[#6366F1] bg-[#F3F4FE]" : "border-slate-200 bg-white hover:border-slate-300"
+                      isSelected ? "border-[var(--vants-blue)]" : "border-slate-200 bg-white hover:border-slate-300"
                     }`}
+                    style={isSelected ? { backgroundColor: "var(--vants-blue-light)" } : undefined}
                   >
                     {source.recommended && (
                       <div
                         className="absolute -top-2.5 right-4 px-2 py-0.5 rounded flex items-center gap-1"
-                        style={{ backgroundColor: "#6366F1" }}
+                        style={{ backgroundColor: "var(--vants-blue)" }}
                       >
                         <Asterisk className="h-2.5 w-2.5 text-white" />
                         <span className="text-[9px] font-bold text-white uppercase tracking-wider">{t("recommended")}</span>
@@ -174,15 +177,15 @@ export function PaymentView({ onBack }: PaymentViewProps) {
                     <div className="flex items-start gap-4">
                       {/* Custom Radio Button */}
                       <div className="mt-0.5 flex h-6 w-6 items-center justify-center shrink-0">
-                        <div className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${isSelected ? "border-[#6366F1]" : "border-slate-300"}`}>
-                          {isSelected && <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: "#6366F1" }} />}
+                        <div className={`flex h-5 w-5 items-center justify-center rounded-full border-2 ${isSelected ? "border-[var(--vants-blue)]" : "border-slate-300"}`}>
+                          {isSelected && <div className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: "var(--vants-blue)" }} />}
                         </div>
                       </div>
 
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-1">
-                          <p className="font-bold text-[15px] text-[#0F1A2C]">{source.name}</p>
-                          <p className="font-bold text-[13px] text-[#0F1A2C]">{source.fee}</p>
+                          <p className="font-bold text-[15px]" style={{ color: "var(--vants-ink)" }}>{source.name}</p>
+                          <p className="font-bold text-[13px]" style={{ color: "var(--vants-ink)" }}>{source.fee}</p>
                         </div>
                         <p className="text-[13px] text-slate-500 whitespace-pre-line">{source.description}</p>
                       </div>
@@ -195,9 +198,9 @@ export function PaymentView({ onBack }: PaymentViewProps) {
 
           {/* Resumo - Fee Breakdown */}
           <button className="flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 hover:bg-slate-50 transition-colors">
-            <span className="text-[14px] text-[#0F1A2C]">{t("feeBreakdown")}</span>
+            <span className="text-[14px]" style={{ color: "var(--vants-ink)" }}>{t("feeBreakdown")}</span>
             <div className="flex items-center gap-1">
-              <span className="font-bold text-[14px] text-[#0F1A2C]">Total $100.70</span>
+              <span className="font-bold text-[14px]" style={{ color: "var(--vants-ink)" }}>Total $100.70</span>
               <ChevronRight className="h-4 w-4 text-slate-400" />
             </div>
           </button>
@@ -208,7 +211,7 @@ export function PaymentView({ onBack }: PaymentViewProps) {
           <button
             onClick={() => setIsPaid(true)}
             className="flex w-full h-[60px] items-center justify-center gap-2 rounded-full text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
-            style={{ backgroundColor: "#0F1A2C" }}
+            style={{ backgroundColor: "var(--vants-blue-deep)" }}
           >
             <Lock className="h-4 w-4" />
             <span className="font-bold text-[16px]">{t("confirmPayment")} · $100.70</span>

@@ -50,6 +50,10 @@ export const translations = {
     all: "All",
     noTransactions: "No transactions yet",
     transactionsAppearHere: "Your movements will appear here.",
+    payments: "Payments",
+    deposits: "Deposits",
+    withdrawals: "Withdrawals",
+    returns: "Returns",
     
     // Bottom Nav
     home: "Home",
@@ -204,6 +208,10 @@ export const translations = {
     all: "Ver Tudo",
     noTransactions: "Nenhuma transação ainda",
     transactionsAppearHere: "Suas movimentações aparecerão aqui.",
+    payments: "Pagamentos",
+    deposits: "Depósitos",
+    withdrawals: "Saques",
+    returns: "Rendimentos",
 
     // Bottom Nav
     home: "Início",
@@ -359,12 +367,16 @@ export const translations = {
     all: "Ver Todo",
     noTransactions: "Aún no hay transacciones",
     transactionsAppearHere: "Tus movimientos aparecerán aquí.",
+    payments: "Pagos",
+    deposits: "Depósitos",
+    withdrawals: "Retiros",
+    returns: "Rendimientos",
 
     // Bottom Nav
     home: "Inicio",
     invest: "Invertir",
     wallet: "Billetera",
-    activity: "Actividade",
+    activity: "Actividad",
     profile: "Perfil",
 
     // Profile

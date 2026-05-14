@@ -21,7 +21,8 @@ export function LanguageSelector() {
     <div className="relative inline-block text-left">
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-xs font-semibold text-[#0F1A2C]"
+        className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors text-xs font-semibold"
+        style={{ color: "var(--vants-ink)" }}
       >
         <span>{current.flag}</span>
         <span className="uppercase">{current.id}</span>
@@ -43,8 +44,9 @@ export function LanguageSelector() {
                   setIsOpen(false);
                 }}
                 className={`w-full flex items-center gap-3 px-4 py-2 text-sm hover:bg-slate-50 transition-colors ${
-                  language === l.id ? "font-bold text-[#0F1A2C]" : "text-slate-600"
+                  language === l.id ? "font-bold" : "text-slate-600"
                 }`}
+                style={language === l.id ? { color: "var(--vants-ink)" } : undefined}
               >
                 <span>{l.flag}</span>
                 <span>{l.label}</span>

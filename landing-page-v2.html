@@ -1,0 +1,1788 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vants — Seu dinheiro nunca para de render.</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Zain:wght@300;400;700;800;900&family=Manrope:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --ink:        oklch(14% 0.008 218);
+            --ink-60:     oklch(40% 0.007 218);
+            --muted:      oklch(58% 0.006 218);
+            --base:       oklch(98.5% 0.004 218);
+            --surface:    oklch(96% 0.005 218);
+            --border:     oklch(91% 0.006 218);
+            --blue:       oklch(56% 0.13 218);
+            --blue-deep:  oklch(40% 0.115 218);
+            --blue-light: oklch(94% 0.036 218);
+            --hero-bg:    oklch(44% 0.13 218);
+            --white:      oklch(99% 0.003 218);
+            --green:      oklch(74% 0.13 155);
+            --green-deep: oklch(52% 0.12 155);
+            --card-bg:    oklch(18% 0.022 218);
+            --card-border:oklch(99% 0 0 / 0.09);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Manrope', sans-serif;
+            background: var(--base);
+            color: var(--ink);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ─── NAV ─── */
+        #navbar {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 100;
+            padding: 1.75rem 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: background 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                        padding    0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                        backdrop-filter 0.4s;
+        }
+        #navbar.scrolled {
+            background: oklch(36% 0.115 218 / 0.96);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+        }
+
+        .nav-logo {
+            font-family: 'Zain', sans-serif;
+            font-size: 2.1rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.25rem;
+            list-style: none;
+        }
+        .nav-links a {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: oklch(99% 0 0 / 0.6);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .nav-links a:hover { color: var(--white); }
+
+        .nav-end { display: flex; align-items: center; gap: 1.25rem; }
+
+        .btn-ghost-nav {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            color: oklch(99% 0 0 / 0.6);
+            background: none;
+            border: none;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .btn-ghost-nav:hover { color: var(--white); }
+
+        .btn-pill {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.7rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            background: var(--white);
+            color: var(--blue-deep);
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.25s;
+        }
+        .btn-pill:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px oklch(30% 0.12 218 / 0.35);
+        }
+
+        /* hamburger */
+        .nav-hamburger {
+            display: none;
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--white);
+            padding: 0.5rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .nav-hamburger svg { display: block; }
+
+        /* ─── MOBILE NAV ─── */
+        .mobile-nav {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            z-index: 98;
+            background: var(--blue-deep);
+            padding: 5rem 5% 2.5rem;
+            transform: translateY(-110%);
+            visibility: hidden;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                        visibility 0s 0.4s;
+        }
+        .mobile-nav.open {
+            transform: translateY(0);
+            visibility: visible;
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+                        visibility 0s 0s;
+        }
+        .mobile-nav-links { list-style: none; }
+        .mobile-nav-links li { border-bottom: 1px solid oklch(99% 0 0 / 0.08); }
+        .mobile-nav-links a {
+            display: block;
+            font-family: 'Zain', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: var(--white);
+            text-decoration: none;
+            padding: 1rem 0;
+        }
+        .mobile-nav-cta {
+            margin-top: 2rem;
+        }
+        .btn-mobile-cta {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            background: var(--white);
+            color: var(--blue-deep);
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 100px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        /* ─── HERO ─── */
+        .hero {
+            min-height: 100svh;
+            background: var(--hero-bg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: clamp(7rem, 14vh, 10rem) 5%;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* radial ambient glow */
+        .hero::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 60% 50% at 20% 60%, oklch(52% 0.10 218 / 0.5) 0%, transparent 70%),
+                radial-gradient(ellipse 40% 60% at 80% 30%, oklch(48% 0.12 218 / 0.3) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        /* watermark */
+        .hero::before {
+            content: 'V';
+            font-family: 'Zain', sans-serif;
+            font-weight: 900;
+            font-size: clamp(30rem, 70vw, 90rem);
+            line-height: 0.8;
+            letter-spacing: -0.06em;
+            color: oklch(48% 0.13 218 / 0.18);
+            position: absolute;
+            right: -8%;
+            bottom: -15%;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .hero-copy {
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            animation: fadeUp 0.85s 0.15s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            max-width: 680px;
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2.5rem;
+        }
+        .hero-eyebrow-rule {
+            width: 2rem;
+            height: 1px;
+            background: oklch(99% 0 0 / 0.3);
+        }
+        .hero-eyebrow-text {
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.38em;
+            text-transform: uppercase;
+            color: oklch(99% 0 0 / 0.5);
+        }
+
+        .hero-h1 {
+            font-family: 'Zain', sans-serif;
+            font-size: clamp(3rem, 6.5vw, 7rem);
+            font-weight: 900;
+            line-height: 0.88;
+            letter-spacing: -0.04em;
+            color: var(--white);
+            max-width: 14ch;
+            margin-bottom: 2rem;
+        }
+
+        .hero-sub {
+            font-size: clamp(0.95rem, 1.5vw, 1.15rem);
+            font-weight: 400;
+            color: oklch(99% 0 0 / 0.62);
+            max-width: 40ch;
+            line-height: 1.65;
+            margin-bottom: 3rem;
+        }
+
+        .hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 2.25rem;
+        }
+
+        .btn-hero {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            background: var(--white);
+            color: var(--blue-deep);
+            border: none;
+            padding: 1rem 2.5rem;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.25s;
+        }
+        .btn-hero:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 40px oklch(25% 0.11 218 / 0.45);
+        }
+
+        .hero-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: oklch(99% 0 0 / 0.55);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .hero-secondary:hover { color: var(--white); }
+        .hero-secondary svg { transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .hero-secondary:hover svg { transform: translateX(4px); }
+
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ─── TRUST STRIP ─── */
+        .trust-strip {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 1.25rem 5%;
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+        .trust-label {
+            font-size: 0.58rem;
+            font-weight: 800;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--muted);
+            white-space: nowrap;
+        }
+        .trust-sep {
+            width: 1px;
+            height: 1rem;
+            background: var(--border);
+            flex-shrink: 0;
+        }
+        .trust-rails {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .trust-rail {
+            font-family: 'Zain', sans-serif;
+            font-size: 1rem;
+            font-weight: 900;
+            letter-spacing: 0.18em;
+            color: var(--muted);
+            opacity: 0.45;
+        }
+        .trust-badges {
+            margin-left: auto;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .trust-badge {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: var(--blue);
+            background: var(--blue-light);
+            padding: 0.28rem 0.75rem;
+            border-radius: 100px;
+        }
+
+        /* ─── SECTIONS SHARED ─── */
+        .section {
+            padding: clamp(5rem, 10vw, 9rem) 5%;
+        }
+        .section-label {
+            display: block;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            color: var(--blue);
+            margin-bottom: 1.5rem;
+        }
+
+        /* ─── PROBLEM ─── */
+        .problem {
+            background: var(--white);
+            padding: clamp(6rem, 12vw, 11rem) 5%;
+        }
+
+        .problem-inner {
+            max-width: 900px;
+        }
+
+        .problem-statement {
+            font-family: 'Zain', sans-serif;
+            font-size: clamp(2.25rem, 5.5vw, 5.5rem);
+            font-weight: 900;
+            line-height: 0.9;
+            letter-spacing: -0.04em;
+            color: var(--ink);
+            margin-bottom: 3rem;
+        }
+        .problem-statement em {
+            font-style: normal;
+            color: var(--blue);
+        }
+
+        .problem-counter-block {
+            margin-bottom: 3rem;
+        }
+        .problem-counter-prefix,
+        .problem-counter-suffix {
+            font-family: 'Zain', sans-serif;
+            font-size: clamp(1.5rem, 3.5vw, 3.5rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: var(--ink-60);
+            line-height: 1.15;
+            display: block;
+        }
+        .problem-counter-number {
+            font-family: 'Inter', sans-serif;
+            font-variant-numeric: tabular-nums;
+            font-size: clamp(2.5rem, 6vw, 6rem);
+            font-weight: 700;
+            letter-spacing: -0.04em;
+            color: var(--ink);
+            line-height: 0.95;
+            display: block;
+            margin: 0.15rem 0;
+        }
+
+        .problem-sub {
+            font-size: 1rem;
+            color: var(--ink-60);
+            line-height: 1.68;
+            max-width: 52ch;
+            border-left: 2px solid var(--border);
+            padding-left: 1.5rem;
+        }
+
+        /* ─── LOOP ─── */
+        .loop {
+            background: var(--surface);
+        }
+        .loop-header {
+            margin-bottom: 5rem;
+        }
+        .loop-h2 {
+            font-family: 'Zain', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 5rem);
+            font-weight: 900;
+            line-height: 0.9;
+            letter-spacing: -0.04em;
+            color: var(--ink);
+            max-width: 18ch;
+            margin-bottom: 1.25rem;
+        }
+        .loop-sub {
+            font-size: 1rem;
+            color: var(--ink-60);
+            max-width: 50ch;
+            line-height: 1.65;
+        }
+
+        .loop-steps {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            position: relative;
+        }
+
+        /* horizontal connector line */
+        .loop-steps::before {
+            content: '';
+            position: absolute;
+            top: 2.35rem;
+            left: calc(33.333% / 2);
+            right: calc(33.333% / 2);
+            height: 1px;
+            background: var(--border);
+            z-index: 0;
+        }
+
+        .loop-step {
+            position: relative;
+            z-index: 1;
+            padding: 0 3rem 0 0;
+        }
+        .loop-step:last-child { padding-right: 0; }
+
+        .step-number-wrap {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .step-dot {
+            width: 1.25rem;
+            height: 1.25rem;
+            border-radius: 50%;
+            background: var(--white);
+            border: 2px solid var(--blue);
+            flex-shrink: 0;
+        }
+        .loop-step:first-child .step-dot {
+            background: var(--blue);
+        }
+        .step-ordinal {
+            font-family: 'Inter', sans-serif;
+            font-variant-numeric: tabular-nums;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--muted);
+        }
+
+        .step-title {
+            font-family: 'Zain', sans-serif;
+            font-size: clamp(1.6rem, 3vw, 2.5rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+            line-height: 0.95;
+            margin-bottom: 1rem;
+        }
+        .step-body {
+            font-size: 0.9rem;
+            color: var(--ink-60);
+            line-height: 1.68;
+            max-width: 30ch;
+        }
+
+        /* ─── YIELD BIG ─── */
+        .yield-big {
+            background: var(--ink);
+            padding: clamp(7rem, 14vw, 12rem) 5%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .yield-big::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 80%;
+            background: radial-gradient(ellipse, oklch(56% 0.13 218 / 0.2) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .yield-big-label {
+            display: block;
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.38em;
+            text-transform: uppercase;
+            color: oklch(99% 0 0 / 0.32);
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .yield-big-num {
+            font-family: 'Zain', sans-serif;
+            font-size: clamp(6rem, 17vw, 14rem);
+            font-weight: 900;
+            line-height: 0.85;
+            letter-spacing: -0.05em;
+            color: var(--white);
+            position: relative;
+            margin-bottom: 0.5rem;
+        }
+        .yield-big-num sup {
+            font-size: 0.28em;
+            vertical-align: super;
+            letter-spacing: 0;
+            letter-spacing: 0;
+            font-weight: 800;
+            color: var(--green);
+        }
+
+        .yield-big-unit {
+            font-family: 'Zain', sans-serif;
+            font-size: clamp(2rem, 4vw, 3.5rem);
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: oklch(99% 0 0 / 0.45);
+            position: relative;
+            margin-bottom: 3.5rem;
+        }
+
+        .yield-big-attrs {
+            display: flex;
+            justify-content: center;
+            gap: 0;
+            position: relative;
+            margin-bottom: 4rem;
+        }
+        .yield-attr {
+            padding: 0 2.5rem;
+            border-right: 1px solid oklch(99% 0 0 / 0.1);
+        }
+        .yield-attr:first-child { padding-left: 0; }
+        .yield-attr:last-child { padding-right: 0; border-right: none; }
+        .yield-attr-label {
+            font-size: 0.6rem;
+            font-weight: 800;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: oklch(99% 0 0 / 0.28);
+            display: block;
+            margin-bottom: 0.4rem;
+        }
+        .yield-attr-value {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: oklch(99% 0 0 / 0.7);
+        }
+
+        .yield-big-cta {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: oklch(99% 0 0 / 0.45);
+            text-decoration: none;
+            position: relative;
+            transition: color 0.2s;
+        }
+        .yield-big-cta:hover { color: oklch(99% 0 0 / 0.8); }
+        .yield-big-cta svg { transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
+        .yield-big-cta:hover svg { transform: translateX(4px); }
+
+        /* ─── COMPARISON ─── */
+        .comparison { background: var(--white); }
+
+        .comparison-header {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5rem;
+            align-items: end;
+            margin-bottom: 4rem;
+        }
+        @media (max-width: 800px) {
+            .comparison-header { grid-template-columns: 1fr; gap: 2rem; }
+        }
+
+        .comparison-h2 {
+            font-family: 'Zain', sans-serif;
+            font-size: clamp(2.5rem, 5vw, 5rem);
+            font-weight: 900;
+            line-height: 0.9;
+            letter-spacing: -0.04em;
+            color: var(--ink);
+        }
+
+        .comparison-lead {
+            font-size: 1rem;
+            color: var(--ink-60);
+            line-height: 1.65;
+            max-width: 44ch;
+        }
+
+        .cmp-table {
+            width: 100%;
+            border-collapse: collapse;
+            border-top: 1px solid var(--border);
+        }
+
+        .cmp-table th {
+            text-align: left;
+            padding: 1.25rem 1.5rem;
+            font-size: 0.6rem;
+            font-weight: 800;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--muted);
+            border-bottom: 1px solid var(--border);
+            vertical-align: bottom;
+        }
+
+        .cmp-table th.col-vants {
+            color: var(--blue);
+            background: var(--blue-light);
+            border-radius: 8px 8px 0 0;
+        }
+
+        .cmp-table td {
+            padding: 1.25rem 1.5rem;
+            font-size: 0.88rem;
+            font-weight: 500;
+            color: var(--ink-60);
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+
+        .cmp-table td:first-child {
+            font-weight: 600;
+            color: var(--ink);
+            font-size: 0.82rem;
+        }
+
+        .cmp-table td.col-vants {
+            background: oklch(97.5% 0.006 218);
+            font-weight: 700;
+            color: var(--blue-deep);
+        }
+
+        .cmp-check {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: oklch(74% 0.13 155 / 0.12);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cmp-check svg { color: var(--green-deep); }
+
+        .cmp-cross {
+            width: 18px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .cmp-cross svg { color: oklch(75% 0.005 218); }
+
+        /* ─── ADOPTION ─── */
+        .adoption {
+            background: var(--surface);
+            padding: 3.5rem 5%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            flex-wrap: wrap;
+        }
+        .adoption-stat {
+            padding: 0 3.5rem;
+            border-right: 1px solid var(--border);
+            text-align: center;
+        }
+        .adoption-stat:first-child { padding-left: 0; }
+        .adoption-stat:last-child { padding-right: 0; border-right: none; }
+        .adoption-num {
+            font-family: 'Inter', sans-serif;
+            font-variant-numeric: tabular-nums;
+            font-size: clamp(1.5rem, 3vw, 2.5rem);
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            color: var(--ink);
+            display: block;
+            margin-bottom: 0.3rem;
+        }
+        .adoption-desc {
+            font-size: 0.68rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+
+        /* ─── FAQ ─── */
+        .faq { background: var(--white); }
+
+        .faq-layout {
+            display: grid;
+            grid-template-columns: 5fr 7fr;
+            gap: 6rem;
+            align-items: start;
+        }
+        @media (max-width: 800px) {
+            .faq-layout { grid-template-columns: 1fr; gap: 2.5rem; }
+        }
+
+        .faq-headline {
+            font-family: 'Zain', sans-serif;
+            font-size: clamp(2.25rem, 4.5vw, 4.5rem);
+            font-weight: 900;
+            line-height: 0.92;
+            letter-spacing: -0.04em;
+            color: var(--ink);
+            margin-bottom: 1.25rem;
+        }
+
+        .faq-lead {
+            font-size: 0.95rem;
+            color: var(--ink-60);
+            line-height: 1.65;
+            max-width: 36ch;
+            margin-bottom: 2rem;
+        }
+
+        .btn-faq-contact {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.04em;
+            color: var(--blue);
+            background: var(--blue-light);
+            border: none;
+            padding: 0.65rem 1.4rem;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .btn-faq-contact:hover { background: var(--border); }
+
+        .faq-list { border-top: 1px solid var(--border); }
+
+        details.faq-item { border-bottom: 1px solid var(--border); }
+
+        details.faq-item summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.35rem 0;
+            cursor: pointer;
+            list-style: none;
+            gap: 1.5rem;
+            -webkit-tap-highlight-color: transparent;
+        }
+        details.faq-item summary::-webkit-details-marker { display: none; }
+        details.faq-item summary::marker { display: none; }
+
+        .faq-q {
+            font-size: 0.92rem;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.4;
+        }
+
+        .faq-icon {
+            flex-shrink: 0;
+            color: var(--blue);
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        details.faq-item[open] .faq-icon { transform: rotate(45deg); }
+
+        .faq-a {
+            padding: 0 2rem 1.35rem 0;
+            font-size: 0.9rem;
+            color: var(--ink-60);
+            line-height: 1.7;
+            max-width: 58ch;
+        }
+
+        /* ─── CTA ─── */
+        .cta-section {
+            background: var(--blue-deep);
+            padding: clamp(7rem, 14vw, 12rem) 5%;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .cta-section::before {
+            content: '';
+            position: absolute;
+            top: -25%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 60%;
+            background: radial-gradient(ellipse, oklch(56% 0.13 218 / 0.5) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .cta-eyebrow {
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: 0.38em;
+            text-transform: uppercase;
+            color: oklch(99% 0 0 / 0.32);
+            display: block;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .cta-h2 {
+            font-family: 'Zain', sans-serif;
+            font-size: clamp(3.5rem, 9vw, 9rem);
+            font-weight: 900;
+            line-height: 0.86;
+            letter-spacing: -0.05em;
+            color: var(--white);
+            max-width: 14ch;
+            margin: 0 auto 2rem;
+            position: relative;
+        }
+
+        .cta-sub {
+            font-size: 0.95rem;
+            color: oklch(99% 0 0 / 0.52);
+            max-width: 42ch;
+            margin: 0 auto 3.5rem;
+            line-height: 1.65;
+            position: relative;
+        }
+
+        .cta-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            position: relative;
+        }
+
+        .btn-cta {
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.88rem;
+            font-weight: 800;
+            letter-spacing: 0.03em;
+            background: var(--white);
+            color: var(--blue-deep);
+            border: none;
+            padding: 1.1rem 3rem;
+            border-radius: 100px;
+            cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                        box-shadow 0.25s;
+        }
+        .btn-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 18px 40px oklch(18% 0.1 218 / 0.5);
+        }
+
+        .cta-note {
+            font-size: 0.65rem;
+            font-weight: 700;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: oklch(99% 0 0 / 0.32);
+        }
+
+        /* ─── FOOTER ─── */
+        footer {
+            background: var(--ink);
+            padding: 5rem 5% 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        footer::before {
+            content: 'Vants';
+            font-family: 'Zain', sans-serif;
+            font-weight: 900;
+            font-size: clamp(10rem, 28vw, 28rem);
+            line-height: 0.85;
+            letter-spacing: -0.05em;
+            color: oklch(99% 0 0 / 0.025);
+            position: absolute;
+            right: -2%;
+            bottom: 10%;
+            pointer-events: none;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+            padding-bottom: 3.5rem;
+            border-bottom: 1px solid oklch(99% 0 0 / 0.07);
+            position: relative;
+        }
+        @media (max-width: 800px) {
+            .footer-top { grid-template-columns: 1fr 1fr; gap: 2.5rem; }
+        }
+
+        .footer-brand-logo {
+            font-family: 'Zain', sans-serif;
+            font-size: 2rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            color: var(--white);
+            text-decoration: none;
+            display: block;
+            margin-bottom: 1rem;
+        }
+        .footer-brand p {
+            font-size: 0.82rem;
+            color: oklch(99% 0 0 / 0.3);
+            line-height: 1.65;
+            max-width: 32ch;
+        }
+
+        .footer-col h5 {
+            font-size: 0.58rem;
+            font-weight: 800;
+            letter-spacing: 0.28em;
+            text-transform: uppercase;
+            color: oklch(99% 0 0 / 0.28);
+            margin-bottom: 1.25rem;
+        }
+        .footer-col ul {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+        .footer-col a {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: oklch(99% 0 0 / 0.45);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .footer-col a:hover { color: var(--white); }
+
+        .footer-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: relative;
+        }
+        .footer-legal {
+            font-size: 0.72rem;
+            color: oklch(99% 0 0 / 0.22);
+            line-height: 1.6;
+            max-width: 65ch;
+        }
+        .footer-copy {
+            font-size: 0.72rem;
+            color: oklch(99% 0 0 / 0.22);
+        }
+
+        /* ─── SCROLL REVEAL ─── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(18px);
+            transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                        transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.in-view {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.1s; }
+        .reveal-delay-2 { transition-delay: 0.2s; }
+        .reveal-delay-3 { transition-delay: 0.3s; }
+
+        /* ─── LANG SWITCHER ─── */
+        .lang-switcher {
+            display: flex;
+            align-items: center;
+            gap: 0.125rem;
+        }
+        .lang-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-family: 'Manrope', sans-serif;
+            font-size: 0.6rem;
+            font-weight: 800;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: oklch(99% 0 0 / 0.38);
+            padding: 0.28rem 0.4rem;
+            border-radius: 4px;
+            transition: color 0.2s;
+        }
+        .lang-btn:hover { color: oklch(99% 0 0 / 0.72); }
+        .lang-btn.active { color: var(--white); }
+        .lang-sep {
+            font-size: 0.5rem;
+            color: oklch(99% 0 0 / 0.18);
+            user-select: none;
+        }
+
+        /* ─── RESPONSIVE ─── */
+        @media (max-width: 960px) {
+            .hero {
+                padding: 8rem 5% 4rem;
+            }
+            .loop-steps { grid-template-columns: 1fr; gap: 3.5rem; }
+            .loop-steps::before { display: none; }
+            .loop-step { padding: 0; }
+            .adoption { flex-direction: column; gap: 2rem; }
+            .adoption-stat { border-right: none; border-bottom: 1px solid var(--border); padding: 0 0 2rem; }
+            .adoption-stat:last-child { border-bottom: none; padding-bottom: 0; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-links, .nav-end > .btn-ghost-nav, .nav-end > .btn-pill, .lang-switcher { display: none; }
+            .nav-hamburger { display: flex; }
+            .hero-h1 { max-width: 100%; }
+            .problem-counter-block { flex-wrap: wrap; }
+            .comparison-header { grid-template-columns: 1fr; gap: 2rem; }
+            .cmp-table th, .cmp-table td { padding: 1rem 0.85rem; font-size: 0.8rem; }
+            .footer-top { grid-template-columns: 1fr; }
+            .footer-bottom { flex-direction: column; align-items: flex-start; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-h1 { font-size: clamp(2.25rem, 8vw, 3rem); }
+            .adoption-stat { width: 100%; }
+            .yield-big-attrs { flex-direction: column; gap: 1.5rem; }
+            .yield-attr { border-right: none; padding: 0; }
+            .cta-h2 { font-size: clamp(3rem, 10vw, 5rem); }
+            .cta-row { flex-direction: column; align-items: stretch; }
+            .btn-cta { width: 100%; min-height: 54px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ─── NAV ─── -->
+    <nav id="navbar">
+        <a href="#" class="nav-logo">Vants</a>
+        <ul class="nav-links" id="nav-links">
+            <li><a href="#loop"       data-i18n="nav_how">Como funciona</a></li>
+            <li><a href="#yield"      data-i18n="nav_yield">Rendimento</a></li>
+            <li><a href="#comparison" data-i18n="nav_compare">Comparar</a></li>
+            <li><a href="#faq">FAQ</a></li>
+        </ul>
+        <div class="nav-end">
+            <div class="lang-switcher" role="group" aria-label="Language">
+                <button class="lang-btn active" data-lang="pt">PT</button>
+                <span class="lang-sep" aria-hidden="true">·</span>
+                <button class="lang-btn" data-lang="en">EN</button>
+                <span class="lang-sep" aria-hidden="true">·</span>
+                <button class="lang-btn" data-lang="es">ES</button>
+            </div>
+            <button class="btn-ghost-nav" data-i18n="nav_login">Entrar</button>
+            <button class="btn-pill"      data-i18n="nav_cta">Abrir conta</button>
+            <button class="nav-hamburger" id="nav-hamburger" aria-label="Abrir menu" aria-expanded="false">
+                <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+                    <path class="icon-menu" d="M3 6h16M3 11h16M3 16h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+            </button>
+        </div>
+    </nav>
+
+    <!-- ─── MOBILE NAV ─── -->
+    <div class="mobile-nav" id="mobile-nav" aria-hidden="true">
+        <ul class="mobile-nav-links">
+            <li><a href="#loop"       data-i18n="nav_how">Como funciona</a></li>
+            <li><a href="#yield"      data-i18n="nav_yield">Rendimento</a></li>
+            <li><a href="#comparison" data-i18n="nav_compare">Comparar</a></li>
+            <li><a href="#faq">FAQ</a></li>
+        </ul>
+        <div class="mobile-nav-cta">
+            <button class="btn-mobile-cta" data-i18n="nav_cta_mobile">Abrir conta grátis</button>
+        </div>
+    </div>
+
+    <!-- ─── HERO ─── -->
+    <section class="hero">
+        <!-- Left: copy -->
+        <div class="hero-copy">
+            <div class="hero-eyebrow">
+                <span class="hero-eyebrow-rule"></span>
+                <span class="hero-eyebrow-text" data-i18n="hero_eyebrow">Investir · Render · Pagar</span>
+            </div>
+            <h1 class="hero-h1" data-i18n="hero_h1">Seu dinheiro rende enquanto você paga.</h1>
+            <p class="hero-sub" data-i18n="hero_sub">Uma conta global onde o saldo investe automaticamente — e converte só o necessário na hora do pagamento. Pix, SPEI ou CBU em menos de 5 segundos.</p>
+            <div class="hero-actions">
+                <button class="btn-hero" data-i18n="hero_cta">Abrir conta grátis</button>
+                <a href="#loop" class="hero-secondary">
+                    <span data-i18n="hero_link">Como funciona</span>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                        <path d="M2.5 7h9M8 3.5l3.5 3.5L8 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- ─── TRUST STRIP ─── -->
+    <div class="trust-strip" role="list" aria-label="Infraestrutura de pagamento e certificações">
+        <span class="trust-label" data-i18n="trust_label">Infraestrutura nativa</span>
+        <span class="trust-sep" aria-hidden="true"></span>
+        <div class="trust-rails">
+            <span class="trust-rail" role="listitem">PIX</span>
+            <span class="trust-rail" role="listitem">SPEI</span>
+            <span class="trust-rail" role="listitem">CBU</span>
+            <span class="trust-rail" role="listitem">DREX</span>
+            <span class="trust-rail" role="listitem">BCRA</span>
+        </div>
+        <div class="trust-badges" aria-label="Certificações">
+            <span class="trust-badge">ISO 27001</span>
+            <span class="trust-badge">PCI DSS</span>
+            <span class="trust-badge">SOC 2</span>
+        </div>
+    </div>
+
+    <!-- ─── PROBLEM ─── -->
+    <section class="problem" aria-labelledby="problem-heading">
+        <div class="problem-inner">
+            <span class="section-label" data-i18n="problem_label">O custo do dinheiro parado</span>
+            <h2 class="problem-statement" id="problem-heading" data-i18n="problem_h2">
+                Nos modelos tradicionais, seu dinheiro para de render <em>antes</em> de você pagar a conta.
+            </h2>
+
+            <div class="problem-counter-block reveal" aria-live="polite" aria-label="Valor que poderia estar rendendo">
+                <span class="problem-counter-prefix" data-i18n="counter_prefix">Poderia ter rendido</span>
+                <span class="problem-counter-number" id="opportunity-counter">R$&nbsp;0,00</span>
+                <span class="problem-counter-suffix" data-i18n="counter_suffix">enquanto você leu isso.</span>
+            </div>
+
+            <p class="problem-sub reveal reveal-delay-1" data-i18n="problem_body">
+                A Vants mantém seu saldo investido até o milissegundo do pagamento — e converte apenas o valor exato que você precisa. Sem resgates manuais, sem espera de D+3, sem taxa de corretagem.
+            </p>
+        </div>
+    </section>
+
+    <!-- ─── LOOP ─── -->
+    <section class="section loop" id="loop" aria-labelledby="loop-heading">
+        <div class="loop-header reveal">
+            <span class="section-label" data-i18n="loop_label">Como funciona</span>
+            <h2 class="loop-h2" id="loop-heading" data-i18n="loop_h2">Três ações. Uma conta.</h2>
+            <p class="loop-sub" data-i18n="loop_sub">Infraestrutura invisível. O dinheiro trabalha sem que você precise pensar nisso.</p>
+        </div>
+
+        <div class="loop-steps">
+            <div class="loop-step reveal">
+                <div class="step-number-wrap">
+                    <span class="step-dot" aria-hidden="true"></span>
+                    <span class="step-ordinal">01</span>
+                </div>
+                <h3 class="step-title" data-i18n="step1_title">Investir</h3>
+                <p class="step-body" data-i18n="step1_body">Deposite em fundos de rendimento global. O capital começa a trabalhar imediatamente — sem etapas manuais ou burocracia.</p>
+            </div>
+
+            <div class="loop-step reveal reveal-delay-1">
+                <div class="step-number-wrap">
+                    <span class="step-dot" aria-hidden="true"></span>
+                    <span class="step-ordinal">02</span>
+                </div>
+                <h3 class="step-title" data-i18n="step2_title">Render</h3>
+                <p class="step-body" data-i18n="step2_body">Seu saldo rende 24 horas por dia, 7 dias por semana — incluindo finais de semana e feriados. Nenhum segundo desperdiçado.</p>
+            </div>
+
+            <div class="loop-step reveal reveal-delay-2">
+                <div class="step-number-wrap">
+                    <span class="step-dot" aria-hidden="true"></span>
+                    <span class="step-ordinal">03</span>
+                </div>
+                <h3 class="step-title" data-i18n="step3_title">Pagar</h3>
+                <p class="step-body" data-i18n="step3_body">Escolha o valor e o destino. A Vants converte e liquida via Pix, SPEI ou CBU em menos de 5 segundos — sem você sair do app.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── YIELD BIG ─── -->
+    <section class="yield-big" id="yield" aria-labelledby="yield-heading">
+        <span class="yield-big-label" data-i18n="yield_label">Rendimento atual</span>
+        <div class="yield-big-num" id="yield-heading" aria-label="12 vírgula 4 porcento ao ano">
+            12,4<sup>%</sup>
+        </div>
+        <p class="yield-big-unit" data-i18n="yield_unit">ao ano</p>
+
+        <div class="yield-big-attrs reveal">
+            <div class="yield-attr">
+                <span class="yield-attr-label" data-i18n="attr1_label">Liquidez</span>
+                <span class="yield-attr-value" data-i18n="attr1_value">Diária</span>
+            </div>
+            <div class="yield-attr">
+                <span class="yield-attr-label" data-i18n="attr2_label">Incidência</span>
+                <span class="yield-attr-value" data-i18n="attr2_value">Sobre saldo total</span>
+            </div>
+            <div class="yield-attr">
+                <span class="yield-attr-label" data-i18n="attr3_label">Taxas</span>
+                <span class="yield-attr-value" data-i18n="attr3_value">Zero</span>
+            </div>
+            <div class="yield-attr">
+                <span class="yield-attr-label" data-i18n="attr4_label">Atualização</span>
+                <span class="yield-attr-value" data-i18n="attr4_value">Tempo real</span>
+            </div>
+        </div>
+
+        <a href="#comparison" class="yield-big-cta reveal reveal-delay-1" data-i18n="yield_cta">
+            <span>Comparar com seu banco</span>
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <path d="M2.5 7h9M8 3.5l3.5 3.5L8 10.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+        </a>
+    </section>
+
+    <!-- ─── COMPARISON ─── -->
+    <section class="section comparison" id="comparison" aria-labelledby="comparison-heading">
+        <div class="comparison-header">
+            <div>
+                <span class="section-label" data-i18n="cmp_label">Comparação de rendimentos</span>
+                <h2 class="comparison-h2" id="comparison-heading" data-i18n="cmp_h2">O que sobra no fim do mês.</h2>
+            </div>
+            <p class="comparison-lead" data-i18n="cmp_lead">Bancos tradicionais pagam a você o mínimo enquanto emprestam seu dinheiro com juros altos. A Vants inverte isso.</p>
+        </div>
+
+        <div style="overflow-x: auto;">
+            <table class="cmp-table" aria-label="Comparação entre bancos tradicionais, corretoras e Vants">
+                <thead>
+                    <tr>
+                        <th data-i18n="cmp_feature">Recurso</th>
+                        <th data-i18n="cmp_bank">Banco tradicional</th>
+                        <th data-i18n="cmp_broker">Corretora</th>
+                        <th class="col-vants">Vants</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td data-i18n="row1">Rendimento sobre saldo</td>
+                        <td>0 – 2% a.a.</td>
+                        <td>8 – 10% a.a.</td>
+                        <td class="col-vants">12,4% a.a.</td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="row2">Liquidez diária</td>
+                        <td><span class="cmp-cross" aria-label="Não"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3L3 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+                        <td><span class="cmp-cross" aria-label="Não"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3L3 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+                        <td class="col-vants"><span class="cmp-check" aria-label="Sim"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="row3">Pagamentos via Pix / SPEI</td>
+                        <td><span class="cmp-check" aria-label="Sim"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td>
+                        <td><span class="cmp-cross" aria-label="Não"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3L3 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+                        <td class="col-vants"><span class="cmp-check" aria-label="Sim"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="row4">Rende durante o fim de semana</td>
+                        <td><span class="cmp-cross" aria-label="Não"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3L3 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+                        <td><span class="cmp-cross" aria-label="Não"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3L3 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+                        <td class="col-vants"><span class="cmp-check" aria-label="Sim"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="row5">Conversão automática no pagamento</td>
+                        <td><span class="cmp-cross" aria-label="Não"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3L3 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+                        <td><span class="cmp-cross" aria-label="Não"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M3 3l8 8M11 3L3 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></span></td>
+                        <td class="col-vants"><span class="cmp-check" aria-label="Sim"><svg width="10" height="10" viewBox="0 0 10 10" fill="none"><path d="M1.5 5l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></span></td>
+                    </tr>
+                    <tr>
+                        <td data-i18n="row6">Taxa de custódia ou corretagem</td>
+                        <td data-i18n="row6_bank">Nenhuma</td>
+                        <td data-i18n="row6_broker">0,5 – 1,5%</td>
+                        <td class="col-vants" data-i18n="row6_vants">Zero</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ─── ADOPTION ─── -->
+    <div class="adoption" aria-label="Métricas de adoção">
+        <div class="adoption-stat">
+            <span class="adoption-num">2.400+</span>
+            <span class="adoption-desc" data-i18n="adopt1">Pessoas aprovadas</span>
+        </div>
+        <div class="adoption-stat">
+            <span class="adoption-num">R$&nbsp;12M</span>
+            <span class="adoption-desc" data-i18n="adopt2">Em rendimentos pagos</span>
+        </div>
+        <div class="adoption-stat">
+            <span class="adoption-num">99,9%</span>
+            <span class="adoption-desc" data-i18n="adopt3">Uptime nos últimos 12 meses</span>
+        </div>
+        <div class="adoption-stat">
+            <span class="adoption-num">&lt; 5s</span>
+            <span class="adoption-desc" data-i18n="adopt4">Tempo médio de liquidação</span>
+        </div>
+    </div>
+
+    <!-- ─── FAQ ─── -->
+    <section class="section faq" id="faq" aria-labelledby="faq-heading">
+        <div class="faq-layout">
+            <div>
+                <span class="section-label" data-i18n="faq_label">Dúvidas frequentes</span>
+                <h2 class="faq-headline" id="faq-heading" data-i18n="faq_headline">Perguntas que você vai ter.</h2>
+                <p class="faq-lead" data-i18n="faq_lead">Se a resposta não estiver aqui, fale com a gente diretamente.</p>
+                <button class="btn-faq-contact" data-i18n="faq_contact">Falar com suporte</button>
+            </div>
+
+            <div class="faq-list" role="list">
+                <details class="faq-item" role="listitem">
+                    <summary>
+                        <span class="faq-q" data-i18n="faq1_q">Meu dinheiro está seguro? Onde fica investido?</span>
+                        <svg class="faq-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                            <path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                        </svg>
+                    </summary>
+                    <p class="faq-a" data-i18n="faq1_a">Seu saldo fica alocado em fundos de renda fixa com liquidez diária, custodiados por instituições reguladas. A Vants não tem acesso ao principal — apenas ao rendimento gerado. Cobertura pelo FGC de até R$ 250.000.</p>
+                </details>
+
+                <details class="faq-item" role="listitem">
+                    <summary>
+                        <span class="faq-q" data-i18n="faq2_q">Como funciona o pagamento sem resgatar o investimento?</span>
+                        <svg class="faq-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                            <path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                        </svg>
+                    </summary>
+                    <p class="faq-a" data-i18n="faq2_a">Quando você inicia um pagamento, a Vants instrui a custódia a liquidar exatamente o valor necessário — e já direciona para o destino via Pix, SPEI ou CBU. O processo é paralelo: você não precisa resgatar, esperar D+1 e depois pagar.</p>
+                </details>
+
+                <details class="faq-item" role="listitem">
+                    <summary>
+                        <span class="faq-q" data-i18n="faq3_q">Qual é a taxa de rendimento e ela pode mudar?</span>
+                        <svg class="faq-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                            <path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                        </svg>
+                    </summary>
+                    <p class="faq-a" data-i18n="faq3_a">O rendimento atual é de 12,4% ao ano líquido, indexado às taxas de mercado. Ele varia com as condições de mercado, mas historicamente se mantém bem acima da poupança e das contas correntes remuneradas dos bancos tradicionais.</p>
+                </details>
+
+                <details class="faq-item" role="listitem">
+                    <summary>
+                        <span class="faq-q" data-i18n="faq4_q">A Vants é um banco? Preciso de aprovação de crédito?</span>
+                        <svg class="faq-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                            <path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                        </svg>
+                    </summary>
+                    <p class="faq-a" data-i18n="faq4_a">A Vants é uma conta de pagamento não-custodial. Não somos um banco e não fazemos análise de crédito. Qualquer pessoa com CPF, CURP ou DNI válido pode abrir uma conta em menos de 5 minutos.</p>
+                </details>
+
+                <details class="faq-item" role="listitem">
+                    <summary>
+                        <span class="faq-q" data-i18n="faq5_q">Quais países estão disponíveis agora?</span>
+                        <svg class="faq-icon" width="18" height="18" viewBox="0 0 18 18" fill="none" aria-hidden="true">
+                            <path d="M9 4v10M4 9h10" stroke="currentColor" stroke-width="1.75" stroke-linecap="round"/>
+                        </svg>
+                    </summary>
+                    <p class="faq-a" data-i18n="faq5_a">O acesso antecipado está disponível no Brasil. México e Argentina entram em acesso beta em 2025. Deixe seu e-mail para ser notificado quando seu país abrir.</p>
+                </details>
+            </div>
+        </div>
+    </section>
+
+    <!-- ─── CTA ─── -->
+    <section class="cta-section" aria-labelledby="cta-heading">
+        <span class="cta-eyebrow" data-i18n="cta_eyebrow">Acesso antecipado</span>
+        <h2 class="cta-h2" id="cta-heading" data-i18n="cta_h2">Sua vez de render.</h2>
+        <p class="cta-sub" data-i18n="cta_sub">As primeiras contas são gratuitas para sempre — sem taxas mensais, sem mínimo de depósito. Seu dinheiro começa a trabalhar no dia que você abre a conta.</p>
+        <div class="cta-row">
+            <button class="btn-cta" data-i18n="cta_btn">Abrir conta grátis</button>
+            <span class="cta-note" data-i18n="cta_note">Leva menos de 5 minutos</span>
+        </div>
+    </section>
+
+    <!-- ─── FOOTER ─── -->
+    <footer>
+        <div class="footer-top">
+            <div class="footer-brand">
+                <a href="#" class="footer-brand-logo">Vants</a>
+                <p data-i18n="footer_desc">Uma conta global onde seu dinheiro investe automaticamente e paga instantaneamente. Para quem não abre mão do rendimento no dia a dia.</p>
+            </div>
+            <div class="footer-col">
+                <h5 data-i18n="footer_product">Produto</h5>
+                <ul>
+                    <li><a href="#loop"       data-i18n="footer_how">Como funciona</a></li>
+                    <li><a href="#yield"      data-i18n="footer_yield">Rendimento</a></li>
+                    <li><a href="#comparison" data-i18n="footer_compare">Comparar</a></li>
+                    <li><a href="#faq">FAQ</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5 data-i18n="footer_company">Empresa</h5>
+                <ul>
+                    <li><a href="#" data-i18n="footer_about">Sobre</a></li>
+                    <li><a href="#" data-i18n="footer_blog">Blog</a></li>
+                    <li><a href="#" data-i18n="footer_careers">Carreiras</a></li>
+                    <li><a href="#" data-i18n="footer_press">Imprensa</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h5 data-i18n="footer_legal_title">Legal</h5>
+                <ul>
+                    <li><a href="#" data-i18n="footer_privacy">Privacidade</a></li>
+                    <li><a href="#" data-i18n="footer_terms">Termos</a></li>
+                    <li><a href="#" data-i18n="footer_security">Segurança</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p class="footer-legal" data-i18n="footer_legal_text">
+                Vants é uma conta de pagamento não-custodial. Rendimentos passados não garantem rendimentos futuros. Valores sujeitos às condições de mercado. Cobertura FGC: até R$ 250.000 por CPF.
+            </p>
+            <span class="footer-copy">© 2025 Vants</span>
+        </div>
+    </footer>
+
+    <script>
+    /* ─── I18N ─── */
+    const translations = {
+        pt: {
+            nav_how: 'Como funciona', nav_yield: 'Rendimento', nav_compare: 'Comparar',
+            nav_login: 'Entrar', nav_cta: 'Abrir conta', nav_cta_mobile: 'Abrir conta grátis',
+            hero_eyebrow: 'Investir · Render · Pagar',
+            hero_h1: 'Seu dinheiro rende enquanto você paga.',
+            hero_sub: 'Uma conta global onde o saldo investe automaticamente — e converte só o necessário na hora do pagamento. Pix, SPEI ou CBU em menos de 5 segundos.',
+            hero_cta: 'Abrir conta grátis', hero_link: 'Como funciona',
+            card_live: 'Rendendo agora', card_balance_label: 'Saldo total', card_today: 'rendidos hoje',
+            card_recent: 'Últimas transações',
+            txn1_name: 'Conta de luz', txn1_meta: 'Pago · Pix · há 12 min',
+            txn2_name: 'Rendimento diário', txn2_meta: 'Creditado · ontem',
+            card_btn_invest: 'Investir', card_btn_pay: 'Pagar', card_btn_history: 'Histórico',
+            trust_label: 'Infraestrutura nativa',
+            problem_label: 'O custo do dinheiro parado',
+            problem_h2: 'Nos modelos tradicionais, seu dinheiro para de render antes de você pagar a conta.',
+            counter_prefix: 'Poderia ter rendido ',
+            counter_suffix: ' enquanto você leu isso.',
+            problem_body: 'A Vants mantém seu saldo investido até o milissegundo do pagamento — e converte apenas o valor exato que você precisa. Sem resgates manuais, sem espera de D+3, sem taxa de corretagem.',
+            loop_label: 'Como funciona', loop_h2: 'Três ações. Uma conta.',
+            loop_sub: 'Infraestrutura invisível. O dinheiro trabalha sem que você precise pensar nisso.',
+            step1_title: 'Investir', step1_body: 'Deposite em fundos de rendimento global. O capital começa a trabalhar imediatamente — sem etapas manuais ou burocracia.',
+            step2_title: 'Render',  step2_body: 'Seu saldo rende 24 horas por dia, 7 dias por semana — incluindo finais de semana e feriados. Nenhum segundo desperdiçado.',
+            step3_title: 'Pagar',   step3_body: 'Escolha o valor e o destino. A Vants converte e liquida via Pix, SPEI ou CBU em menos de 5 segundos — sem você sair do app.',
+            yield_label: 'Rendimento atual', yield_unit: 'ao ano',
+            attr1_label: 'Liquidez', attr1_value: 'Diária',
+            attr2_label: 'Incidência', attr2_value: 'Sobre saldo total',
+            attr3_label: 'Taxas', attr3_value: 'Zero',
+            attr4_label: 'Atualização', attr4_value: 'Tempo real',
+            yield_cta: 'Comparar com seu banco',
+            cmp_label: 'Comparação de rendimentos', cmp_h2: 'O que sobra no fim do mês.',
+            cmp_lead: 'Bancos tradicionais pagam a você o mínimo enquanto emprestam seu dinheiro com juros altos. A Vants inverte isso.',
+            cmp_feature: 'Recurso', cmp_bank: 'Banco tradicional', cmp_broker: 'Corretora',
+            row1: 'Rendimento sobre saldo', row2: 'Liquidez diária',
+            row3: 'Pagamentos via Pix / SPEI', row4: 'Rende durante o fim de semana',
+            row5: 'Conversão automática no pagamento', row6: 'Taxa de custódia ou corretagem',
+            row6_bank: 'Nenhuma', row6_broker: '0,5 – 1,5%', row6_vants: 'Zero',
+            adopt1: 'Pessoas aprovadas', adopt2: 'Em rendimentos pagos',
+            adopt3: 'Uptime nos últimos 12 meses', adopt4: 'Tempo médio de liquidação',
+            faq_label: 'Dúvidas frequentes', faq_headline: 'Perguntas que você vai ter.',
+            faq_lead: 'Se a resposta não estiver aqui, fale com a gente diretamente.',
+            faq_contact: 'Falar com suporte',
+            faq1_q: 'Meu dinheiro está seguro? Onde fica investido?',
+            faq1_a: 'Seu saldo fica alocado em fundos de renda fixa com liquidez diária, custodiados por instituições reguladas. A Vants não tem acesso ao principal — apenas ao rendimento gerado. Cobertura pelo FGC de até R$ 250.000.',
+            faq2_q: 'Como funciona o pagamento sem resgatar o investimento?',
+            faq2_a: 'Quando você inicia um pagamento, a Vants instrui a custódia a liquidar exatamente o valor necessário — e já direciona para o destino via Pix, SPEI ou CBU. O processo é paralelo: você não precisa resgatar, esperar D+1 e depois pagar.',
+            faq3_q: 'Qual é a taxa de rendimento e ela pode mudar?',
+            faq3_a: 'O rendimento atual é de 12,4% ao ano líquido, indexado às taxas de mercado. Ele varia com as condições de mercado, mas historicamente se mantém bem acima da poupança e das contas correntes remuneradas dos bancos tradicionais.',
+            faq4_q: 'A Vants é um banco? Preciso de aprovação de crédito?',
+            faq4_a: 'A Vants é uma conta de pagamento não-custodial. Não somos um banco e não fazemos análise de crédito. Qualquer pessoa com CPF, CURP ou DNI válido pode abrir uma conta em menos de 5 minutos.',
+            faq5_q: 'Quais países estão disponíveis agora?',
+            faq5_a: 'O acesso antecipado está disponível no Brasil. México e Argentina entram em acesso beta em 2025. Deixe seu e-mail para ser notificado quando seu país abrir.',
+            cta_eyebrow: 'Acesso antecipado', cta_h2: 'Sua vez de render.',
+            cta_sub: 'As primeiras contas são gratuitas para sempre — sem taxas mensais, sem mínimo de depósito. Seu dinheiro começa a trabalhar no dia que você abre a conta.',
+            cta_btn: 'Abrir conta grátis', cta_note: 'Leva menos de 5 minutos',
+            footer_product: 'Produto', footer_how: 'Como funciona', footer_yield: 'Rendimento',
+            footer_compare: 'Comparar', footer_company: 'Empresa', footer_about: 'Sobre',
+            footer_blog: 'Blog', footer_careers: 'Carreiras', footer_press: 'Imprensa',
+            footer_legal_title: 'Legal', footer_privacy: 'Privacidade', footer_terms: 'Termos',
+            footer_security: 'Segurança',
+            footer_desc: 'Uma conta global onde seu dinheiro investe automaticamente e paga instantaneamente. Para quem não abre mão do rendimento no dia a dia.',
+            footer_legal_text: 'Vants é uma conta de pagamento não-custodial. Rendimentos passados não garantem rendimentos futuros. Valores sujeitos às condições de mercado. Cobertura FGC: até R$ 250.000 por CPF.',
+        },
+        en: {
+            nav_how: 'How it works', nav_yield: 'Yield', nav_compare: 'Compare',
+            nav_login: 'Log in', nav_cta: 'Open account', nav_cta_mobile: 'Open account free',
+            hero_eyebrow: 'Invest · Earn · Pay',
+            hero_h1: 'Your money earns while you pay.',
+            hero_sub: 'A global account where your balance invests automatically — converting only what you need at the moment of payment. Pix, SPEI or CBU in under 5 seconds.',
+            hero_cta: 'Open account free', hero_link: 'How it works',
+            card_live: 'Earning now', card_balance_label: 'Total balance', card_today: 'earned today',
+            card_recent: 'Recent transactions',
+            txn1_name: 'Electricity bill', txn1_meta: 'Paid · Pix · 12 min ago',
+            txn2_name: 'Daily yield', txn2_meta: 'Credited · yesterday',
+            card_btn_invest: 'Invest', card_btn_pay: 'Pay', card_btn_history: 'History',
+            trust_label: 'Native infrastructure',
+            problem_label: 'The cost of idle money',
+            problem_h2: 'In traditional models, your money stops earning before you pay the bill.',
+            counter_prefix: 'Could have earned ',
+            counter_suffix: ' while you read this.',
+            problem_body: 'Vants keeps your balance invested until the millisecond of payment — converting only the exact amount you need. No manual redemptions, no D+3 waits, no brokerage fees.',
+            loop_label: 'How it works', loop_h2: 'Three actions. One account.',
+            loop_sub: 'Invisible infrastructure. Your money works without you thinking about it.',
+            step1_title: 'Invest', step1_body: 'Deposit into global yield funds. Capital starts working immediately — no manual steps, no bureaucracy.',
+            step2_title: 'Earn',   step2_body: 'Your balance earns 24 hours a day, 7 days a week — including weekends and holidays. Not a second wasted.',
+            step3_title: 'Pay',    step3_body: 'Choose amount and destination. Vants converts and settles via Pix, SPEI or CBU in under 5 seconds — without leaving the app.',
+            yield_label: 'Current yield', yield_unit: 'per year',
+            attr1_label: 'Liquidity', attr1_value: 'Daily',
+            attr2_label: 'Applied on', attr2_value: 'Total balance',
+            attr3_label: 'Fees', attr3_value: 'Zero',
+            attr4_label: 'Updates', attr4_value: 'Real time',
+            yield_cta: 'Compare with your bank',
+            cmp_label: 'Yield comparison', cmp_h2: 'What\'s left at month end.',
+            cmp_lead: 'Traditional banks pay you the minimum while lending your money at high rates. Vants reverses that.',
+            cmp_feature: 'Feature', cmp_bank: 'Traditional bank', cmp_broker: 'Broker',
+            row1: 'Yield on balance', row2: 'Daily liquidity',
+            row3: 'Payments via Pix / SPEI', row4: 'Earns on weekends',
+            row5: 'Auto-conversion on payment', row6: 'Custody or brokerage fee',
+            row6_bank: 'None', row6_broker: '0.5 – 1.5%', row6_vants: 'Zero',
+            adopt1: 'Early access members', adopt2: 'In yield paid out',
+            adopt3: 'Uptime last 12 months', adopt4: 'Average settlement time',
+            faq_label: 'FAQ', faq_headline: 'Questions you\'ll have.',
+            faq_lead: 'If the answer isn\'t here, talk to us directly.',
+            faq_contact: 'Contact support',
+            faq1_q: 'Is my money safe? Where is it invested?',
+            faq1_a: 'Your balance is held in daily-liquidity fixed-income funds, custodied by regulated institutions. Vants has no access to the principal — only to the yield generated.',
+            faq2_q: 'How does payment work without redeeming the investment?',
+            faq2_a: 'When you initiate a payment, Vants instructs the custodian to settle the exact amount needed — and routes it to the destination via Pix, SPEI or CBU. The process is parallel: no redemption, no D+1 wait.',
+            faq3_q: 'What is the yield rate and can it change?',
+            faq3_a: 'Current yield is 12.4% p.a. net, indexed to market rates. It varies with market conditions, but historically stays well above traditional bank savings accounts.',
+            faq4_q: 'Is Vants a bank? Do I need a credit check?',
+            faq4_a: 'Vants is a non-custodial payment account. We are not a bank and do not run credit checks. Anyone with a valid CPF, CURP or DNI can open an account in under 5 minutes.',
+            faq5_q: 'Which countries are available now?',
+            faq5_a: 'Early access is live in Brazil. Mexico and Argentina launch in beta in 2025. Leave your email to be notified when your country opens.',
+            cta_eyebrow: 'Early access', cta_h2: 'Your turn to earn.',
+            cta_sub: 'First accounts are free forever — no monthly fees, no minimum deposit. Your money starts working the day you open the account.',
+            cta_btn: 'Open account free', cta_note: 'Takes under 5 minutes',
+            footer_product: 'Product', footer_how: 'How it works', footer_yield: 'Yield',
+            footer_compare: 'Compare', footer_company: 'Company', footer_about: 'About',
+            footer_blog: 'Blog', footer_careers: 'Careers', footer_press: 'Press',
+            footer_legal_title: 'Legal', footer_privacy: 'Privacy', footer_terms: 'Terms',
+            footer_security: 'Security',
+            footer_desc: 'A global account where your money invests automatically and pays instantly. For people who refuse to leave yield on the table.',
+            footer_legal_text: 'Vants is a non-custodial payment account. Past yields do not guarantee future returns. Values subject to market conditions.',
+        },
+        es: {
+            nav_how: 'Cómo funciona', nav_yield: 'Rendimiento', nav_compare: 'Comparar',
+            nav_login: 'Ingresar', nav_cta: 'Abrir cuenta', nav_cta_mobile: 'Abrir cuenta gratis',
+            hero_eyebrow: 'Invertir · Rendir · Pagar',
+            hero_h1: 'Tu dinero rinde mientras pagas.',
+            hero_sub: 'Una cuenta global donde el saldo invierte automáticamente — y convierte solo lo necesario al momento del pago. Pix, SPEI o CBU en menos de 5 segundos.',
+            hero_cta: 'Abrir cuenta gratis', hero_link: 'Cómo funciona',
+            card_live: 'Rindiendo ahora', card_balance_label: 'Saldo total', card_today: 'rendidos hoy',
+            card_recent: 'Últimas transacciones',
+            txn1_name: 'Factura de luz', txn1_meta: 'Pagado · SPEI · hace 12 min',
+            txn2_name: 'Rendimiento diario', txn2_meta: 'Acreditado · ayer',
+            card_btn_invest: 'Invertir', card_btn_pay: 'Pagar', card_btn_history: 'Historial',
+            trust_label: 'Infraestructura nativa',
+            problem_label: 'El costo del dinero parado',
+            problem_h2: 'En los modelos tradicionales, tu dinero deja de rendir antes de que pagues la factura.',
+            counter_prefix: 'Podría haber rendido ',
+            counter_suffix: ' mientras leíste esto.',
+            problem_body: 'Vants mantiene tu saldo invertido hasta el milisegundo del pago — y convierte solo el monto exacto que necesitas. Sin rescates manuales, sin espera de D+3, sin comisiones.',
+            loop_label: 'Cómo funciona', loop_h2: 'Tres acciones. Una cuenta.',
+            loop_sub: 'Infraestructura invisible. El dinero trabaja sin que tengas que pensarlo.',
+            step1_title: 'Invertir', step1_body: 'Deposita en fondos de rendimiento global. El capital empieza a trabajar de inmediato — sin pasos manuales ni burocracia.',
+            step2_title: 'Rendir',   step2_body: 'Tu saldo rinde 24 horas al día, 7 días a la semana — incluso fines de semana y feriados. Ni un segundo desperdiciado.',
+            step3_title: 'Pagar',    step3_body: 'Elige monto y destino. Vants convierte y liquida vía Pix, SPEI o CBU en menos de 5 segundos — sin salir de la app.',
+            yield_label: 'Rendimiento actual', yield_unit: 'al año',
+            attr1_label: 'Liquidez', attr1_value: 'Diaria',
+            attr2_label: 'Aplicado sobre', attr2_value: 'Saldo total',
+            attr3_label: 'Comisiones', attr3_value: 'Cero',
+            attr4_label: 'Actualización', attr4_value: 'Tiempo real',
+            yield_cta: 'Comparar con tu banco',
+            cmp_label: 'Comparación de rendimientos', cmp_h2: 'Lo que queda a fin de mes.',
+            cmp_lead: 'Los bancos tradicionales te pagan lo mínimo mientras prestan tu dinero a tasas altas. Vants invierte eso.',
+            cmp_feature: 'Característica', cmp_bank: 'Banco tradicional', cmp_broker: 'Corredora',
+            row1: 'Rendimiento sobre saldo', row2: 'Liquidez diaria',
+            row3: 'Pagos vía Pix / SPEI', row4: 'Rinde durante el fin de semana',
+            row5: 'Conversión automática al pagar', row6: 'Comisión de custodia',
+            row6_bank: 'Ninguna', row6_broker: '0,5 – 1,5%', row6_vants: 'Cero',
+            adopt1: 'Personas aprobadas', adopt2: 'En rendimientos pagados',
+            adopt3: 'Uptime últimos 12 meses', adopt4: 'Tiempo promedio de liquidación',
+            faq_label: 'Preguntas frecuentes', faq_headline: 'Preguntas que tendrás.',
+            faq_lead: 'Si la respuesta no está aquí, habla con nosotros directamente.',
+            faq_contact: 'Contactar soporte',
+            faq1_q: '¿Mi dinero está seguro? ¿Dónde está invertido?',
+            faq1_a: 'Tu saldo está en fondos de renta fija con liquidez diaria, custodiados por instituciones reguladas. Vants no tiene acceso al principal — solo al rendimiento generado.',
+            faq2_q: '¿Cómo funciona el pago sin rescatar la inversión?',
+            faq2_a: 'Cuando inicias un pago, Vants instruye a la custodia a liquidar el monto exacto — y lo dirige al destino vía Pix, SPEI o CBU. El proceso es paralelo: no necesitas rescatar ni esperar.',
+            faq3_q: '¿Cuál es la tasa de rendimiento y puede cambiar?',
+            faq3_a: 'El rendimiento actual es 12,4% anual neto, indexado a tasas de mercado. Varía con las condiciones del mercado, pero históricamente se mantiene muy por encima de las cuentas bancarias tradicionales.',
+            faq4_q: '¿Vants es un banco? ¿Necesito aprobación de crédito?',
+            faq4_a: 'Vants es una cuenta de pago no-custodial. No somos un banco y no hacemos análisis de crédito. Cualquier persona con CPF, CURP o DNI válido puede abrir una cuenta en menos de 5 minutos.',
+            faq5_q: '¿Qué países están disponibles ahora?',
+            faq5_a: 'El acceso anticipado está disponible en Brasil. México y Argentina entran en beta en 2025. Deja tu email para ser notificado cuando tu país abra.',
+            cta_eyebrow: 'Acceso anticipado', cta_h2: 'Tu turno de rendir.',
+            cta_sub: 'Las primeras cuentas son gratuitas para siempre — sin cargos mensuales, sin depósito mínimo. Tu dinero empieza a trabajar el día que abres la cuenta.',
+            cta_btn: 'Abrir cuenta gratis', cta_note: 'Tarda menos de 5 minutos',
+            footer_product: 'Producto', footer_how: 'Cómo funciona', footer_yield: 'Rendimiento',
+            footer_compare: 'Comparar', footer_company: 'Empresa', footer_about: 'Acerca de',
+            footer_blog: 'Blog', footer_careers: 'Empleo', footer_press: 'Prensa',
+            footer_legal_title: 'Legal', footer_privacy: 'Privacidad', footer_terms: 'Términos',
+            footer_security: 'Seguridad',
+            footer_desc: 'Una cuenta global donde tu dinero invierte automáticamente y paga al instante. Para quienes no se conforman con perder rendimiento.',
+            footer_legal_text: 'Vants es una cuenta de pago no-custodial. Los rendimientos pasados no garantizan rendimientos futuros. Valores sujetos a condiciones de mercado.',
+        }
+    };
+
+    let currentLang = 'pt';
+
+    function applyTranslations(lang) {
+        const t = translations[lang] || translations.pt;
+        document.querySelectorAll('[data-i18n]').forEach(el => {
+            const key = el.getAttribute('data-i18n');
+            if (t[key]) el.textContent = t[key];
+        });
+        document.documentElement.lang = lang === 'pt' ? 'pt-BR' : lang === 'es' ? 'es-419' : 'en';
+    }
+
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentLang = btn.dataset.lang;
+            document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === currentLang));
+            applyTranslations(currentLang);
+        });
+    });
+
+    /* ─── NAVBAR SCROLL ─── */
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+        navbar.classList.toggle('scrolled', window.scrollY > 48);
+    }, { passive: true });
+
+    /* ─── MOBILE NAV ─── */
+    const hamburger = document.getElementById('nav-hamburger');
+    const mobileNav = document.getElementById('mobile-nav');
+    let mobileOpen = false;
+
+    hamburger.addEventListener('click', () => {
+        mobileOpen = !mobileOpen;
+        mobileNav.classList.toggle('open', mobileOpen);
+        mobileNav.setAttribute('aria-hidden', String(!mobileOpen));
+        hamburger.setAttribute('aria-expanded', String(mobileOpen));
+    });
+
+    mobileNav.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+            mobileOpen = false;
+            mobileNav.classList.remove('open');
+            mobileNav.setAttribute('aria-hidden', 'true');
+            hamburger.setAttribute('aria-expanded', 'false');
+        });
+    });
+
+    /* ─── SCROLL REVEAL ─── */
+    const revealObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('in-view');
+                revealObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    /* ─── OPPORTUNITY COUNTER ─── */
+    let opportunityRunning = false;
+    let opportunityCents = 0;
+    let opportunityInterval = null;
+    const opportunityEl = document.getElementById('opportunity-counter');
+
+    function formatBRL(cents) {
+        const r = Math.floor(cents / 100);
+        const c = String(cents % 100).padStart(2, '0');
+        return `R$ ${r.toLocaleString('pt-BR')},${c}`;
+    }
+
+    function startOpportunityCounter() {
+        if (opportunityRunning) return;
+        opportunityRunning = true;
+        // tick ~R$ 0.08 per second = 8 cents/s (dramatic but readable)
+        opportunityInterval = setInterval(() => {
+            opportunityCents += 8;
+            if (opportunityEl) opportunityEl.textContent = formatBRL(opportunityCents);
+        }, 1000);
+    }
+
+    const problemObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) startOpportunityCounter();
+        });
+    }, { threshold: 0.3 });
+
+    const problemBlock = document.querySelector('.problem-counter-block');
+    if (problemBlock) problemObserver.observe(problemBlock);
+
+    /* ─── FAQ SMOOTH OPEN ─── */
+    document.querySelectorAll('details.faq-item').forEach(details => {
+        details.addEventListener('toggle', () => {
+            if (details.open) {
+                document.querySelectorAll('details.faq-item').forEach(other => {
+                    if (other !== details) other.removeAttribute('open');
+                });
+            }
+        });
+    });
+
+    /* ─── REDUCED MOTION ─── */
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.documentElement.style.setProperty('--transition-duration', '0ms');
+        if (opportunityInterval) clearInterval(opportunityInterval);
+    }
+    </script>
+</body>
+</html>

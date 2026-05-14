@@ -19,6 +19,7 @@ export function TransferView({ onBack }: TransferViewProps) {
   const [amount, setAmount] = useState("")
   const [step, setStep] = useState<"input" | "loading" | "success" | "error">("input")
   const [errorMessage, setErrorMessage] = useState("")
+  const [txHash, setTxHash] = useState("")
 
   // Simula um desafio biométrico no navegador para validar a presença do usuário
   async function promptBiometrics(): Promise<boolean> {
@@ -109,6 +110,11 @@ export function TransferView({ onBack }: TransferViewProps) {
         throw new Error(errData.error || "Falha ao submeter transação");
       }
 
+      const submitData = await submitRes.json();
+      if (submitData.txHash) {
+        setTxHash(submitData.txHash);
+      }
+
       setStep("success");
     } catch (error: any) {
       console.error(error);
@@ -119,7 +125,7 @@ export function TransferView({ onBack }: TransferViewProps) {
 
   if (step === "success") {
     return (
-      <div className="min-h-screen bg-[#F8FAFC] text-[#0F1A2C] flex flex-col font-sans animate-fade-in">
+      <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans animate-fade-in" style={{ color: "var(--vants-ink)" }}>
         <div className="mx-auto max-w-md w-full flex-1 flex flex-col pt-12 pb-8">
           <main className="flex-1 flex flex-col items-center pt-8 px-6">
             <div className="flex h-28 w-28 items-center justify-center rounded-full mb-8" style={{ backgroundColor: "#E6F8ED" }}>
@@ -128,30 +134,41 @@ export function TransferView({ onBack }: TransferViewProps) {
               </div>
             </div>
 
-            <h1 className="text-[28px] font-bold text-[#0F1A2C] mb-4">{t("transferComplete") || "Transferência Concluída"}</h1>
+            <h1 className="text-[28px] font-bold mb-4" style={{ color: "var(--vants-ink)" }}>{t("transferComplete") || "Transferência Concluída"}</h1>
             
             <div className="flex items-center gap-3 mb-2">
-              <span className="text-[40px] font-bold text-[#0F1A2C] leading-none">{Number(amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+              <span className="text-[40px] font-bold leading-none" style={{ color: "var(--vants-ink)" }}>{Number(amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
             </div>
             <p className="text-[18px] font-bold text-slate-500 mb-8">USDC</p>
 
-            <div className="flex flex-col items-center justify-center px-4 py-2 rounded-xl border border-slate-200 bg-white mb-4 w-full">
-              <span className="text-[12px] text-slate-500 mb-1">{t("sentTo") || "Enviado para"}</span>
-              <span className="text-[11px] font-mono text-[#0F1A2C] break-all text-center">{destination}</span>
+            <div className="flex flex-col gap-3 w-full">
+              <div className="flex flex-col items-center justify-center px-4 py-3 rounded-xl border border-slate-200 bg-white w-full">
+                <span className="text-[12px] font-medium text-slate-500 mb-1">{t("sentTo") || "Enviado para"}</span>
+                <span className="text-[11px] font-mono break-all text-center" style={{ color: "var(--vants-ink)" }}>{destination}</span>
+              </div>
+              
+              {txHash && (
+                <div className="flex flex-col items-center justify-center px-4 py-3 rounded-xl border border-slate-200 bg-white w-full">
+                  <span className="text-[12px] font-medium text-slate-500 mb-1">ID da Transação (Stellar)</span>
+                  <a 
+                    href={`https://stellar.expert/explorer/testnet/tx/${txHash}`} 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    className="text-[11px] font-mono break-all text-center hover:underline"
+                    style={{ color: "var(--vants-blue)" }}
+                  >
+                    {txHash}
+                  </a>
+                </div>
+              )}
             </div>
           </main>
 
-          <div className="px-5 mt-auto pt-8 flex gap-3">
-            <button
-              className="flex-1 h-14 rounded-full border border-slate-200 bg-white flex items-center justify-center gap-2 text-[15px] font-bold text-[#0F1A2C] hover:bg-slate-50 transition-colors"
-            >
-              <Share2 className="h-4 w-4" />
-              {t("shareReceipt") || "Compartilhar"}
-            </button>
+          <div className="px-5 mt-auto pt-8 flex">
             <button
               onClick={onBack}
-              className="flex-1 h-14 rounded-full text-white font-bold text-[15px] hover:opacity-90 transition-opacity"
-              style={{ backgroundColor: "#0F1A2C" }}
+              className="w-full h-14 rounded-full text-white font-bold text-[15px] hover:opacity-90 transition-opacity"
+              style={{ backgroundColor: "var(--vants-blue-deep)" }}
             >
               {t("done") || "Concluído"}
             </button>
@@ -162,17 +179,18 @@ export function TransferView({ onBack }: TransferViewProps) {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-[#0F1A2C] flex flex-col font-sans pb-10 animate-fade-in">
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col font-sans pb-10 animate-fade-in" style={{ color: "var(--vants-ink)" }}>
       <div className="mx-auto max-w-md w-full">
         {/* Header */}
         <header className="flex items-center justify-between px-4 py-4 mb-4">
           <button
             onClick={onBack}
-            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white text-[#0F1A2C] hover:bg-slate-50 transition-colors"
+            className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+            style={{ color: "var(--vants-ink)" }}
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
-          <span className="text-[15px] font-bold text-[#0F1A2C]">{t("transfer") || "Transferir"}</span>
+          <span className="text-[15px] font-bold" style={{ color: "var(--vants-ink)" }}>{t("transfer") || "Transferir"}</span>
           <div className="w-10" />
         </header>
 
@@ -181,9 +199,9 @@ export function TransferView({ onBack }: TransferViewProps) {
           
           <div className="flex flex-col items-center">
             <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100 mb-4">
-              <Send className="h-8 w-8 text-[#0F1A2C]" />
+              <Send className="h-8 w-8" style={{ color: "var(--vants-ink)" }} />
             </div>
-            <h2 className="text-xl font-bold text-[#0F1A2C] mb-1">{t("sendUSDC") || "Enviar USDC"}</h2>
+            <h2 className="text-xl font-bold mb-1" style={{ color: "var(--vants-ink)" }}>{t("sendUSDC") || "Enviar USDC"}</h2>
             <p className="text-sm text-slate-500 text-center">{t("sendDesc") || "Transfira USDC globalmente e em segundos na rede Stellar."}</p>
           </div>
 
@@ -199,19 +217,20 @@ export function TransferView({ onBack }: TransferViewProps) {
 
           <div className="flex flex-col gap-4">
             <div>
-              <label className="block text-[13px] font-bold text-[#0F1A2C] mb-2 pl-1">{t("destinationAddress") || "Endereço Stellar de Destino"}</label>
+              <label className="block text-[13px] font-bold mb-2 pl-1" style={{ color: "var(--vants-ink)" }}>{t("destinationAddress") || "Endereço Stellar de Destino"}</label>
               <input 
                 type="text" 
                 placeholder="G..." 
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
                 disabled={step === "loading"}
-                className="w-full h-[56px] rounded-2xl border border-slate-200 bg-white px-4 text-[15px] text-[#0F1A2C] font-mono focus:border-[#6366F1] focus:ring-1 focus:ring-[#6366F1] transition-all outline-none"
+                className="w-full h-[56px] rounded-2xl border border-slate-200 bg-white px-4 text-[15px] font-mono transition-all outline-none"
+                style={{ color: "var(--vants-ink)", borderColor: undefined }}
               />
             </div>
 
             <div>
-              <label className="block text-[13px] font-bold text-[#0F1A2C] mb-2 pl-1">{t("amount") || "Valor (USDC)"}</label>
+              <label className="block text-[13px] font-bold mb-2 pl-1" style={{ color: "var(--vants-ink)" }}>{t("amount") || "Valor (USDC)"}</label>
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 font-bold">$</span>
                 <input 
@@ -221,7 +240,8 @@ export function TransferView({ onBack }: TransferViewProps) {
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
                   disabled={step === "loading"}
-                  className="w-full h-[56px] rounded-2xl border border-slate-200 bg-white pl-8 pr-16 text-[18px] font-bold text-[#0F1A2C] focus:border-[#6366F1] focus:ring-1 focus:ring-[#6366F1] transition-all outline-none"
+                  className="w-full h-[56px] rounded-2xl border border-slate-200 bg-white pl-8 pr-16 text-[18px] font-bold transition-all outline-none"
+                  style={{ color: "var(--vants-ink)" }}
                 />
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 text-[14px] font-bold text-slate-400">USDC</span>
               </div>
@@ -235,7 +255,7 @@ export function TransferView({ onBack }: TransferViewProps) {
             onClick={handleTransfer}
             disabled={step === "loading" || !destination || !amount}
             className="flex w-full h-[60px] items-center justify-center gap-2 rounded-full text-white transition-opacity hover:opacity-90 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
-            style={{ backgroundColor: "#0F1A2C" }}
+            style={{ backgroundColor: "var(--vants-blue-deep)" }}
           >
             {step === "loading" ? (
               <Loader2 className="h-5 w-5 animate-spin" />

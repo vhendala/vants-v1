@@ -22,12 +22,12 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100">
-      {/* Logo — Deep Navy, bold, letter-spaced */}
+      {/* Logo — Zain 900, alinhado com landing page v2 */}
       <span
-        className="text-base font-extrabold tracking-[0.18em] select-none"
-        style={{ color: "#0F1A2C" }}
+        className="text-[1.4rem] font-black select-none"
+        style={{ fontFamily: "'Zain', sans-serif", letterSpacing: "-0.03em", color: "var(--vants-blue)" }}
       >
-        VANTS
+        Vants
       </span>
 
       <div className="flex items-center gap-2">

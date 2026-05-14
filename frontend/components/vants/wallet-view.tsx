@@ -25,7 +25,7 @@ const recentPayees: RecentPayee[] = [
     name: "Telmex Internet",
     clabe: "CLABE ****7833",
     initial: "T",
-    color: "#6366F1", // purple
+    color: "#1A6CB5", // blue (brand)
   },
   {
     id: "uber",
@@ -72,10 +72,10 @@ export function WalletView({ onPayBill }: WalletViewProps) {
             </div>
 
             {/* Cantos roxos */}
-            <span className="absolute top-0 left-0 w-10 h-10 border-t-2 border-l-2 border-[#6366F1] rounded-tl-xl" />
-            <span className="absolute top-0 right-0 w-10 h-10 border-t-2 border-r-2 border-[#6366F1] rounded-tr-xl" />
-            <span className="absolute bottom-0 left-0 w-10 h-10 border-b-2 border-l-2 border-[#6366F1] rounded-bl-xl" />
-            <span className="absolute bottom-0 right-0 w-10 h-10 border-b-2 border-r-2 border-[#6366F1] rounded-br-xl" />
+            <span className="absolute top-0 left-0 w-10 h-10 border-t-2 border-l-2 border-[var(--vants-blue)] rounded-tl-xl" />
+            <span className="absolute top-0 right-0 w-10 h-10 border-t-2 border-r-2 border-[var(--vants-blue)] rounded-tr-xl" />
+            <span className="absolute bottom-0 left-0 w-10 h-10 border-b-2 border-l-2 border-[var(--vants-blue)] rounded-bl-xl" />
+            <span className="absolute bottom-0 right-0 w-10 h-10 border-b-2 border-r-2 border-[var(--vants-blue)] rounded-br-xl" />
           </div>
         </div>
 
@@ -90,11 +90,11 @@ export function WalletView({ onPayBill }: WalletViewProps) {
       {/* Bottom Sheet */}
       <div className="bg-[#F8FAFC] rounded-t-3xl pt-5 px-5 pb-12 z-20">
         <div className="flex items-center justify-between mb-4 px-1">
-          <h2 className="text-[15px] font-bold text-[#0F1A2C]">{t("recentPayees")}</h2>
+          <h2 className="text-[15px] font-bold" style={{ color: "var(--vants-ink)" }}>{t("recentPayees")}</h2>
           <button
             onClick={onPayBill}
             className="text-[14px] font-medium"
-            style={{ color: "#6366F1" }}
+            style={{ color: "var(--vants-blue)" }}
           >
             {t("enterManually")}
           </button>
@@ -117,7 +117,7 @@ export function WalletView({ onPayBill }: WalletViewProps) {
               </div>
               
               <div className="flex-1">
-                <p className="font-bold text-[15px] text-[#0F1A2C] mb-0.5">{payee.name}</p>
+                <p className="font-bold text-[15px] mb-0.5" style={{ color: "var(--vants-ink)" }}>{payee.name}</p>
                 <p className="text-[13px] font-mono text-slate-500">{payee.clabe}</p>
               </div>
 

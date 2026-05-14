@@ -1,10 +1,15 @@
 import type { Metadata, Viewport } from 'next'
-import { Inter, JetBrains_Mono } from 'next/font/google'
+import { Inter, JetBrains_Mono, Manrope } from 'next/font/google'
 
 import { PrivyProviderWrapper } from '@/components/providers/PrivyProviderWrapper'
 import { ThemeProvider } from '@/components/vants/theme-provider'
 import { LanguageProvider } from '@/components/providers/LanguageProvider'
 import './globals.css'
+
+const manrope = Manrope({ 
+  subsets: ["latin"],
+  variable: '--font-manrope',
+})
 
 const inter = Inter({ 
   subsets: ["latin"],
@@ -17,7 +22,7 @@ const jetbrainsMono = JetBrains_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'VANTS',
+  title: 'Vants',
   description: 'Earn yield on your digital assets with Vants',
   generator: 'v0.app',
   icons: {
@@ -34,7 +39,7 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   themeColor: [
     { media: '(prefers-color-scheme: light)', color: '#f8fafc' },
-    { media: '(prefers-color-scheme: dark)', color: '#0F1A2C' },
+    { media: '(prefers-color-scheme: dark)', color: '#0A3F73' },
   ],
   width: 'device-width',
   initialScale: 1,
@@ -50,7 +55,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+      <body className={`${manrope.variable} ${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <LanguageProvider>
           <ThemeProvider>
             <PrivyProviderWrapper>

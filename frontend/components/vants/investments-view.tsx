@@ -31,7 +31,7 @@ function DonutChart() {
       <circle cx="21" cy="21" r="15.9" fill="none" stroke="#E2E8F0" strokeWidth="4" />
       <circle
         cx="21" cy="21" r="15.9" fill="none"
-        stroke="#C7D2FE"
+        stroke="var(--vants-blue-light)"
         strokeWidth="4"
         strokeDasharray={`${circumference * 0.11} ${circumference * 0.89}`}
         strokeDashoffset={-cashOffset}
@@ -39,7 +39,7 @@ function DonutChart() {
       />
       <circle
         cx="21" cy="21" r="15.9" fill="none"
-        stroke="#10B981"
+        stroke="var(--vants-green)"
         strokeWidth="4"
         strokeDasharray={`${circumference * 0.20} ${circumference * 0.80}`}
         strokeDashoffset={-balancedOffset}
@@ -47,7 +47,7 @@ function DonutChart() {
       />
       <circle
         cx="21" cy="21" r="15.9" fill="none"
-        stroke="#6366F1"
+        stroke="var(--vants-blue)"
         strokeWidth="4"
         strokeDasharray={`${circumference * 0.69} ${circumference * 0.31}`}
         strokeDashoffset={coreOffset}
@@ -88,7 +88,7 @@ function PositionCard({ pos, t }: { pos: Position; t: any }) {
         </div>
         <span
           className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
-          style={{ backgroundColor: "#ECFDF5", color: "#10B981" }}
+          style={{ backgroundColor: "oklch(74% 0.13 155 / 0.06)", color: "var(--vants-green)" }}
         >
           {pos.returnPct}
         </span>
@@ -105,7 +105,7 @@ function PositionCard({ pos, t }: { pos: Position; t: any }) {
         </div>
         <div>
           <p className="text-[11px] text-slate-500 mb-0.5">{t("returns")}</p>
-          <p className="text-[15px] font-bold" style={{ color: "#10B981" }}>
+          <p className="text-[15px] font-bold" style={{ color: "var(--vants-green)" }}>
             {pos.returns}
           </p>
         </div>
@@ -117,7 +117,7 @@ function PositionCard({ pos, t }: { pos: Position; t: any }) {
 
       <button
         className="w-full py-3 rounded-2xl text-[14px] font-semibold transition-colors"
-        style={{ backgroundColor: "#EEF2FF", color: "#6366F1" }}
+        style={{ backgroundColor: "var(--vants-blue-light)", color: "var(--vants-blue)" }}
       >
         + {t("depositMore")}
       </button>
@@ -150,7 +150,7 @@ function EarnCardItem({ card, t }: { card: EarnCard; t: any }) {
         </span>
       </div>
 
-      <p className="text-[28px] font-bold mb-0.5" style={{ color: "#10B981" }}>
+      <p className="text-[28px] font-bold mb-0.5" style={{ color: "var(--vants-green)" }}>
         {card.apy}
         <span className="text-[14px] font-medium text-slate-500"> / {t("yearAbbr")}</span>
       </p>
@@ -159,7 +159,7 @@ function EarnCardItem({ card, t }: { card: EarnCard; t: any }) {
 
       <button
         className="w-full py-3 rounded-xl text-[14px] font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
-        style={{ backgroundColor: "#0F1A2C" }}
+        style={{ backgroundColor: "var(--vants-blue-deep)" }}
       >
         {t("invest")}
       </button>
@@ -186,7 +186,7 @@ export function InvestmentsView() {
     {
       id: "balanced",
       iconLetter: "B",
-      iconBg: "#0F1A2C",
+      iconBg: "var(--vants-blue-deep)",
       name: "Balanced",
       risk: `${t("mediumRisk")} · ${t("growth")}`,
       returnPct: `12.1% ${t("returns").toLowerCase()}`,
@@ -237,20 +237,20 @@ export function InvestmentsView() {
 
             <div className="flex flex-col gap-1">
               <p className="text-[12px] text-slate-500">{t("averageAnnualReturn")}</p>
-              <p className="text-[28px] font-bold" style={{ color: "#10B981" }}>
+              <p className="text-[28px] font-bold" style={{ color: "var(--vants-green)" }}>
                 8.9%
               </p>
               <div className="flex flex-col gap-1 mt-1">
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: "#6366F1" }} />
+                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: "var(--vants-blue)" }} />
                   <span className="text-[11px] text-slate-600">Core 69%</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: "#10B981" }} />
+                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: "var(--vants-green)" }} />
                   <span className="text-[11px] text-slate-600">Balanced 20%</span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: "#C7D2FE" }} />
+                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: "var(--vants-blue-light)" }} />
                   <span className="text-[11px] text-slate-600">Cash 11%</span>
                 </div>
               </div>

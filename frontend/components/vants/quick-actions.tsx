@@ -16,7 +16,7 @@ export function QuickActions({ onPayBill, onTransfer }: QuickActionsProps) {
       icon: CreditCard,
       label: t("pay"),
       // Botão navy com ícone e label brancos — exatamente como na imagem
-      buttonStyle: { backgroundColor: "#0F1A2C" },
+      buttonStyle: { backgroundColor: "var(--vants-blue-deep)" },
       iconClass: "text-white",
       labelClass: "text-slate-900",
       isNavy: true,

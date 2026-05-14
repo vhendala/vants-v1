@@ -14,7 +14,7 @@
  */
 
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Mail, Globe } from "lucide-react";
+import { Mail, Globe, ArrowLeftRight, Landmark, ArrowLeft } from "lucide-react";
 import { useLanguage } from "../providers/LanguageProvider";
 import { LanguageSelector } from "../providers/LanguageSelector";
 import { Language } from "../../lib/translations";
@@ -51,6 +51,7 @@ export function VantsDashboard() {
   const [activeView, setActiveView] = useState<View>("home");
   const [showPayment, setShowPayment] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
+  const [showTransferMenu, setShowTransferMenu] = useState(false);
   const [accountStatus, setAccountStatus] = useState<AccountStatus>({
     state: "loading",
   });
@@ -114,10 +115,6 @@ export function VantsDashboard() {
     return <PaymentView onBack={() => setShowPayment(false)} />;
   }
 
-  if (showTransfer) {
-    return <TransferView onBack={() => setShowTransfer(false)} />;
-  }
-
   // ─── Dashboard principal ───────────────────────────────────────────────────────
 
   return (
@@ -126,33 +123,95 @@ export function VantsDashboard() {
         
         <Header />
 
-          {activeView === "home" && (
-            <main className="px-4 py-4 flex flex-col gap-5 bg-white md:bg-slate-50">
-              <BalanceCard publicKey={accountStatus.publicKey as string} />
-              <InvestmentPools />
-              <QuickActions 
-                onPayBill={() => setShowPayment(true)} 
-                onTransfer={() => setShowTransfer(true)} 
-              />
-              <RecentActivity />
-            </main>
+          {!showTransfer && !showTransferMenu && (
+            <>
+              {activeView === "home" && (
+                <main className="px-4 py-4 flex flex-col gap-5 bg-white md:bg-slate-50">
+                  <BalanceCard publicKey={accountStatus.publicKey as string} />
+                  <InvestmentPools />
+                  <QuickActions 
+                    onPayBill={() => setShowPayment(true)} 
+                    onTransfer={() => setShowTransferMenu(true)} 
+                  />
+                  <RecentActivity 
+                    publicKey={accountStatus.state === "has-account" ? accountStatus.publicKey : undefined} 
+                    onSeeAll={() => setActiveView("activity")}
+                  />
+                </main>
+              )}
+
+              {activeView === "invest" && <InvestmentsView />}
+
+              {activeView === "wallet" && (
+                <WalletView onPayBill={() => setShowPayment(true)} />
+              )}
+
+              {activeView === "activity" && <RecentActivity showFilters={true} publicKey={accountStatus.state === "has-account" ? accountStatus.publicKey : undefined} />}
+
+              {activeView === "profile" && <ProfileView />}
+            </>
           )}
 
-          {activeView === "invest" && <InvestmentsView />}
-
-          {activeView === "wallet" && (
-            <WalletView onPayBill={() => setShowPayment(true)} />
+          {showTransfer && (
+            <div className="pb-20">
+              <TransferView onBack={() => setShowTransfer(false)} />
+            </div>
           )}
-
-          {activeView === "activity" && <RecentActivity showFilters={true} />}
-
-          {activeView === "profile" && <ProfileView />}
-
-          {activeView === "profile" && <ProfileView />}
 
           <div className="fixed bottom-0 left-0 right-0 z-50 mx-auto max-w-md bg-white border-t border-slate-200">
             <BottomNavigation activeView={activeView} onViewChange={setActiveView} />
           </div>
+
+          {/* Tela de Seleção de Transferência */}
+          {showTransferMenu && (
+            <div className="w-full bg-[#F8FAFC] min-h-screen flex flex-col font-sans animate-in slide-in-from-right duration-300 pb-28">
+              <header className="flex items-center justify-between px-4 py-4 mb-4">
+                  <button
+                    onClick={() => setShowTransferMenu(false)}
+                    className="flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-white hover:bg-slate-50 transition-colors"
+                    style={{ color: "var(--vants-ink)" }}
+                  >
+                    <ArrowLeft className="h-5 w-5" />
+                  </button>
+                  <span className="text-[15px] font-bold" style={{ color: "var(--vants-ink)" }}>Nova Transferência</span>
+                  <div className="w-10" />
+                </header>
+
+                <main className="px-5 flex flex-col gap-4 mt-2">
+                  <button 
+                    onClick={() => {
+                      setShowTransferMenu(false);
+                      setShowTransfer(true);
+                    }} 
+                    className="flex items-center gap-4 p-4 rounded-2xl border border-slate-200 bg-white hover:border-[var(--vants-blue)] transition-all text-left shadow-sm hover:shadow"
+                  >
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl shrink-0" style={{ backgroundColor: "var(--vants-blue-light)" }}>
+                      <ArrowLeftRight className="h-6 w-6" style={{ color: "var(--vants-blue)" }} />
+                    </div>
+                    <div>
+                      <p className="font-bold text-[16px]" style={{ color: "var(--vants-ink)" }}>Rede Stellar</p>
+                      <p className="text-[13px] text-slate-500 mt-0.5">Enviar USDC instantaneamente para qualquer carteira na rede Testnet</p>
+                    </div>
+                  </button>
+
+                  <button 
+                    onClick={() => {
+                      setShowTransferMenu(false);
+                      alert("O saque via PIX (Cashout) está em desenvolvimento!");
+                    }} 
+                    className="flex items-center gap-4 p-4 rounded-2xl border border-slate-200 bg-white hover:border-[var(--vants-green)] transition-all text-left shadow-sm hover:shadow"
+                  >
+                    <div className="flex h-12 w-12 items-center justify-center rounded-xl shrink-0" style={{ backgroundColor: "oklch(74% 0.13 155 / 0.12)" }}>
+                      <Landmark className="h-6 w-6" style={{ color: "var(--vants-green)" }} />
+                    </div>
+                    <div>
+                      <p className="font-bold text-[16px]" style={{ color: "var(--vants-ink)" }}>Sacar via PIX</p>
+                      <p className="text-[13px] text-slate-500 mt-0.5">Converter saldo USDC e enviar para sua conta bancária em BRL</p>
+                    </div>
+                  </button>
+                </main>
+            </div>
+          )}
       </div>
     </div>
   );
@@ -165,7 +224,7 @@ function DashboardSkeleton() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <div className="h-10 w-10 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "#0F1A2C transparent #0F1A2C #0F1A2C" }} />
+        <div className="h-10 w-10 rounded-full border-2 border-t-transparent animate-spin" style={{ borderColor: "var(--vants-blue-deep) transparent var(--vants-blue-deep) var(--vants-blue-deep)" }} />
         <p className="text-sm text-muted-foreground font-medium">{t("syncing")}</p>
       </div>
     </div>
@@ -261,8 +320,11 @@ function LoginScreen() {
           <>
             {/* Header */}
             <div className="flex items-center justify-between mb-10">
-              <span className="text-base font-extrabold tracking-[0.2em] text-foreground">
-                VANTS
+              <span
+                className="text-[1.4rem] font-black text-foreground"
+                style={{ fontFamily: "'Zain', sans-serif", letterSpacing: "-0.03em", color: "var(--vants-blue)" }}
+              >
+                Vants
               </span>
               <div className="flex items-center gap-4">
                 <LanguageSelector />
@@ -352,8 +414,11 @@ function LoginScreen() {
             </div>
 
             {/* Logo */}
-            <p className="text-xl font-extrabold tracking-[0.3em] text-foreground text-center mb-6">
-              VANTS
+            <p
+              className="text-[1.6rem] font-black text-foreground text-center mb-6"
+              style={{ fontFamily: "'Zain', sans-serif", letterSpacing: "-0.03em", color: "var(--vants-blue)" }}
+            >
+              Vants
             </p>
 
             {otpStep ? (

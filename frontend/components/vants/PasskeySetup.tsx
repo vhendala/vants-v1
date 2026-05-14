@@ -175,15 +175,15 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
           <div className="text-center">
             <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-slate-100">
               {step === "loading" ? (
-                <Loader2 className="h-8 w-8 text-[#0F1A2C] animate-spin" />
+                <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--vants-blue-deep)" }} />
               ) : step === "success" ? (
-                <CheckCircle className="h-8 w-8 text-[#10B981]" />
+                <CheckCircle className="h-8 w-8" style={{ color: "var(--vants-green)" }} />
               ) : (
-                <Fingerprint className="h-8 w-8 text-[#0F1A2C]" />
+                <Fingerprint className="h-8 w-8" style={{ color: "var(--vants-blue-deep)" }} />
               )}
             </div>
             
-            <h1 className="text-xl font-bold text-[#0F1A2C]">
+            <h1 className="text-xl font-bold" style={{ color: "var(--vants-ink)" }}>
               {step === "success" ? t("accountSecure") : t("activateBiometrics")}
             </h1>
             <p className="mt-2 text-sm text-slate-500">
@@ -198,7 +198,7 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
                 <button
                   onClick={handleCreatePasskey}
                   className="w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
-                  style={{ backgroundColor: "#0F1A2C" }}
+                  style={{ backgroundColor: "var(--vants-blue-deep)" }}
                 >
                   {t("registerDevice")}
                 </button>
@@ -209,7 +209,7 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
                  <p className="text-sm text-slate-500 text-center font-medium">{t("preparingWallet")}</p>
                  <div className="flex gap-1">
                    {[0, 1, 2].map((i) => (
-                     <div key={i} className="h-2 w-2 rounded-full animate-bounce" style={{ backgroundColor: "#0F1A2C", animationDelay: `${i * 0.15}s` }} />
+                     <div key={i} className="h-2 w-2 rounded-full animate-bounce" style={{ backgroundColor: "var(--vants-blue-deep)", animationDelay: `${i * 0.15}s` }} />
                    ))}
                  </div>
                </div>
@@ -227,10 +227,10 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
                     <AlertCircle className="h-7 w-7 text-red-500" />
                   </div>
                   <div className="text-center">
-                    <p className="text-sm font-bold text-[#0F1A2C]">{t("somethingWentWrong")}</p>
+                    <p className="text-sm font-bold" style={{ color: "var(--vants-ink)" }}>{t("somethingWentWrong")}</p>
                     <p className="mt-1 text-xs text-slate-500">{errorMessage}</p>
                   </div>
-                  <button onClick={() => setStep("idle")} className="w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98]" style={{ backgroundColor: "#0F1A2C" }}>
+                  <button onClick={() => setStep("idle")} className="w-full rounded-xl py-3.5 text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98]" style={{ backgroundColor: "var(--vants-blue-deep)" }}>
                     {t("tryAgain")}
                   </button>
                 </div>
