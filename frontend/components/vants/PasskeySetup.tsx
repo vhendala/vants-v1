@@ -107,43 +107,7 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
         throw new Error(errorData.error ?? `${t("serverError")}: ${setupRes.status}`);
       }
 
-      // 3. Frontend assina a Trustline USDC
-      const issuerPublicKey = process.env.NEXT_PUBLIC_ISSUER_PUBLIC_KEY;
-      if (!issuerPublicKey) throw new Error("NEXT_PUBLIC_ISSUER_PUBLIC_KEY não configurado.");
-
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-
-      const horizonServer = new StellarSdk.Horizon.Server("https://horizon-testnet.stellar.org");
-      const account = await horizonServer.loadAccount(publicKey);
-      const usdcAsset = new StellarSdk.Asset("USDC", issuerPublicKey);
-
-      const trustlineTx = new StellarSdk.TransactionBuilder(account, {
-        fee: StellarSdk.BASE_FEE,
-        networkPassphrase: StellarSdk.Networks.TESTNET,
-      })
-        .addOperation(StellarSdk.Operation.changeTrust({ asset: usdcAsset }))
-        .setTimeout(30)
-        .build();
-
-      trustlineTx.sign(keypair);
-      const trustlineXdr = trustlineTx.toXDR();
-
-      // 4. Backend submete XDR
-      const fundRes = await fetch(`${API_URL}/api/account/fund-usdc`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify({ trustlineXdr }),
-      });
-
-      if (!fundRes.ok) {
-        const errorData = await fundRes.json().catch(() => ({ error: "Unknown error" }));
-        throw new Error(errorData.error ?? `Erro HTTP ${fundRes.status}`);
-      }
-
-      // 5. Aciona biometria real do dispositivo via Privy SDK e persiste as
+      // 3. Aciona biometria real do dispositivo via Privy SDK e persiste as
       // credenciais WebAuthn reais no backend via callback onSuccess do hook.
       await linkWithPasskey();
 

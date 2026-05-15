@@ -61,10 +61,6 @@ export const translations = {
     wallet: "Wallet",
     activity: "Activity",
     profile: "Profile",
-
-    // Profile
-    profile: "Profile",
-    account: "Account",
     paymentPreferences: "Payment Preferences",
     memberSince: "Member since",
     paid: "PAID",
@@ -92,7 +88,6 @@ export const translations = {
     pay: "Pay",
     deposit: "Deposit",
     swap: "Swap",
-    invest: "Invest",
 
     // Wallet / Scan
     scanToPay: "Scan to Pay",
@@ -143,7 +138,6 @@ export const translations = {
     growth: "Growth",
     current: "Current",
     deposited: "Deposited",
-    returns: "Returns",
     yearAbbr: "yr",
     investedAmount: "invested",
 
@@ -163,7 +157,27 @@ export const translations = {
       "Activate blockchain account",
       "Sign USDC Trustline",
       "Receive 10,000 USDC deposit"
-    ]
+    ],
+
+    // Deposit Flow
+    depositTitle: "Deposit via Pix",
+    enterAmount: "Enter the amount",
+    depositAmountLabel: "Deposit amount",
+    minDeposit: "Minimum R$ 10.00",
+    next: "Next",
+    preparingVault: "Preparing your vault...",
+    preparingVaultDesc: "We are authorizing the asset for your account.",
+    pixPayment: "Pix Payment",
+    pixQrCode: "QR Code",
+    pixCopyPaste: "Pix Copy and Paste",
+    copyCode: "Copy code",
+    copied: "Copied!",
+    awaitingPayment: "Awaiting payment...",
+    alreadyPaid: "I already paid",
+    depositComplete: "Deposit Complete!",
+    depositSuccessDesc: "Your deposit has been confirmed.",
+    backToDashboard: "Back to Dashboard",
+    depositOf: "Deposit of",
   },
   pt: {
     // Onboarding
@@ -200,7 +214,6 @@ export const translations = {
     // Dashboard
     totalBalance: "Saldo Total",
     invested: "INVESTIDO",
-    account: "CONTA",
     thisMonth: "este mês",
     syncing: "Sincronizando...",
     notifications: "Notificações",
@@ -221,13 +234,11 @@ export const translations = {
     profile: "Perfil",
 
     // Profile
-    profile: "Perfil",
     account: "Conta",
     paymentPreferences: "Preferências de Pagamento",
     memberSince: "Membro desde",
     paid: "PAGO",
     earned: "GANHO",
-    notifications: "Notificações",
     streak: "RECORDE",
     days: "dias",
     helpCenter: "Central de Ajuda",
@@ -251,7 +262,6 @@ export const translations = {
     pay: "Pagar",
     deposit: "Depositar",
     swap: "Trocar",
-    invest: "Investir",
 
     // Wallet / Scan
     scanToPay: "Escanear para Pagar",
@@ -302,7 +312,6 @@ export const translations = {
     growth: "Crescimento",
     current: "Atual",
     deposited: "Depositado",
-    returns: "Retornos",
     yearAbbr: "ano",
     investedAmount: "investidos",
 
@@ -322,7 +331,27 @@ export const translations = {
       "Ativar conta na blockchain",
       "Assinar Trustline USDC",
       "Receber depósito de 10.000 USDC"
-    ]
+    ],
+
+    // Deposit Flow
+    depositTitle: "Depósito via Pix",
+    enterAmount: "Digite o valor",
+    depositAmountLabel: "Valor do depósito",
+    minDeposit: "Mínimo R$ 10,00",
+    next: "Avançar",
+    preparingVault: "Preparando seu cofre...",
+    preparingVaultDesc: "Estamos autorizando o ativo para sua conta.",
+    pixPayment: "Pagamento Pix",
+    pixQrCode: "QR Code",
+    pixCopyPaste: "Pix Copia e Cola",
+    copyCode: "Copiar código",
+    copied: "Copiado!",
+    awaitingPayment: "Aguardando pagamento...",
+    alreadyPaid: "Já paguei",
+    depositComplete: "Depósito Confirmado!",
+    depositSuccessDesc: "Seu depósito foi confirmado com sucesso.",
+    backToDashboard: "Voltar ao Painel",
+    depositOf: "Depósito de",
   },
   es: {
     // Onboarding
@@ -359,7 +388,6 @@ export const translations = {
     // Dashboard
     totalBalance: "Saldo Total",
     invested: "INVERTIDO",
-    account: "CUENTA",
     thisMonth: "este mes",
     syncing: "Sincronizando...",
     notifications: "Notificaciones",
@@ -380,7 +408,6 @@ export const translations = {
     profile: "Perfil",
 
     // Profile
-    profile: "Perfil",
     account: "Cuenta",
     paymentPreferences: "Preferencias de Pago",
     memberSince: "Miembro desde",
@@ -409,7 +436,6 @@ export const translations = {
     pay: "Pagar",
     deposit: "Depositar",
     swap: "Intercambiar",
-    invest: "Invertir",
 
     // Wallet / Scan
     scanToPay: "Escanear para Pagar",
@@ -460,7 +486,6 @@ export const translations = {
     growth: "Crecimiento",
     current: "Actual",
     deposited: "Depositado",
-    returns: "Retornos",
     yearAbbr: "año",
     investedAmount: "invertidos",
 
@@ -480,6 +505,26 @@ export const translations = {
       "Activar cuenta en blockchain",
       "Firmar Trustline USDC",
       "Recibir depósito de 10.000 USDC"
-    ]
+    ],
+
+    // Deposit Flow
+    depositTitle: "Depósito vía Pix",
+    enterAmount: "Ingrese el monto",
+    depositAmountLabel: "Monto del depósito",
+    minDeposit: "Mínimo R$ 10,00",
+    next: "Siguiente",
+    preparingVault: "Preparando tu bóveda...",
+    preparingVaultDesc: "Estamos autorizando el activo para tu cuenta.",
+    pixPayment: "Pago Pix",
+    pixQrCode: "Código QR",
+    pixCopyPaste: "Pix Copia y Pega",
+    copyCode: "Copiar código",
+    copied: "¡Copiado!",
+    awaitingPayment: "Esperando pago...",
+    alreadyPaid: "Ya pagué",
+    depositComplete: "¡Depósito Confirmado!",
+    depositSuccessDesc: "Tu depósito ha sido confirmado exitosamente.",
+    backToDashboard: "Volver al Panel",
+    depositOf: "Depósito de",
   }
 };

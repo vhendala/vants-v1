@@ -19,6 +19,7 @@ import { useLanguage } from "../providers/LanguageProvider";
 import { LanguageSelector } from "../providers/LanguageSelector";
 import { Language } from "../../lib/translations";
 import { usePrivy, useLoginWithEmail, useLoginWithOAuth } from "@privy-io/react-auth";
+import * as StellarSdk from "@stellar/stellar-sdk";
 import { Header } from "./header";
 import { BalanceCard } from "./balance-card";
 import { QuickActions } from "./quick-actions";
@@ -31,8 +32,13 @@ import { TransferView } from "./transfer-view";
 import { WalletView } from "./wallet-view";
 import { PasskeySetup } from "./PasskeySetup";
 import { ProfileView } from "./profile-view";
+import { DepositFlow } from "./deposit-flow";
+import { WithdrawFlow } from "./withdraw-flow";
 
 import { API_URL } from "../../lib/config";
+const HORIZON_URL = "https://horizon-testnet.stellar.org";
+const ISSUER_PUBLIC_KEY = process.env.NEXT_PUBLIC_USDC_ISSUER_PUBLIC_KEY;
+const TESOURO_ISSUER_PUBLIC_KEY = process.env.NEXT_PUBLIC_TESOURO_ISSUER_PUBLIC_KEY;
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -52,9 +58,17 @@ export function VantsDashboard() {
   const [showPayment, setShowPayment] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
   const [showTransferMenu, setShowTransferMenu] = useState(false);
+  const [showDeposit, setShowDeposit] = useState(false);
+  const [showWithdraw, setShowWithdraw] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [accountStatus, setAccountStatus] = useState<AccountStatus>({
     state: "loading",
   });
+
+  // Estados de Saldo Elevados (para persistência entre telas)
+  const [usdcBalance, setUsdcBalance] = useState<number | null>(null);
+  const [tesouroBalance, setTesouroBalance] = useState<number | null>(null);
+  const [brlRate, setBrlRate] = useState<number>(5.45); // Default fallback
 
   /**
    * Busca o status da conta no backend uma única vez após autenticação.
@@ -93,6 +107,59 @@ export function VantsDashboard() {
     }
   }, [ready, authenticated, fetchAccountStatus]);
 
+  // 1. Polling de Saldo (Frequente - 1s)
+  useEffect(() => {
+    if (accountStatus.state !== "has-account") return;
+    const publicKey = accountStatus.publicKey;
+    const server = new StellarSdk.Horizon.Server(HORIZON_URL);
+
+    async function updateBalances() {
+      try {
+        const account = await server.loadAccount(publicKey);
+        const usdcLine = account.balances.find((b: any) => 
+          b.asset_code === "USDC" && b.asset_issuer === ISSUER_PUBLIC_KEY
+        );
+        const newUsdc = usdcLine ? parseFloat(usdcLine.balance) : 0;
+        
+        const tesouroLine = account.balances.find((b: any) => 
+          b.asset_code === "TESOURO" && b.asset_issuer === TESOURO_ISSUER_PUBLIC_KEY
+        );
+        const newTesouro = tesouroLine ? parseFloat(tesouroLine.balance) : 0;
+
+        // Só atualiza se mudar (evita rerenders desnecessários)
+        setUsdcBalance(prev => prev !== newUsdc ? newUsdc : prev);
+        setTesouroBalance(prev => prev !== newTesouro ? newTesouro : prev);
+        
+        console.log(`[Dashboard] Saldo atualizado: USDC=${newUsdc}, TESOURO=${newTesouro}`);
+      } catch (e) {
+        // Erro silencioso no console para não atrapalhar, mas monitorado internamente
+      }
+    }
+
+    updateBalances();
+    const interval = setInterval(updateBalances, 1000); // Polling agressivo de 1s
+    return () => clearInterval(interval);
+  }, [accountStatus, refreshKey]);
+
+  // 2. Polling de Cotação (Infrequente - 60s)
+  // WHY: Evita erro 429 (Too Many Requests) no CoinGecko e poupa banda.
+  useEffect(() => {
+    async function updateRate() {
+      try {
+        const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=usd-coin&vs_currencies=brl");
+        if (res.ok) {
+          const data = await res.json();
+          if (data?.["usd-coin"]?.brl) setBrlRate(data["usd-coin"].brl);
+        }
+      } catch (e) {
+        // Silencioso para não poluir o console do usuário
+      }
+    }
+    updateRate();
+    const interval = setInterval(updateRate, 60000);
+    return () => clearInterval(interval);
+  }, []);
+
   // ─── Guards ───────────────────────────────────────────────────────────────────
 
   if (!ready) return <DashboardSkeleton />;
@@ -115,6 +182,29 @@ export function VantsDashboard() {
     return <PaymentView onBack={() => setShowPayment(false)} />;
   }
 
+  if (showDeposit && accountStatus.state === "has-account") {
+    return (
+      <DepositFlow
+        publicKey={accountStatus.publicKey}
+        onBack={() => {
+          setShowDeposit(false);
+          setRefreshKey(prev => prev + 1);
+        }}
+      />
+    );
+  }
+
+  if (showWithdraw && accountStatus.state === "has-account") {
+    return (
+      <WithdrawFlow
+        onBack={() => {
+          setShowWithdraw(false);
+          setRefreshKey(prev => prev + 1);
+        }}
+      />
+    );
+  }
+
   // ─── Dashboard principal ───────────────────────────────────────────────────────
 
   return (
@@ -127,15 +217,23 @@ export function VantsDashboard() {
             <>
               {activeView === "home" && (
                 <main className="px-4 py-4 flex flex-col gap-5 bg-white md:bg-slate-50">
-                  <BalanceCard publicKey={accountStatus.publicKey as string} />
+                  <BalanceCard 
+                    publicKey={accountStatus.publicKey as string} 
+                    initialUsdc={usdcBalance}
+                    initialTesouro={tesouroBalance}
+                    initialRate={brlRate}
+                    refreshKey={refreshKey}
+                  />
                   <InvestmentPools />
                   <QuickActions 
                     onPayBill={() => setShowPayment(true)} 
-                    onTransfer={() => setShowTransferMenu(true)} 
+                    onTransfer={() => setShowTransferMenu(true)}
+                    onDeposit={() => setShowDeposit(true)}
                   />
                   <RecentActivity 
                     publicKey={accountStatus.state === "has-account" ? accountStatus.publicKey : undefined} 
                     onSeeAll={() => setActiveView("activity")}
+                    refreshKey={refreshKey}
                   />
                 </main>
               )}
@@ -197,7 +295,7 @@ export function VantsDashboard() {
                   <button 
                     onClick={() => {
                       setShowTransferMenu(false);
-                      alert("O saque via PIX (Cashout) está em desenvolvimento!");
+                      setShowWithdraw(true);
                     }} 
                     className="flex items-center gap-4 p-4 rounded-2xl border border-slate-200 bg-white hover:border-[var(--vants-green)] transition-all text-left shadow-sm hover:shadow"
                   >

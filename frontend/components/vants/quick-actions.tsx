@@ -6,9 +6,10 @@ import { useLanguage } from "../providers/LanguageProvider"
 interface QuickActionsProps {
   onPayBill?: () => void
   onTransfer?: () => void
+  onDeposit?: () => void
 }
 
-export function QuickActions({ onPayBill, onTransfer }: QuickActionsProps) {
+export function QuickActions({ onPayBill, onTransfer, onDeposit }: QuickActionsProps) {
   const { t } = useLanguage()
   const actions = [
     {
@@ -48,7 +49,8 @@ export function QuickActions({ onPayBill, onTransfer }: QuickActionsProps) {
           key={action.id}
           onClick={
             action.id === "pay" ? onPayBill : 
-            action.id === "transfer" ? onTransfer : undefined
+            action.id === "transfer" ? onTransfer :
+            action.id === "deposit" ? onDeposit : undefined
           }
           className="flex flex-1 flex-col items-center gap-2"
         >
@@ -66,3 +68,4 @@ export function QuickActions({ onPayBill, onTransfer }: QuickActionsProps) {
     </div>
   )
 }
+

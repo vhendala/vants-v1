@@ -1,0 +1,20 @@
+{
+  "items": [
+    {
+      "bankAccountId": "9d4c4041-de15-45ee-80c3-023ac19802f1",
+      "customerId": "8e1b3442-ceea-4b3c-845f-adef2b8770b3",
+      "createdAt": "2026-05-15T18:54:04.708197Z",
+      "updatedAt": "2026-05-15T18:54:04.866974Z",
+      "currency": "mxn",
+      "abbrClabe": "0123...4567",
+      "etherfuseDepositClabe": "646180615200000786",
+      "compliant": true,
+      "needsWork": false,
+      "status": "inactive"
+    }
+  ],
+  "totalItems": 1,
+  "pageSize": 10,
+  "pageNumber": 0,
+  "totalPages": 1
+}

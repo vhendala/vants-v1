@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { ArrowUp, ArrowDown, Receipt, Inbox, X, Copy, ExternalLink, CheckCircle2, ArrowLeft } from "lucide-react"
 import { usePrivy } from "@privy-io/react-auth"
 import { useLanguage } from "../providers/LanguageProvider"
@@ -39,6 +39,7 @@ function TxIcon({ type }: { type: Transaction["type"] }) {
 
 function TxRow({ tx, onClick }: { tx: Transaction; onClick: () => void }) {
   const isInitialDeposit = tx.amount === "10000.00" && (tx.type === "DEPOSIT" || tx.description?.includes("Depósito PIX"))
+  const isTesouro = tx.asset === "TESOURO"
   const isPositive = tx.type === "DEPOSIT" || tx.type === "YIELD" || isInitialDeposit
   const amountColor = isPositive ? "var(--vants-green)" : "var(--vants-ink)"
   const sign = isPositive ? "+" : "−"
@@ -53,6 +54,11 @@ function TxRow({ tx, onClick }: { tx: Transaction; onClick: () => void }) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })
+
+  // Masking: TESOURO → R$, outros mantêm asset original
+  const displayAsset = isTesouro ? "" : tx.asset
+  const displayPrefix = isTesouro ? "R$ " : ""
+  const displaySuffix = isTesouro ? "" : ` ${displayAsset}`
 
   // Formatação de data
   const dateObj = new Date(tx.createdAt)
@@ -79,7 +85,7 @@ function TxRow({ tx, onClick }: { tx: Transaction; onClick: () => void }) {
           className="text-[15px] font-bold"
           style={{ color: amountColor }}
         >
-          {sign}{formattedAmount} {tx.asset}
+          {sign}{displayPrefix}{formattedAmount}{displaySuffix}
         </span>
       </div>
     </div>
@@ -144,9 +150,13 @@ function TransactionDetailsView({
   const isInitialDeposit =
     tx.amount === "10000.00" &&
     (tx.type === "DEPOSIT" || tx.description?.includes("Depósito PIX"))
+  const isTesouro = tx.asset === "TESOURO"
   const isPositive = tx.type === "DEPOSIT" || tx.type === "YIELD" || isInitialDeposit
   const sign = isPositive ? "+" : "−"
   const amountColor = isPositive ? "var(--vants-green)" : "var(--vants-ink)"
+
+  // Masking: TESOURO → BRL (via Pix)
+  const displayAsset = isTesouro ? "BRL (via Pix)" : tx.asset
 
   const formattedAmount = parseFloat(tx.amount).toLocaleString("pt-BR", {
     minimumFractionDigits: 2,
@@ -226,7 +236,7 @@ function TransactionDetailsView({
               <span className="text-[40px] font-extrabold leading-none tracking-tight" style={{ color: amountColor }}>
                 {sign}{formattedAmount}
               </span>
-              <span className="text-[18px] font-bold text-slate-500 ml-1">{tx.asset}</span>
+              <span className="text-[18px] font-bold text-slate-500 ml-1">{displayAsset}</span>
             </div>
           </div>
 
@@ -336,17 +346,20 @@ function TransactionDetailsView({
 export function RecentActivity({ 
   showFilters = false, 
   publicKey,
-  onSeeAll
+  onSeeAll,
+  refreshKey = 0
 }: { 
   showFilters?: boolean; 
   publicKey?: string;
   onSeeAll?: () => void;
+  refreshKey?: number;
 }) {
   const { t } = useLanguage()
   const filters = [t("all"), t("payments"), t("deposits"), t("withdrawals"), t("returns")]
   const [activeFilter, setActiveFilter] = useState(t("all"))
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const isInitialLoad = useRef(true)
   const { getAccessToken, authenticated } = usePrivy()
   
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null)
@@ -355,7 +368,10 @@ export function RecentActivity({
   const fetchTransactions = useCallback(async () => {
     if (!authenticated) return
 
-    setIsLoading(true)
+    if (isInitialLoad.current) {
+      setIsLoading(true)
+    }
+    
     try {
       const token = await getAccessToken()
       const limitQuery = showFilters ? "" : "?limit=5"
@@ -373,12 +389,17 @@ export function RecentActivity({
       console.error("Erro ao buscar transações:", error)
     } finally {
       setIsLoading(false)
+      isInitialLoad.current = false
     }
   }, [getAccessToken, authenticated, showFilters])
 
   useEffect(() => {
     fetchTransactions()
-  }, [fetchTransactions])
+    const intervalId = setInterval(() => {
+      fetchTransactions()
+    }, 2000)
+    return () => clearInterval(intervalId)
+  }, [fetchTransactions, refreshKey])
 
   // Filtragem no client-side
   const filteredTransactions = transactions.filter((tx) => {

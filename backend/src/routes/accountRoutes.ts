@@ -6,6 +6,8 @@ import {
   submitSignedTransaction,
   sendUsdcPayment,
   getUsdcBalance,
+  checkTrustline,
+  buildChangeTrustTransaction,
 } from "../services/stellarService";
 
 const router = Router();
@@ -58,6 +60,8 @@ router.post(
 
 /**
  * Etapas 2 e 3: Trustline + Depósito PIX USDC.
+ * WHY: Mantida para compatibilidade com contas existentes.
+ * Para novos depósitos, usar /api/deposit/initiate (Etherfuse).
  */
 router.post(
   "/fund-usdc",
@@ -77,37 +81,89 @@ router.post(
     }
 
     try {
-      // Submete Trustline
+      // Submete Trustline apenas (sem creditar USDC automaticamente)
       await submitSignedTransaction(trustlineXdr!);
 
-      // Verifica se o usuário já tem o depósito inicial
-      const existingDeposit = await prisma.transaction.findFirst({
-        where: { userId, type: "DEPOSIT", description: "Depósito PIX" }
-      });
-
-      let paymentTxHash = "already_funded";
-      if (!existingDeposit) {
-        // Emite USDC (Depósito PIX)
-        paymentTxHash = await sendUsdcPayment(user.smartWalletAddress);
-
-        // Salva como DEPOSIT para o front mostrar sinal "+"
-        await prisma.transaction.create({
-          data: {
-            userId,
-            type: "DEPOSIT",
-            amount: "10000.00",
-            asset: "USDC",
-            status: "COMPLETED",
-            txHash: paymentTxHash,
-            description: "Depósito PIX",
-          },
-        });
-      }
-
-      res.status(200).json({ success: true, txHash: paymentTxHash });
+      res.status(200).json({ success: true, txHash: "trustline_only" });
     } catch (error) {
       console.error("[accountRoutes] Erro no funding USDC:", error);
       res.status(500).json({ error: "Falha no depósito USDC." });
+    }
+  }
+);
+
+// ─── Trustline Check (genérico) ─────────────────────────────────────────────
+
+router.get(
+  "/trustline-check",
+  verifyPrivyToken,
+  async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user.id;
+    const assetCode = (req.query.asset as string) || "TESOURO";
+    const assetIssuer =
+      (req.query.issuer as string) ||
+      process.env.TESOURO_ISSUER_PUBLIC_KEY ||
+      "GC3CW7EDYRTWQ635VDIGY6S4ZUF5L6TQ7AA4MWS7LEQDBLUSZXV7UPS4";
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { smartWalletAddress: true },
+    });
+
+    if (!user?.smartWalletAddress) {
+      res.status(200).json({ hasTrustline: false });
+      return;
+    }
+
+    try {
+      const hasTrustline = await checkTrustline(
+        user.smartWalletAddress,
+        assetCode,
+        assetIssuer
+      );
+      res.status(200).json({ hasTrustline });
+    } catch (error) {
+      console.error("[accountRoutes] Erro ao verificar trustline:", error);
+      res.status(500).json({ error: "Falha ao verificar trustline." });
+    }
+  }
+);
+
+// ─── Build ChangeTrust Transaction ──────────────────────────────────────────
+
+router.post(
+  "/build-trustline",
+  verifyPrivyToken,
+  async (req: Request, res: Response): Promise<void> => {
+    const userId = req.user.id;
+    const { assetCode, assetIssuer } = req.body as {
+      assetCode?: string;
+      assetIssuer?: string;
+    };
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { smartWalletAddress: true },
+    });
+
+    if (!user?.smartWalletAddress) {
+      res.status(404).json({ error: "Carteira não encontrada." });
+      return;
+    }
+
+    try {
+      const unsignedXdr = await buildChangeTrustTransaction(
+        user.smartWalletAddress,
+        assetCode || "TESOURO",
+        assetIssuer ||
+          process.env.TESOURO_ISSUER_PUBLIC_KEY ||
+          "GC3CW7EDYRTWQ635VDIGY6S4ZUF5L6TQ7AA4MWS7LEQDBLUSZXV7UPS4"
+      );
+
+      res.status(200).json({ unsignedXdr });
+    } catch (error) {
+      console.error("[accountRoutes] Erro ao construir trustline:", error);
+      res.status(500).json({ error: "Falha ao construir transação de trustline." });
     }
   }
 );

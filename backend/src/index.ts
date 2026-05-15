@@ -11,6 +11,7 @@ import cors from "cors";
 import accountRoutes from "./routes/accountRoutes";
 import transactionRoutes from "./routes/transactionRoutes";
 import passkeyRoutes from "./routes/passkeyRoutes";
+import depositRoutes from "./routes/depositRoutes";
 
 // ─── Constantes de configuração ───────────────────────────────────────────────
 
@@ -62,6 +63,7 @@ app.get("/debug/env", (_req, res) => {
     hasDatabaseUrl: !!process.env.DATABASE_URL,
     hasPrivyAppId: !!process.env.PRIVY_APP_ID,
     hasPrivyAppSecret: !!process.env.PRIVY_APP_SECRET,
+    hasEtherfuseApiKey: !!process.env.ETHERFUSE_API_KEY,
     allowedOrigins: ALLOWED_ORIGINS,
     port: PORT,
   });
@@ -75,6 +77,9 @@ app.use("/api/transactions", transactionRoutes);
 
 // Rotas de Passkeys (WebAuthn / Biometria)
 app.use("/api/passkey", passkeyRoutes);
+
+// Rotas de Depósito (On-Ramp via Etherfuse)
+app.use("/api/deposit", depositRoutes);
 
 // ─── 404 handler ─────────────────────────────────────────────────────────────
 

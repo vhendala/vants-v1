@@ -55,7 +55,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${manrope.variable} ${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
+      <body suppressHydrationWarning className={`${manrope.variable} ${inter.variable} ${jetbrainsMono.variable} font-sans antialiased`}>
         <LanguageProvider>
           <ThemeProvider>
             <PrivyProviderWrapper>

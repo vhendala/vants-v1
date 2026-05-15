@@ -1,15 +1,20 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Loader2 } from "lucide-react"
 import { useLanguage } from "../providers/LanguageProvider"
 import * as StellarSdk from "@stellar/stellar-sdk"
 
 const ISSUER_PUBLIC_KEY = process.env.NEXT_PUBLIC_ISSUER_PUBLIC_KEY ?? ""
+const TESOURO_ISSUER_PUBLIC_KEY = process.env.NEXT_PUBLIC_TESOURO_ISSUER_PUBLIC_KEY ?? ""
 const HORIZON_URL = "https://horizon-testnet.stellar.org"
 
 interface BalanceCardProps {
   publicKey: string
+  refreshKey?: number
+  initialUsdc?: number | null
+  initialTesouro?: number | null
+  initialRate?: number
 }
 
 type Currency = "USD" | "BRL"
@@ -32,80 +37,62 @@ function BalanceChart() {
   )
 }
 
-export function BalanceCard({ publicKey }: BalanceCardProps) {
+function CurrencyToggle({ active, onToggle }: { active: Currency; onToggle: (c: Currency) => void }) {
+  return (
+    <div className="flex bg-white/10 p-1 rounded-full backdrop-blur-sm">
+      <button
+        onClick={() => onToggle("USD")}
+        className={`px-3 py-1 rounded-full text-[12px] font-bold transition-all ${
+          active === "USD" ? "bg-white text-[var(--vants-blue-deep)] shadow-sm" : "text-white/60 hover:text-white"
+        }`}
+      >
+        USD
+      </button>
+      <button
+        onClick={() => onToggle("BRL")}
+        className={`px-3 py-1 rounded-full text-[12px] font-bold transition-all ${
+          active === "BRL" ? "bg-white text-[var(--vants-blue-deep)] shadow-sm" : "text-white/60 hover:text-white"
+        }`}
+      >
+        BRL
+      </button>
+    </div>
+  )
+}
+
+export function BalanceCard({ 
+  publicKey, 
+  refreshKey = 0,
+  initialUsdc = null,
+  initialTesouro = null,
+  initialRate = 5.45
+}: BalanceCardProps) {
   const { t } = useLanguage()
-  // 1. Gestão de Estados
-  // WHY: usdcBalance substitui xlmBalance — com Hi-Li, o saldo relevante é USDC.
-  // USDC é 1:1 com USD, então não precisamos de taxa usd. Mantemos brl para conversão.
-  const [usdcBalance, setUsdcBalance] = useState<number>(0)
-  const [brlRate, setBrlRate] = useState<number>(0)
   const [selectedCurrency, setSelectedCurrency] = useState<Currency>("USD")
-  const [isLoading, setIsLoading] = useState<boolean>(true)
-
-  // 2. Busca de Dados
-  useEffect(() => {
-    async function fetchData() {
-      setIsLoading(true)
-      try {
-        const server = new StellarSdk.Horizon.Server(HORIZON_URL)
-
-        // Busca saldo USDC e taxa BRL em paralelo
-        const [accountResponse, ratesResponse] = await Promise.all([
-          server.loadAccount(publicKey).catch(() => null),
-          fetch("https://api.coingecko.com/api/v3/simple/price?ids=usd-coin&vs_currencies=brl")
-            .then(res => res.json())
-            .catch(() => null)
-        ])
-
-        // Lendo saldo USDC exclusivamente (ignora XLM conforme arquitetura Hi-Li)
-        let balance = 0
-        if (accountResponse && ISSUER_PUBLIC_KEY) {
-          const usdcLine = accountResponse.balances.find(
-            (b: StellarSdk.Horizon.HorizonApi.BalanceLine) =>
-              b.asset_type === "credit_alphanum4" &&
-              (b as StellarSdk.Horizon.HorizonApi.BalanceLine<"credit_alphanum4">).asset_code === "USDC" &&
-              (b as StellarSdk.Horizon.HorizonApi.BalanceLine<"credit_alphanum4">).asset_issuer === ISSUER_PUBLIC_KEY
-          )
-          if (usdcLine) balance = parseFloat(usdcLine.balance)
-        }
-        setUsdcBalance(balance)
-
-        // Taxa USD/BRL via CoinGecko (USDC proxy)
-        if (ratesResponse?.["usd-coin"]?.brl) {
-          setBrlRate(ratesResponse["usd-coin"].brl)
-        }
-      } catch (error) {
-        console.error("Erro ao buscar saldo USDC:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    if (publicKey) {
-      fetchData()
-    }
-  }, [publicKey])
 
   // 3. Cálculo de Conversão
   // USDC é 1:1 com USD. Para BRL usamos taxa real. "XLM" no seletor exibe USDC.
   const getFormattedBalance = () => {
-    if (isLoading) return { symbol: "", value: "..." }
+    // Se ainda não carregou nada do Dashboard, mostra skeleton
+    if (initialUsdc === null || initialTesouro === null) return { symbol: "", value: "..." }
 
     let value = 0
     let symbol = ""
 
     switch (selectedCurrency) {
       case "USD":
-        value = usdcBalance
+        // USDC é 1:1 USD, TESOURO convertido via taxa inversa
+        value = initialUsdc + (initialRate > 0 ? initialTesouro / initialRate : 0)
         symbol = "$"
         break
       case "BRL":
-        value = usdcBalance * brlRate
+        // TESOURO é 1:1 BRL, USDC convertido via taxa
+        value = (initialUsdc * initialRate) + initialTesouro
         symbol = "R$"
         break
     }
 
-    const formattedValue = value.toLocaleString("en-US", {
+    const formattedValue = value.toLocaleString("pt-BR", {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })
@@ -158,7 +145,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
 
         {/* Valor Principal Animado */}
         <div className="mb-4 h-12 flex items-center">
-          {isLoading ? (
+          {initialUsdc === null ? (
             <div className="flex items-center gap-2">
               <Loader2 className="h-6 w-6 text-white/50 animate-spin" />
               <span className="text-white/50 text-sm font-medium">{t("syncing")}</span>
@@ -186,7 +173,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
             </p>
             <p className="text-[15px] font-bold text-white/80">
               {/* O valor investido aqui continua mockado mas reativo simbolicamente */}
-              {isLoading ? "..." : selectedCurrency === "USD" ? "$0.00" : "R$0.00"}
+              {initialUsdc === null ? "..." : selectedCurrency === "USD" ? "$0.00" : "R$0.00"}
             </p>
           </div>
           <div
@@ -198,7 +185,7 @@ export function BalanceCard({ publicKey }: BalanceCardProps) {
               {t("account")}
             </p>
             <p className="text-[15px] font-bold text-white">
-              {isLoading ? "..." : `${symbol}${value}`}
+              {initialUsdc === null ? "..." : `${symbol}${value}`}
             </p>
           </div>
         </div>
