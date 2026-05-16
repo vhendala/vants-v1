@@ -5,8 +5,8 @@ import { Loader2 } from "lucide-react"
 import { useLanguage } from "../providers/LanguageProvider"
 import * as StellarSdk from "@stellar/stellar-sdk"
 
-const ISSUER_PUBLIC_KEY = process.env.NEXT_PUBLIC_ISSUER_PUBLIC_KEY ?? ""
-const TESOURO_ISSUER_PUBLIC_KEY = process.env.NEXT_PUBLIC_TESOURO_ISSUER_PUBLIC_KEY ?? ""
+const ISSUER_PUBLIC_KEY = process.env.NEXT_PUBLIC_ISSUER_PUBLIC_KEY || "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5"
+const TESOURO_ISSUER_PUBLIC_KEY = process.env.NEXT_PUBLIC_TESOURO_ISSUER_PUBLIC_KEY || "GC3CW7EDYRTWQ635VDIGY6S4ZUF5L6TQ7AA4MWS7LEQDBLUSZXV7UPS4"
 const HORIZON_URL = "https://horizon-testnet.stellar.org"
 
 interface BalanceCardProps {
