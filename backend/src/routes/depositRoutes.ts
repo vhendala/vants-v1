@@ -133,15 +133,23 @@ router.post(
       });
 
       // 2. Cria order (OnRamp) a partir do quote
-      const onRampTx = await etherfuseClient.createOnRamp({
-        customerId: ETHERFUSE_CUSTOMER_ID,
-        quoteId: quote.id,
-        stellarAddress: user.smartWalletAddress,
-        fromCurrency: "BRL",
-        toCurrency: "TESOURO",
-        amount: amountBrl,
-        bankAccountId: dynamicBankAccountId
-      });
+      let onRampTx;
+      try {
+        onRampTx = await etherfuseClient.createOnRamp({
+          customerId: ETHERFUSE_CUSTOMER_ID,
+          quoteId: quote.id,
+          stellarAddress: user.smartWalletAddress,
+          fromCurrency: "BRL",
+          toCurrency: "TESOURO",
+          amount: amountBrl,
+          bankAccountId: dynamicBankAccountId
+        });
+      } catch (rampError: any) {
+        if (rampError.statusCode === 409 || rampError.message?.includes("pending onramp order already exists")) {
+          throw new Error("Você já possui um depósito pendente com este exato valor. Por favor, tente um valor ligeiramente diferente (ex: R$ " + (Number(amountBrl) + 0.01).toFixed(2).replace('.', ',') + ") ou aguarde alguns minutos.");
+        }
+        throw rampError;
+      }
 
       // 3. Formata as instruções de pagamento para a resposta (Prioriza Pix)
       let depositClabe = "";
