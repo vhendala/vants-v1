@@ -200,9 +200,24 @@ router.post(
       res.status(200).json({ success: true, txHash });
     } catch (error: any) {
       console.error("[transactionRoutes] Erro ao submeter saque:", error);
-      res.status(500).json({ 
-        error: error.message || "Falha ao submeter o saque para a rede Stellar." 
-      });
+      
+      let errorMessage = "Falha ao submeter o saque para a rede Stellar.";
+      if (error.response?.data?.extras?.result_codes) {
+        const codes = error.response.data.extras.result_codes;
+        console.error("Result codes (Withdrawal):", JSON.stringify(codes, null, 2));
+        
+        if (codes.operations?.includes("op_underfunded")) {
+          errorMessage = "Saldo insuficiente para realizar o saque.";
+        } else if (codes.operations?.includes("op_no_trust") || codes.operations?.includes("op_no_destination")) {
+          errorMessage = "A conta de destino (Carteira Vants) não está pronta para receber este ativo.";
+        } else {
+          errorMessage = `Erro na Stellar: ${JSON.stringify(codes)}`;
+        }
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      res.status(500).json({ error: errorMessage });
     }
   }
 );

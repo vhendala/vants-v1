@@ -149,16 +149,10 @@ export function TransferView({ onBack }: TransferViewProps) {
               
               {txHash && (
                 <div className="flex flex-col items-center justify-center px-4 py-3 rounded-xl border border-slate-200 bg-white w-full">
-                  <span className="text-[12px] font-medium text-slate-500 mb-1">ID da Transação (Stellar)</span>
-                  <a 
-                    href={`https://stellar.expert/explorer/testnet/tx/${txHash}`} 
-                    target="_blank" 
-                    rel="noreferrer" 
-                    className="text-[11px] font-mono break-all text-center hover:underline"
-                    style={{ color: "var(--vants-blue)" }}
-                  >
+                  <span className="text-[12px] font-medium text-slate-500 mb-1">ID da Transação</span>
+                  <span className="text-[11px] font-mono break-all text-center text-slate-400">
                     {txHash}
-                  </a>
+                  </span>
                 </div>
               )}
             </div>

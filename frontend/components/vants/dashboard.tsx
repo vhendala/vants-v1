@@ -203,6 +203,7 @@ export function VantsDashboard() {
   if (showWithdraw && accountStatus.state === "has-account") {
     return (
       <WithdrawFlow
+        publicKey={accountStatus.publicKey}
         onBack={() => {
           setShowWithdraw(false);
           setRefreshKey(prev => prev + 1);

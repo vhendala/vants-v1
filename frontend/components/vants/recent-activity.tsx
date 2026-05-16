@@ -193,6 +193,9 @@ function TransactionDetailsView({
   } else if (tx.type === "DEPOSIT") {
     fullSourceAccount = ""
     fullDestinationAccount = userPublicKey || ""
+  } else if (tx.type === "WITHDRAWAL") {
+    fullSourceAccount = userPublicKey || ""
+    fullDestinationAccount = "GABRCTFYTRYFBAD737PQPJLRCG2EJHE6D6T4AT4VRCVFHFWWCPWD6N2M"
   }
 
   const displaySource = fullSourceAccount ? truncateKey(fullSourceAccount) : "Origem Externa"
@@ -307,7 +310,7 @@ function TransactionDetailsView({
 
             {/* Hash */}
             <div className="flex flex-col gap-2">
-              <span className="text-[14px] font-medium text-slate-500">ID da Transação (Stellar)</span>
+              <span className="text-[14px] font-medium text-slate-500">ID da Transação</span>
               <div className="flex items-center justify-between rounded-xl bg-slate-50 border border-slate-100 p-3">
                 <span className="text-[13px] font-semibold font-mono truncate mr-2" style={{ color: "var(--vants-ink)" }}>
                   {tx.txHash ? `${tx.txHash.slice(0, 8)}...${tx.txHash.slice(-8)}` : "N/A"}
@@ -320,15 +323,6 @@ function TransactionDetailsView({
                   >
                     <Copy className="h-4 w-4" />
                   </button>
-                  <a 
-                    href={`https://stellar.expert/explorer/testnet/tx/${tx.txHash}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="p-2 rounded-lg text-slate-400 hover:bg-slate-200/50 transition-colors"
-                    title="Ver no Stellar Expert"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
                 </div>
               </div>
             </div>

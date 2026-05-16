@@ -230,21 +230,30 @@ router.post(
         body: JSON.stringify({ orderId }),
       });
 
-      // Aguarda um momento para o status propagar
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // 3. Loop de Polling (máx 10s) para capturar o hash real da Stellar
+      let statusTx = null;
+      let stellarTxHash = null;
 
-      // Busca o status atualizado
-      const statusTx = await etherfuseClient.getOnRampTransaction(orderId);
+      for (let i = 0; i < 5; i++) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        statusTx = await etherfuseClient.getOnRampTransaction(orderId);
+        
+        if (statusTx?.stellarTxHash) {
+          stellarTxHash = statusTx.stellarTxHash;
+          console.log(`[depositRoutes] Hash real da Stellar capturado na tentativa ${i + 1}: ${stellarTxHash}`);
+          break;
+        }
+        console.log(`[depositRoutes] Tentativa ${i + 1}: Hash Stellar ainda não disponível...`);
+      }
       
       if (!statusTx) {
          res.status(404).json({ error: "Transação não encontrada após simulação." });
          return;
       }
 
-      // Usamos targetAmount (passado pelo frontend do quote) ou toAmount ou fallback
       const finalAmount = targetAmount || statusTx.toAmount || amountBrl || "0.00";
 
-      // Se completou, registra no banco de dados
+      // 4. Registra no banco de dados com o melhor ID disponível
       if (statusTx.status === "completed" || statusTx.status === "processing") {
         const existingTx = await prisma.transaction.findFirst({
           where: { userId, description: `Depósito PIX #${orderId.slice(0, 8)}` },
@@ -258,7 +267,7 @@ router.post(
               amount: finalAmount,
               asset: "TESOURO",
               status: "COMPLETED",
-              txHash: statusTx.stellarTxHash || `etherfuse-${orderId}`,
+              txHash: stellarTxHash || `etherfuse-${orderId}`,
               description: `Depósito PIX #${orderId.slice(0, 8)}`,
             },
           });
@@ -271,7 +280,7 @@ router.post(
         finalAmount: finalAmount,
         stellarClaimTransaction: null,
         stellarClaimableBalanceId: null,
-        txHash: statusTx.stellarTxHash || null,
+        txHash: stellarTxHash,
       });
     } catch (error: any) {
       console.error("[depositRoutes] Erro ao simular pagamento:", error);
@@ -306,6 +315,7 @@ router.get(
       res.status(200).json({
         status: tx.status,
         stellarClaimTransaction: null,
+        txHash: tx.stellarTxHash || null,
       });
     } catch (error: any) {
       console.error("[depositRoutes] Erro ao consultar status:", error);
