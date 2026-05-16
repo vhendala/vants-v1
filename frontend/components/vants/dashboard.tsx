@@ -37,7 +37,7 @@ import { WithdrawFlow } from "./withdraw-flow";
 
 import { API_URL } from "../../lib/config";
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
-const ISSUER_PUBLIC_KEY = process.env.NEXT_PUBLIC_USDC_ISSUER_PUBLIC_KEY;
+const ISSUER_PUBLIC_KEY = process.env.NEXT_PUBLIC_ISSUER_PUBLIC_KEY;
 const TESOURO_ISSUER_PUBLIC_KEY = process.env.NEXT_PUBLIC_TESOURO_ISSUER_PUBLIC_KEY;
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
@@ -131,8 +131,14 @@ export function VantsDashboard() {
         setTesouroBalance(prev => prev !== newTesouro ? newTesouro : prev);
         
         console.log(`[Dashboard] Saldo atualizado: USDC=${newUsdc}, TESOURO=${newTesouro}`);
-      } catch (e) {
-        // Erro silencioso no console para não atrapalhar, mas monitorado internamente
+      } catch (e: any) {
+        // Se a conta ainda não foi ativada/financiada na rede Stellar (novo usuário),
+        // a Horizon API retorna 404. Nesse caso, o saldo é zero.
+        if (e?.response?.status === 404) {
+          setUsdcBalance(0);
+          setTesouroBalance(0);
+        }
+        // Erro silencioso no console para não atrapalhar
       }
     }
 
