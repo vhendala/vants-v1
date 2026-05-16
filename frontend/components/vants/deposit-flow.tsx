@@ -56,6 +56,7 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
   const [targetAmount, setTargetAmount] = useState("");
   const [receivedAmount, setReceivedAmount] = useState("");
   const [copied, setCopied] = useState(false);
+  const [txHash, setTxHash] = useState<string | null>(null);
 
   // ─── Step 1: Formatação do input BRL ──────────────────────────────────────
 
@@ -230,6 +231,7 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
 
       const data = await res.json();
       setReceivedAmount(data.finalAmount || amount);
+      if (data.txHash) setTxHash(data.txHash);
 
       // Se tem uma claim transaction (wallet nova), assina e submete
       if (data.stellarClaimTransaction) {
@@ -588,6 +590,30 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
                 >
                   + R$ {parseFloat(receivedAmount || amount).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                 </p>
+              </div>
+
+              {/* ID da Transação / Ordem */}
+              <div className="flex flex-col gap-3 w-full mt-2">
+                <div className="flex flex-col items-center justify-center px-4 py-3 rounded-xl border border-slate-200 bg-white w-full">
+                  <span className="text-[12px] font-medium text-slate-500 mb-1">
+                    {txHash && !txHash.startsWith("etherfuse-") ? "ID da Transação (Stellar)" : "ID da Ordem"}
+                  </span>
+                  {txHash && !txHash.startsWith("etherfuse-") ? (
+                    <a 
+                      href={`https://stellar.expert/explorer/testnet/tx/${txHash}`} 
+                      target="_blank" 
+                      rel="noreferrer" 
+                      className="text-[11px] font-mono break-all text-center hover:underline"
+                      style={{ color: "var(--vants-blue)" }}
+                    >
+                      {txHash}
+                    </a>
+                  ) : (
+                    <span className="text-[11px] font-mono break-all text-center text-slate-400">
+                      {txHash?.replace("etherfuse-", "") || orderId}
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
 

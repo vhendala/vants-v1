@@ -271,6 +271,7 @@ router.post(
         finalAmount: finalAmount,
         stellarClaimTransaction: null,
         stellarClaimableBalanceId: null,
+        txHash: statusTx.stellarTxHash || null,
       });
     } catch (error: any) {
       console.error("[depositRoutes] Erro ao simular pagamento:", error);
