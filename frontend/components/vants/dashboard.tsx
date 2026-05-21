@@ -34,6 +34,7 @@ import { PasskeySetup } from "./PasskeySetup";
 import { ProfileView } from "./profile-view";
 import { DepositFlow } from "./deposit-flow";
 import { WithdrawFlow } from "./withdraw-flow";
+import { InvestFlow } from "./invest-flow";
 
 import { API_URL } from "../../lib/config";
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
@@ -60,6 +61,7 @@ export function VantsDashboard() {
   const [showTransferMenu, setShowTransferMenu] = useState(false);
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
+  const [showInvest, setShowInvest] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [accountStatus, setAccountStatus] = useState<AccountStatus>({
     state: "loading",
@@ -212,6 +214,18 @@ export function VantsDashboard() {
     );
   }
 
+  if (showInvest && accountStatus.state === "has-account") {
+    return (
+      <InvestFlow
+        publicKey={accountStatus.publicKey}
+        onBack={() => {
+          setShowInvest(false);
+          setRefreshKey(prev => prev + 1);
+        }}
+      />
+    );
+  }
+
   // ─── Dashboard principal ───────────────────────────────────────────────────────
 
   return (
@@ -245,7 +259,7 @@ export function VantsDashboard() {
                 </main>
               )}
 
-              {activeView === "invest" && <InvestmentsView />}
+              {activeView === "invest" && <InvestmentsView onInvest={() => setShowInvest(true)} />}
 
               {activeView === "wallet" && (
                 <WalletView onPayBill={() => setShowPayment(true)} />

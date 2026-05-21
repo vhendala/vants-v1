@@ -12,6 +12,7 @@ import accountRoutes from "./routes/accountRoutes";
 import transactionRoutes from "./routes/transactionRoutes";
 import passkeyRoutes from "./routes/passkeyRoutes";
 import depositRoutes from "./routes/depositRoutes";
+import investRoutes from "./routes/investRoutes";
 
 // ─── Constantes de configuração ───────────────────────────────────────────────
 
@@ -64,6 +65,7 @@ app.get("/debug/env", (_req, res) => {
     hasPrivyAppId: !!process.env.PRIVY_APP_ID,
     hasPrivyAppSecret: !!process.env.PRIVY_APP_SECRET,
     hasEtherfuseApiKey: !!process.env.ETHERFUSE_API_KEY,
+    hasDefindexApiKey: !!process.env.DEFINDEX_API_KEY,
     allowedOrigins: ALLOWED_ORIGINS,
     port: PORT,
   });
@@ -80,6 +82,9 @@ app.use("/api/passkey", passkeyRoutes);
 
 // Rotas de Depósito (On-Ramp via Etherfuse)
 app.use("/api/deposit", depositRoutes);
+
+// Rotas de Investimento (Defindex Vaults)
+app.use("/api/invest", investRoutes);
 
 // ─── 404 handler ─────────────────────────────────────────────────────────────
 

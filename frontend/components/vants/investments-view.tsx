@@ -70,7 +70,7 @@ interface Position {
   returns: string
 }
 
-function PositionCard({ pos, t }: { pos: Position; t: any }) {
+function PositionCard({ pos, t, onInvest }: { pos: Position; t: any; onInvest?: () => void }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
       <div className="flex items-start justify-between mb-4">
@@ -116,6 +116,7 @@ function PositionCard({ pos, t }: { pos: Position; t: any }) {
       </div>
 
       <button
+        onClick={onInvest}
         className="w-full py-3 rounded-2xl text-[14px] font-semibold transition-colors"
         style={{ backgroundColor: "var(--vants-blue-light)", color: "var(--vants-blue)" }}
       >
@@ -137,7 +138,7 @@ interface EarnCard {
   description: string
 }
 
-function EarnCardItem({ card, t }: { card: EarnCard; t: any }) {
+function EarnCardItem({ card, t, onInvest }: { card: EarnCard; t: any; onInvest?: () => void }) {
   return (
     <div className="flex-1 bg-white rounded-2xl border border-slate-200 p-4 flex flex-col">
       <div className="flex items-start justify-between mb-3">
@@ -158,6 +159,7 @@ function EarnCardItem({ card, t }: { card: EarnCard; t: any }) {
       <p className="text-[12px] text-slate-600 flex-1 mb-4">{card.description}</p>
 
       <button
+        onClick={onInvest}
         className="w-full py-3 rounded-xl text-[14px] font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
         style={{ backgroundColor: "var(--vants-blue-deep)" }}
       >
@@ -168,7 +170,7 @@ function EarnCardItem({ card, t }: { card: EarnCard; t: any }) {
 }
 
 // ─── View principal ───────────────────────────────────────────────────────────
-export function InvestmentsView() {
+export function InvestmentsView({ onInvest }: { onInvest?: () => void }) {
   const { t } = useLanguage()
 
   const positions: Position[] = [
@@ -261,7 +263,7 @@ export function InvestmentsView() {
         <section className="mb-6">
           <h2 className="text-[17px] font-bold text-slate-900 mb-3">{t("activePositions")}</h2>
           {positions.map((pos) => (
-            <PositionCard key={pos.id} pos={pos} t={t} />
+            <PositionCard key={pos.id} pos={pos} t={t} onInvest={onInvest} />
           ))}
         </section>
 
@@ -269,7 +271,7 @@ export function InvestmentsView() {
           <h2 className="text-[17px] font-bold text-slate-900 mb-3">{t("earnMore")}</h2>
           <div className="flex gap-3">
             {earnCards.map((card) => (
-              <EarnCardItem key={card.id} card={card} t={t} />
+              <EarnCardItem key={card.id} card={card} t={t} onInvest={onInvest} />
             ))}
           </div>
         </section>
