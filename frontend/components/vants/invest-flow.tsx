@@ -25,6 +25,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import * as StellarSdk from "@stellar/stellar-sdk";
 import { useLanguage } from "../providers/LanguageProvider";
 import { API_URL } from "../../lib/config";
+import { retrieveDecryptedSecret } from "../../lib/cryptoUtils";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -75,7 +76,7 @@ async function fetchDepositXdr(
 
 export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
   const { t } = useLanguage();
-  const { getAccessToken } = usePrivy();
+  const { getAccessToken, user } = usePrivy();
 
   const [step, setStep] = useState<InvestStep>("amount");
   const [amount, setAmount] = useState("");
@@ -132,7 +133,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
       const xdr = await fetchDepositXdr(amount, publicKey, token);
 
       // 3. Assinar a transação localmente
-      const secret = sessionStorage.getItem("vants_wallet_secret_tmp");
+      const secret = await retrieveDecryptedSecret(user?.id || "");
       if (!secret) {
         throw new Error(
           "Chave da carteira não encontrada. Faça login novamente."

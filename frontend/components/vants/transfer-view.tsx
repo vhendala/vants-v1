@@ -6,6 +6,7 @@ import { useLanguage } from "../providers/LanguageProvider"
 import { usePrivy } from "@privy-io/react-auth"
 import * as StellarSdk from "@stellar/stellar-sdk"
 import { API_URL } from "../../lib/config"
+import { retrieveDecryptedSecret } from "../../lib/cryptoUtils"
 
 interface TransferViewProps {
   onBack: () => void
@@ -13,7 +14,7 @@ interface TransferViewProps {
 
 export function TransferView({ onBack }: TransferViewProps) {
   const { t } = useLanguage()
-  const { getAccessToken } = usePrivy()
+  const { getAccessToken, user } = usePrivy()
 
   const [destination, setDestination] = useState("")
   const [amount, setAmount] = useState("")
@@ -61,8 +62,8 @@ export function TransferView({ onBack }: TransferViewProps) {
       const token = await getAccessToken();
       if (!token) throw new Error(t("invalidSession") || "Sessão inválida");
 
-      // 2. Recupera secret local (Não-custodial)
-      const secret = sessionStorage.getItem("vants_wallet_secret_tmp");
+      // 2. Recupera secret local (Não-custodial) — decripta do sessionStorage
+      const secret = await retrieveDecryptedSecret(user?.id || "");
       if (!secret) {
         throw new Error(t("secretNotFound") || "Chave de assinatura não encontrada no dispositivo. Autentique novamente.");
       }

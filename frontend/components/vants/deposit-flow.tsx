@@ -24,6 +24,7 @@ import { usePrivy } from "@privy-io/react-auth";
 import * as StellarSdk from "@stellar/stellar-sdk";
 import { useLanguage } from "../providers/LanguageProvider";
 import { API_URL } from "../../lib/config";
+import { retrieveDecryptedSecret } from "../../lib/cryptoUtils";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -42,7 +43,7 @@ const MIN_DEPOSIT = 10;
 
 export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
   const { t } = useLanguage();
-  const { getAccessToken } = usePrivy();
+  const { getAccessToken, user } = usePrivy();
 
   const [step, setStep] = useState<DepositStep>("amount");
   const [amount, setAmount] = useState("");
@@ -119,8 +120,8 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
 
       const { unsignedXdr } = await buildRes.json();
 
-      // 3. Assina com a secret do sessionStorage
-      const secret = sessionStorage.getItem("vants_wallet_secret_tmp");
+      // 3. Assina com a secret criptografada do sessionStorage
+      const secret = await retrieveDecryptedSecret(user?.id || "");
       if (!secret) {
         throw new Error(t("secretNotFound"));
       }
@@ -235,7 +236,7 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
 
       // Se tem uma claim transaction (wallet nova), assina e submete
       if (data.stellarClaimTransaction) {
-        const secret = sessionStorage.getItem("vants_wallet_secret_tmp");
+        const secret = await retrieveDecryptedSecret(user?.id || "");
         if (secret) {
           const keypair = StellarSdk.Keypair.fromSecret(secret);
           const claimTx = StellarSdk.TransactionBuilder.fromXDR(

@@ -8,6 +8,7 @@ import * as StellarSdk from "@stellar/stellar-sdk";
 import { useLanguage } from "../providers/LanguageProvider";
 
 import { API_URL } from "../../lib/config";
+import { storeEncryptedSecret, clearEncryptedSecret } from "../../lib/cryptoUtils";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -90,7 +91,10 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
       const publicKey = keypair.publicKey();
 
       sessionStorage.setItem("vants_wallet_public_key", publicKey);
-      sessionStorage.setItem("vants_wallet_secret_tmp", keypair.secret());
+
+      // Criptografa a secret key antes de armazenar (proteção contra XSS)
+      const userId = user?.id || "";
+      await storeEncryptedSecret(keypair.secret(), userId);
 
       // 2. Backend ativa a conta via Friendbot
       const setupRes = await fetch(`${API_URL}/api/account/setup`, {
@@ -124,7 +128,7 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
   async function handleLogout() {
     try {
       sessionStorage.removeItem("vants_wallet_public_key");
-      sessionStorage.removeItem("vants_wallet_secret_tmp");
+      clearEncryptedSecret();
       await logout();
       router.push("/");
     } catch (err) {
