@@ -11,9 +11,27 @@
 
 import { Router, Request, Response } from "express";
 import { verifyPrivyToken } from "../middleware/verifyPrivyToken";
-import { buildUsdcDepositTransaction } from "../services/defindex";
+import { buildUsdcDepositTransaction, getUsdcVaultApy } from "../services/defindex";
 
 const router = Router();
+
+// ─── GET /api/invest/vault-info ──────────────────────────────────────────────
+
+/**
+ * Retorna as informações atuais do Vault de USDC (ex: APY).
+ *
+ * Response (200):
+ *   { success: true, apy: number }
+ */
+router.get("/vault-info", async (_req: Request, res: Response) => {
+  try {
+    const apy = await getUsdcVaultApy();
+    res.status(200).json({ success: true, apy });
+  } catch (error: any) {
+    console.error("[investRoutes] Erro ao buscar vault-info:", error);
+    res.status(500).json({ error: "Falha ao buscar informações do vault." });
+  }
+});
 
 // ─── POST /api/invest/build-deposit ──────────────────────────────────────────
 

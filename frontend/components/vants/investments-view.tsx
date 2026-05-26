@@ -1,6 +1,8 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import { useLanguage } from "../providers/LanguageProvider"
+import { API_URL } from "../../lib/config"
 
 // ─── Mini gráfico de linha decorativo SVG ────────────────────────────────────
 function MiniLineChart({ color = "#10B981" }: { color?: string }) {
@@ -31,26 +33,10 @@ function DonutChart() {
       <circle cx="21" cy="21" r="15.9" fill="none" stroke="#E2E8F0" strokeWidth="4" />
       <circle
         cx="21" cy="21" r="15.9" fill="none"
-        stroke="var(--vants-blue-light)"
-        strokeWidth="4"
-        strokeDasharray={`${circumference * 0.11} ${circumference * 0.89}`}
-        strokeDashoffset={-cashOffset}
-        strokeLinecap="round"
-      />
-      <circle
-        cx="21" cy="21" r="15.9" fill="none"
-        stroke="var(--vants-green)"
-        strokeWidth="4"
-        strokeDasharray={`${circumference * 0.20} ${circumference * 0.80}`}
-        strokeDashoffset={-balancedOffset}
-        strokeLinecap="round"
-      />
-      <circle
-        cx="21" cy="21" r="15.9" fill="none"
         stroke="var(--vants-blue)"
         strokeWidth="4"
-        strokeDasharray={`${circumference * 0.69} ${circumference * 0.31}`}
-        strokeDashoffset={coreOffset}
+        strokeDasharray={`${circumference} 0`}
+        strokeDashoffset={0}
         strokeLinecap="round"
       />
     </svg>
@@ -172,53 +158,44 @@ function EarnCardItem({ card, t, onInvest }: { card: EarnCard; t: any; onInvest?
 // ─── View principal ───────────────────────────────────────────────────────────
 export function InvestmentsView({ onInvest }: { onInvest?: () => void }) {
   const { t } = useLanguage()
+  const [apy, setApy] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/invest/vault-info`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.apy) setApy(data.apy);
+      })
+      .catch(err => console.error("Falha ao buscar APY:", err));
+  }, []);
+
+  const displayApy = apy !== null ? apy.toFixed(1) : "7.5";
 
   const positions: Position[] = [
     {
-      id: "core",
-      iconLetter: "C",
-      iconBg: "#1A56DB",
-      name: "Core Yield",
-      risk: `${t("lowRisk")} · ${t("stable")}`,
-      returnPct: `8.2% ${t("returns").toLowerCase()}`,
-      current: "$1,200.23",
-      deposited: "$1,000.00",
-      returns: "+200.23",
-    },
-    {
-      id: "balanced",
+      id: "blendusdc",
       iconLetter: "B",
-      iconBg: "var(--vants-blue-deep)",
-      name: "Balanced",
-      risk: `${t("mediumRisk")} · ${t("growth")}`,
-      returnPct: `12.1% ${t("returns").toLowerCase()}`,
-      current: "$340.00",
-      deposited: "$300.00",
-      returns: "+40.00",
-    },
+      iconBg: "#1A56DB",
+      name: "Cofre de Dólar",
+      risk: `${t("lowRisk")} · Defindex Vault`,
+      returnPct: `${displayApy}% ${t("returns").toLowerCase()}`,
+      current: "$0.00", // Valor mockado até implementarmos o saldo real
+      deposited: "$0.00",
+      returns: "+0.00",
+    }
   ]
 
   const earnCards: EarnCard[] = [
     {
-      id: "reserve",
-      name: "Reserve+",
+      id: "blendusdc",
+      name: "Cofre de Dólar",
       risk: t("lowRisk"),
       riskColor: "#10B981",
       riskBg: "#ECFDF5",
-      apy: "5.1%",
+      apy: `${displayApy}%`,
       invested: `$112M ${t("investedAmount")}`,
-      description: "Liquid savings with a daily return. Always available, zero lock-up.",
-    },
-    {
-      id: "core",
-      name: "Core Yield",
-      risk: t("lowRisk"),
-      riskColor: "#10B981",
-      riskBg: "#ECFDF5",
-      apy: "8.2%",
-      invested: `$78M ${t("investedAmount")}`,
-      description: "Consistent returns from diversified fixed income. The reliable choice.",
-    },
+      description: "Rendimento otimizado de USDC através dos Vaults da Defindex.",
+    }
   ]
 
   return (
@@ -240,20 +217,12 @@ export function InvestmentsView({ onInvest }: { onInvest?: () => void }) {
             <div className="flex flex-col gap-1">
               <p className="text-[12px] text-slate-500">{t("averageAnnualReturn")}</p>
               <p className="text-[28px] font-bold" style={{ color: "var(--vants-green)" }}>
-                8.9%
+                {displayApy}%
               </p>
               <div className="flex flex-col gap-1 mt-1">
                 <div className="flex items-center gap-1.5">
                   <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: "var(--vants-blue)" }} />
-                  <span className="text-[11px] text-slate-600">Core 69%</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: "var(--vants-green)" }} />
-                  <span className="text-[11px] text-slate-600">Balanced 20%</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: "var(--vants-blue-light)" }} />
-                  <span className="text-[11px] text-slate-600">Cash 11%</span>
+                  <span className="text-[11px] text-slate-600">Cofre de Dólar 100%</span>
                 </div>
               </div>
             </div>

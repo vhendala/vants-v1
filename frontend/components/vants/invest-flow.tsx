@@ -19,7 +19,7 @@
  * @module invest-flow
  */
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { ArrowLeft, Loader2, CheckCircle, TrendingUp, Shield } from "lucide-react";
 import { usePrivy } from "@privy-io/react-auth";
 import * as StellarSdk from "@stellar/stellar-sdk";
@@ -39,7 +39,6 @@ interface InvestFlowProps {
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
 const MIN_INVEST = 1;
-const ESTIMATED_APY = 12.4;
 
 // ─── API Frontend: fetchDepositXdr ────────────────────────────────────────────
 
@@ -82,6 +81,19 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
   const [amount, setAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
+  const [apy, setApy] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/invest/vault-info`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.apy) setApy(data.apy);
+      })
+      .catch(err => console.error("Falha ao buscar APY:", err));
+  }, []);
+
+  const currentApy = apy ?? 7.5;
+  const displayApy = currentApy.toFixed(1);
 
   // ─── Formatação do input USDC ──────────────────────────────────────────────
 
@@ -104,7 +116,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
   const isValidAmount = numericAmount >= MIN_INVEST;
 
   // Cálculo de rendimento anual estimado
-  const estimatedYearlyReturn = numericAmount * (ESTIMATED_APY / 100);
+  const estimatedYearlyReturn = numericAmount * (currentApy / 100);
   const estimatedMonthlyReturn = estimatedYearlyReturn / 12;
 
   // ─── Step 1 → Step 2 ──────────────────────────────────────────────────────
@@ -429,7 +441,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                         color: "var(--vants-green)",
                       }}
                     >
-                      ~{ESTIMATED_APY}% a.a.
+                      ~{displayApy}% a.a.
                     </span>
                   </div>
 

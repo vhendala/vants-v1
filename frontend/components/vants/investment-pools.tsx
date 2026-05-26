@@ -1,4 +1,8 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { useLanguage } from "../providers/LanguageProvider"
+import { API_URL } from "../../lib/config"
 
 // Mini line chart idêntico ao das imagens
 function MiniChart() {
@@ -17,30 +21,32 @@ function MiniChart() {
   )
 }
 
-const getPools = (t: any) => [
-  {
-    id: "core-yield",
-    name: "Core Yield",
-    iconLetter: "C",
-    iconBg: "#1A56DB",
-    apy: `8.2% ${t("returns").toLowerCase()}`,
-    value: "$1,200.23",
-    returns: "+$8.20",
-  },
-  {
-    id: "balanced",
-    name: "Balanced",
-    iconLetter: "B",
-    iconBg: "var(--vants-blue-deep)",
-    apy: `12.1% ${t("returns").toLowerCase()}`,
-    value: "$340.00",
-    returns: "+$4.27",
-  },
-]
-
 export function InvestmentPools() {
   const { t } = useLanguage()
-  const pools = getPools(t)
+  const [apy, setApy] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch(`${API_URL}/api/invest/vault-info`)
+      .then(res => res.json())
+      .then(data => {
+        if (data.success && data.apy) setApy(data.apy);
+      })
+      .catch(err => console.error("Falha ao buscar APY:", err));
+  }, []);
+
+  const displayApy = apy !== null ? apy.toFixed(1) : "7.5";
+
+  const pools = [
+    {
+      id: "blendusdc",
+      name: "Cofre de Dólar",
+      iconLetter: "B",
+      iconBg: "#1A56DB",
+      apy: `${displayApy}% ${t("returns").toLowerCase()}`,
+      value: "$0.00",
+      returns: "+$0.00",
+    }
+  ]
 
   return (
     <section>

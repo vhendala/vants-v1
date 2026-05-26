@@ -66,6 +66,36 @@ export async function checkDefindexHealth(): Promise<{
   }
 }
 
+// ─── Vault Info & APY ──────────────────────────────────────────────────────────
+
+/**
+ * Busca o APY atual do Vault de USDC na Defindex.
+ * Em caso de falha (ex: API key ausente), retorna um APY padrão de fallback.
+ */
+export async function getUsdcVaultApy(): Promise<number> {
+  const DEFAULT_APY = 7.5;
+  
+  if (!DEFINDEX_USDC_VAULT_ADDRESS) {
+    console.warn("[defindex] DEFINDEX_USDC_VAULT_ADDRESS não definida. Retornando APY padrão.");
+    return DEFAULT_APY;
+  }
+
+  try {
+    const apyStr = await sdk.getVaultAPY(DEFINDEX_USDC_VAULT_ADDRESS, SupportedNetworks.TESTNET);
+    const apy = parseFloat(apyStr);
+    
+    if (isNaN(apy)) {
+      return DEFAULT_APY;
+    }
+    
+    // Defindex SDK APY return is typically a percentage string, e.g., "7.5"
+    return apy;
+  } catch (error) {
+    console.warn("[defindex] Falha ao buscar APY da Defindex. Usando valor padrão.", error instanceof Error ? error.message : String(error));
+    return DEFAULT_APY;
+  }
+}
+
 // ─── Depósito USDC no Vault ────────────────────────────────────────────────────
 
 /**

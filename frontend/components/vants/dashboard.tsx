@@ -245,12 +245,12 @@ export function VantsDashboard() {
                     initialRate={brlRate}
                     refreshKey={refreshKey}
                   />
-                  <InvestmentPools />
                   <QuickActions 
                     onPayBill={() => setShowPayment(true)} 
                     onTransfer={() => setShowTransferMenu(true)}
                     onDeposit={() => setShowDeposit(true)}
                   />
+                  <InvestmentPools />
                   <RecentActivity 
                     publicKey={accountStatus.state === "has-account" ? accountStatus.publicKey : undefined} 
                     onSeeAll={() => setActiveView("activity")}
