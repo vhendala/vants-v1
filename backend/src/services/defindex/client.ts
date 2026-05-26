@@ -180,11 +180,22 @@ export async function buildUsdcDepositTransaction(
 
     return xdr;
   } catch (error: unknown) {
-    const message =
-      error instanceof Error ? error.message : String(error);
+    let message = "Erro desconhecido";
+    if (error instanceof Error) {
+      message = error.message;
+    } else if (typeof error === 'object' && error !== null) {
+      try {
+        message = JSON.stringify(error);
+      } catch {
+        message = String(error);
+      }
+    } else {
+      message = String(error);
+    }
     console.error(
       `[defindex] ❌ Falha ao construir transação de depósito:`,
-      message
+      message,
+      error
     );
     throw new Error(`Falha ao construir depósito Defindex: ${message}`);
   }
