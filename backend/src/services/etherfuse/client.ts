@@ -492,8 +492,13 @@ export class EtherfuseClient implements Anchor {
             input.stellarAddress || '',
         );
 
-        // Determine ramp direction: if the source resolved to a CODE:ISSUER it's crypto → offramp
-        const type = sourceAsset.includes(':') ? 'offramp' : 'onramp';
+        // Determine ramp direction
+        let type: 'onramp' | 'offramp' | 'swap' = 'onramp';
+        if (sourceAsset.includes(':') && targetAsset.includes(':')) {
+            type = 'swap';
+        } else if (sourceAsset.includes(':')) {
+            type = 'offramp';
+        }
 
         const response = await this.request<EtherfuseQuoteResponse>('POST', '/ramp/quote', {
             quoteId,

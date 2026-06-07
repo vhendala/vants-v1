@@ -16,49 +16,51 @@
  *   - Cores: oklch palette (card-bg, green, blue, white, muted)
  *   - Botões: .btn-pill pattern
  *
- * @module invest-flow
+ * @module withdraw-vault-flow
  */
 
-import { useState, useCallback, useEffect } from "react";
-import { ArrowLeft, Loader2, CheckCircle, TrendingUp, Shield } from "lucide-react";
+import { useState, useCallback } from "react";
+import {
+  ArrowLeft,
+  Loader2,
+  CheckCircle,
+  TrendingUp,
+  Shield,
+} from "lucide-react";
+import { useLanguage } from "../providers/LanguageProvider";
 import { usePrivy } from "@privy-io/react-auth";
 import * as StellarSdk from "@stellar/stellar-sdk";
-import { useLanguage } from "../providers/LanguageProvider";
 import { API_URL } from "../../lib/config";
 import { retrieveDecryptedSecret } from "../../lib/cryptoUtils";
 
-// ─── Tipos ────────────────────────────────────────────────────────────────────
-
-type InvestStep = "amount" | "review" | "processing" | "success";
-
-interface InvestFlowProps {
-  publicKey: string;
+interface WithdrawVaultFlowProps {
   onBack: () => void;
+  publicKey?: string;
+  currentApy?: number;
+  investedBalance?: number | null;
 }
 
-// ─── Constantes ───────────────────────────────────────────────────────────────
+type Step = "amount" | "review" | "processing" | "success";
 
-const MIN_INVEST = 1;
-const ESTIMATED_APY = 9.5; // Definindo APY estimado do Cofre Defindex
+const MIN_WITHDRAW = 0.01;
 
-// ─── API Frontend: fetchDepositXdr ────────────────────────────────────────────
+// ─── API Frontend: fetchWithdrawXdr ───────────────────────────────────────
 
-/**
- * Solicita ao backend a construção da transação de depósito no Vault.
- * Retorna o XDR (base64) não-assinado.
- */
-async function fetchDepositXdr(
+async function fetchWithdrawXdr(
   amount: string,
-  publicKey: string,
-  accessToken: string
+  publicKey: string | undefined,
+  token: string
 ): Promise<string> {
-  const res = await fetch(`${API_URL}/api/invest/build-deposit`, {
+  const res = await fetch(`${API_URL}/api/invest/build-withdraw`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      Authorization: `Bearer ${token}`,
     },
-    body: JSON.stringify({ publicKey, amount }),
+    body: JSON.stringify({
+      publicKey,
+      amount,
+    }),
   });
 
   if (!res.ok) {
@@ -74,26 +76,14 @@ async function fetchDepositXdr(
 
 // ─── Componente Principal ─────────────────────────────────────────────────────
 
-export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
+export function WithdrawVaultFlow({ publicKey, onBack, currentApy = 7.5, investedBalance = 0 }: WithdrawVaultFlowProps) {
   const { t } = useLanguage();
   const { getAccessToken, user } = usePrivy();
 
-  const [step, setStep] = useState<InvestStep>("amount");
+  const [step, setStep] = useState<Step>("amount");
   const [amount, setAmount] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState("");
-  const [apy, setApy] = useState<number | null>(null);
-
-  useEffect(() => {
-    fetch(`${API_URL}/api/invest/vault-info`)
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.apy) setApy(data.apy);
-      })
-      .catch(err => console.error("Falha ao buscar APY:", err));
-  }, []);
-
-  const currentApy = apy ?? 7.5;
   const displayApy = currentApy.toFixed(1);
 
   // ─── Formatação do input USDC ──────────────────────────────────────────────
@@ -114,11 +104,8 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
   };
 
   const numericAmount = parseFloat(amount || "0");
-  const isValidAmount = numericAmount >= MIN_INVEST;
-
-  // Cálculo de rendimento anual estimado
-  const estimatedYearlyReturn = numericAmount * (currentApy / 100);
-  const estimatedMonthlyReturn = estimatedYearlyReturn / 12;
+  const maxAmount = investedBalance || 0;
+  const isValidAmount = numericAmount >= MIN_WITHDRAW && numericAmount <= maxAmount;
 
   // ─── Step 1 → Step 2 ──────────────────────────────────────────────────────
 
@@ -128,9 +115,9 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
     setStep("review");
   };
 
-  // ─── Step 2 → Step 3: Processar investimento ──────────────────────────────
+  // ─── Step 2 → Step 3: Processar resgate ───────────────────────────────────
 
-  const handleConfirmInvestment = useCallback(async () => {
+  const handleConfirmWithdraw = useCallback(async () => {
     setStep("processing");
     setIsProcessing(true);
     setError("");
@@ -143,7 +130,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
       }
 
       // 2. Solicitar XDR ao backend
-      const xdr = await fetchDepositXdr(amount, publicKey, token);
+      const xdr = await fetchWithdrawXdr(amount, publicKey, token);
 
       // 3. Assinar a transação localmente
       const secret = await retrieveDecryptedSecret(user?.id || "");
@@ -175,13 +162,13 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
       // 5. Sucesso!
       setStep("success");
     } catch (err: any) {
-      console.error("[InvestFlow] Erro ao processar investimento:", err);
+      console.error("[WithdrawVaultFlow] Erro ao processar resgate:", err);
       // Mensagens amigáveis — sem jargão
-      let friendlyMessage = "Ocorreu um erro ao processar sua aplicação. Tente novamente.";
+      let friendlyMessage = "Ocorreu um erro ao processar seu resgate. Tente novamente.";
       if (err.message?.includes("Sessão") || err.message?.includes("Chave")) {
         friendlyMessage = err.message;
-      } else if (err.message?.includes("tx_failed")) {
-        friendlyMessage = "Saldo insuficiente para esta aplicação.";
+      } else if (err.message?.includes("tx_failed") || err.message?.includes("op_underfunded")) {
+        friendlyMessage = "Saldo insuficiente no cofre.";
       } else if (err.message?.includes("Network")) {
         friendlyMessage = "Problema de conexão. Verifique sua internet e tente novamente.";
       }
@@ -190,7 +177,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
     } finally {
       setIsProcessing(false);
     }
-  }, [getAccessToken, amount, publicKey]);
+  }, [getAccessToken, amount, publicKey, user?.id]);
 
   // ─── Progress Bar ─────────────────────────────────────────────────────────
 
@@ -232,7 +219,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                 color: "var(--vants-ink)",
               }}
             >
-              Investir
+              Resgatar
             </span>
             <div className="w-10" />
           </header>
@@ -259,7 +246,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                   color: "var(--vants-muted)",
                 }}
               >
-                Quanto deseja aplicar?
+                Quanto deseja resgatar?
               </p>
 
               {/* Input visual premium */}
@@ -304,33 +291,24 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                 }}
               />
 
-              {/* Rendimento estimado (preview) */}
-              {isValidAmount && (
-                <div
-                  className="flex items-center gap-2 mb-4 animate-in fade-in duration-300"
+              <div className="flex flex-col items-center gap-1 mb-8">
+                <p
+                  className="text-[13px]"
+                  style={{
+                    fontFamily: "'Manrope', sans-serif",
+                    color: "var(--vants-muted)",
+                  }}
                 >
-                  <TrendingUp
-                    className="h-4 w-4"
-                    style={{ color: "var(--vants-green)" }}
-                  />
-                  <p
-                    className="text-[13px] font-medium"
-                    style={{ color: "var(--vants-green)" }}
-                  >
-                    ~${estimatedMonthlyReturn.toFixed(2)}/mês de rendimento
-                  </p>
-                </div>
-              )}
-
-              <p
-                className="text-[13px] mb-8"
-                style={{
-                  fontFamily: "'Manrope', sans-serif",
-                  color: "var(--vants-muted)",
-                }}
-              >
-                Mínimo: $1.00 USDC
-              </p>
+                  Máximo: ${maxAmount.toFixed(2)} USDC
+                </p>
+                <button
+                  onClick={() => handleAmountChange(maxAmount.toFixed(2).replace(".", ""))}
+                  className="text-[12px] font-bold px-3 py-1 rounded-full hover:bg-slate-100 transition-colors"
+                  style={{ color: "var(--vants-blue)" }}
+                >
+                  Resgatar Máximo
+                </button>
+              </div>
             </div>
 
             {/* CTA */}
@@ -360,7 +338,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                   e.currentTarget.style.boxShadow = "none";
                 }}
               >
-                Investir Agora →
+                Resgatar Agora →
               </button>
             </div>
           </main>
@@ -380,7 +358,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                 <p
                   className="text-[11px] font-bold tracking-[0.25em] uppercase mb-6 text-slate-500"
                 >
-                  Resumo da Aplicação
+                  Resumo do Resgate
                 </p>
 
                 {/* Valor principal */}
@@ -414,7 +392,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
 
                 {/* Detalhes */}
                 <div className="flex flex-col gap-4">
-                  {/* APY */}
+                  {/* Taxas */}
                   <div className="flex items-center justify-between">
                     <span
                       className="text-[13px] font-medium text-slate-500"
@@ -422,7 +400,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                         fontFamily: "'Manrope', sans-serif",
                       }}
                     >
-                      Rendimento Estimado
+                      Taxa de Resgate
                     </span>
                     <span
                       style={{
@@ -433,11 +411,11 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                         color: "var(--vants-green)",
                       }}
                     >
-                      ~{displayApy}% a.a.
+                      Isento
                     </span>
                   </div>
 
-                  {/* Rendimento mensal */}
+                  {/* Tempo de processamento */}
                   <div className="flex items-center justify-between">
                     <span
                       className="text-[13px] font-medium text-slate-500"
@@ -445,53 +423,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                         fontFamily: "'Manrope', sans-serif",
                       }}
                     >
-                      Rendimento Mensal
-                    </span>
-                    <span
-                      style={{
-                        fontFamily: "'Inter', sans-serif",
-                        fontVariantNumeric: "tabular-nums",
-                        fontSize: "16px",
-                        fontWeight: 700,
-                        color: "var(--vants-green)",
-                      }}
-                    >
-                      ~${estimatedMonthlyReturn.toFixed(2)}
-                    </span>
-                  </div>
-
-                  {/* Rendimento anual */}
-                  <div className="flex items-center justify-between">
-                    <span
-                      className="text-[13px] font-medium text-slate-500"
-                      style={{
-                        fontFamily: "'Manrope', sans-serif",
-                      }}
-                    >
-                      Rendimento Anual
-                    </span>
-                    <span
-                      style={{
-                        fontFamily: "'Inter', sans-serif",
-                        fontVariantNumeric: "tabular-nums",
-                        fontSize: "16px",
-                        fontWeight: 700,
-                        color: "var(--vants-green)",
-                      }}
-                    >
-                      ~${estimatedYearlyReturn.toFixed(2)}
-                    </span>
-                  </div>
-
-                  {/* Disponibilidade */}
-                  <div className="flex items-center justify-between">
-                    <span
-                      className="text-[13px] font-medium text-slate-500"
-                      style={{
-                        fontFamily: "'Manrope', sans-serif",
-                      }}
-                    >
-                      Resgate
+                      Tempo de Processamento
                     </span>
                     <span
                       className="text-[14px] font-semibold text-slate-900"
@@ -499,7 +431,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                         fontFamily: "'Manrope', sans-serif",
                       }}
                     >
-                      A qualquer momento
+                      Imediato
                     </span>
                   </div>
                 </div>
@@ -520,7 +452,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                     color: "var(--vants-muted)",
                   }}
                 >
-                  Seus fundos ficam protegidos no protocolo com rendimento automático. Você pode resgatar a qualquer momento.
+                  Seus fundos serão enviados instantaneamente para a sua carteira e estarão disponíveis para uso imediato.
                 </p>
               </div>
             </div>
@@ -528,7 +460,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
             {/* CTA: Confirmar */}
             <button
               id="invest-confirm-btn"
-              onClick={handleConfirmInvestment}
+              onClick={handleConfirmWithdraw}
               disabled={isProcessing}
               className="w-full h-[54px] rounded-[100px] font-semibold text-[16px] transition-all duration-250 active:scale-[0.98] disabled:opacity-60 flex items-center justify-center gap-2"
               style={{
@@ -549,7 +481,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                 e.currentTarget.style.boxShadow = "none";
               }}
             >
-              Confirmar Aplicação
+              Confirmar Resgate
             </button>
           </main>
         )}
@@ -580,7 +512,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                     color: "var(--vants-ink)",
                   }}
                 >
-                  Aplicando...
+                  Resgatando...
                 </h2>
                 <p
                   className="text-[14px] max-w-[260px]"
@@ -589,7 +521,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                     color: "var(--vants-muted)",
                   }}
                 >
-                  Estamos processando sua aplicação com segurança.
+                  Estamos processando seu resgate com segurança.
                   Isso leva apenas alguns segundos.
                 </p>
               </div>
@@ -640,7 +572,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                     color: "var(--vants-ink)",
                   }}
                 >
-                  Patrimônio Protegido!
+                  Resgate Concluído!
                 </h2>
                 <p
                   className="text-[14px] max-w-[280px]"
@@ -649,7 +581,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                     color: "var(--vants-muted)",
                   }}
                 >
-                  Sua aplicação já está rendendo automaticamente. Acompanhe seus ganhos na tela de investimentos.
+                  Seu resgate foi processado e o saldo já está disponível na sua carteira.
                 </p>
               </div>
 
@@ -665,7 +597,7 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                     color: "var(--vants-muted)",
                   }}
                 >
-                  Valor Aplicado
+                  Valor Resgatado
                 </p>
                 <p
                   style={{
@@ -677,53 +609,8 @@ export function InvestFlow({ publicKey, onBack }: InvestFlowProps) {
                     color: "var(--vants-green)",
                   }}
                 >
-                  + ${formattedAmount()}
+                  - ${formattedAmount()}
                 </p>
-                <p
-                  className="text-[12px] mt-1"
-                  style={{
-                    fontFamily: "'Manrope', sans-serif",
-                    color: "var(--vants-muted)",
-                  }}
-                >
-                  Rendendo ~{ESTIMATED_APY}% ao ano
-                </p>
-              </div>
-
-              {/* Rendimento card */}
-              <div
-                className="flex items-center gap-3 px-5 py-3 rounded-xl w-full max-w-[300px]"
-                style={{
-                  backgroundColor: "oklch(56% 0.13 218 / 0.06)",
-                  border: "1px solid oklch(56% 0.13 218 / 0.1)",
-                }}
-              >
-                <TrendingUp
-                  className="h-5 w-5 shrink-0"
-                  style={{ color: "var(--vants-blue)" }}
-                />
-                <div>
-                  <p
-                    className="text-[12px] font-medium"
-                    style={{
-                      fontFamily: "'Manrope', sans-serif",
-                      color: "var(--vants-muted)",
-                    }}
-                  >
-                    Rendimento estimado
-                  </p>
-                  <p
-                    style={{
-                      fontFamily: "'Inter', sans-serif",
-                      fontVariantNumeric: "tabular-nums",
-                      fontSize: "14px",
-                      fontWeight: 700,
-                      color: "var(--vants-blue)",
-                    }}
-                  >
-                    ~${estimatedMonthlyReturn.toFixed(2)}/mês · ~${estimatedYearlyReturn.toFixed(2)}/ano
-                  </p>
-                </div>
               </div>
             </div>
 

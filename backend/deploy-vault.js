@@ -21,12 +21,8 @@ async function main() {
     },
     vaultFeeBps: 100,
     assets: [{
-      address: 'CAQCFVLOBK5GIULPNZRGATJJMIZL5BSP7X5YJVMGCPTUEPFM4AVSRCJU',
-      strategies: [{
-        address: 'CALLOM5I7XLQPPOPQMYAHUWW4N7O3JKT42KQ4ASEEVBXDJQNJOALFSUY',
-        name: 'Blend USDC Strategy',
-        paused: false
-      }]
+      address: 'CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUNZ2BQ4WWFEIE3USCIHMXQDAMA', // Etherfuse USDC SAC
+      strategies: []
     }],
     name: 'Vants USDC Vault',
     symbol: 'VUSDC',

@@ -54,9 +54,10 @@ interface Position {
   current: string
   deposited: string
   returns: string
+  projected12m: string
 }
 
-function PositionCard({ pos, t, onInvest }: { pos: Position; t: any; onInvest?: () => void }) {
+function PositionCard({ pos, t, onInvest, onWithdraw }: { pos: Position; t: any; onInvest?: () => void; onWithdraw?: () => void }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
       <div className="flex items-start justify-between mb-4">
@@ -80,7 +81,7 @@ function PositionCard({ pos, t, onInvest }: { pos: Position; t: any; onInvest?: 
         </span>
       </div>
 
-      <div className="grid grid-cols-3 gap-2 mb-4">
+      <div className="grid grid-cols-4 gap-2 mb-4">
         <div>
           <p className="text-[11px] text-slate-500 mb-0.5">{t("current")}</p>
           <p className="text-[15px] font-bold text-slate-900">{pos.current}</p>
@@ -95,68 +96,40 @@ function PositionCard({ pos, t, onInvest }: { pos: Position; t: any; onInvest?: 
             {pos.returns}
           </p>
         </div>
+        <div>
+          <p className="text-[11px] text-slate-500 mb-0.5">Previsto 12M</p>
+          <p className="text-[15px] font-bold" style={{ color: "var(--vants-green)" }}>
+            {pos.projected12m}
+          </p>
+        </div>
       </div>
 
       <div className="mb-4">
         <MiniLineChart />
       </div>
 
-      <button
-        onClick={onInvest}
-        className="w-full py-3 rounded-2xl text-[14px] font-semibold transition-colors"
-        style={{ backgroundColor: "var(--vants-blue-light)", color: "var(--vants-blue)" }}
-      >
-        + {t("depositMore")}
-      </button>
-    </div>
-  )
-}
-
-// ─── Cards "Earn more" ────────────────────────────────────────────────────────
-interface EarnCard {
-  id: string
-  name: string
-  risk: string
-  riskColor: string
-  riskBg: string
-  apy: string
-  invested: string
-  description: string
-}
-
-function EarnCardItem({ card, t, onInvest }: { card: EarnCard; t: any; onInvest?: () => void }) {
-  return (
-    <div className="flex-1 bg-white rounded-2xl border border-slate-200 p-4 flex flex-col">
-      <div className="flex items-start justify-between mb-3">
-        <p className="text-[14px] font-bold text-slate-900">{card.name}</p>
-        <span
-          className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
-          style={{ backgroundColor: card.riskBg, color: card.riskColor }}
+      <div className="flex gap-3">
+        <button
+          onClick={onInvest}
+          className="flex-1 py-3 rounded-2xl text-[14px] font-semibold transition-colors"
+          style={{ backgroundColor: "var(--vants-blue-light)", color: "var(--vants-blue)" }}
         >
-          {card.risk}
-        </span>
+          {t("deposit")}
+        </button>
+        <button
+          onClick={onWithdraw}
+          className="flex-1 py-3 rounded-2xl text-[14px] font-semibold transition-colors border"
+          style={{ borderColor: "var(--vants-blue-light)", color: "var(--vants-blue)", backgroundColor: "transparent" }}
+        >
+          Resgatar
+        </button>
       </div>
-
-      <p className="text-[28px] font-bold mb-0.5" style={{ color: "var(--vants-green)" }}>
-        {card.apy}
-        <span className="text-[14px] font-medium text-slate-500"> / {t("yearAbbr")}</span>
-      </p>
-      <p className="text-[12px] text-slate-500 mb-3">{card.invested}</p>
-      <p className="text-[12px] text-slate-600 flex-1 mb-4">{card.description}</p>
-
-      <button
-        onClick={onInvest}
-        className="w-full py-3 rounded-xl text-[14px] font-bold text-white transition-opacity hover:opacity-90 active:scale-[0.98]"
-        style={{ backgroundColor: "var(--vants-blue-deep)" }}
-      >
-        {t("invest")}
-      </button>
     </div>
   )
 }
 
 // ─── View principal ───────────────────────────────────────────────────────────
-export function InvestmentsView({ onInvest }: { onInvest?: () => void }) {
+export function InvestmentsView({ onInvest, onWithdraw, investedBalance = null }: { onInvest?: () => void; onWithdraw?: () => void; investedBalance?: number | null }) {
   const { t } = useLanguage()
   const [apy, setApy] = useState<number | null>(null);
 
@@ -170,6 +143,10 @@ export function InvestmentsView({ onInvest }: { onInvest?: () => void }) {
   }, []);
 
   const displayApy = apy !== null ? apy.toFixed(1) : "7.5";
+  const displayValue = investedBalance !== null ? `$${investedBalance.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "...";
+  
+  const projected12mValue = investedBalance !== null && apy !== null ? 
+    `+$${(investedBalance * (apy / 100)).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "...";
 
   const positions: Position[] = [
     {
@@ -179,22 +156,10 @@ export function InvestmentsView({ onInvest }: { onInvest?: () => void }) {
       name: "Cofre de Dólar",
       risk: `${t("lowRisk")} · Defindex Vault`,
       returnPct: `${displayApy}% ${t("returns").toLowerCase()}`,
-      current: "$0.00", // Valor mockado até implementarmos o saldo real
-      deposited: "$0.00",
-      returns: "+0.00",
-    }
-  ]
-
-  const earnCards: EarnCard[] = [
-    {
-      id: "blendusdc",
-      name: "Cofre de Dólar",
-      risk: t("lowRisk"),
-      riskColor: "#10B981",
-      riskBg: "#ECFDF5",
-      apy: `${displayApy}%`,
-      invested: `$112M ${t("investedAmount")}`,
-      description: "Rendimento otimizado de USDC através dos Vaults da Defindex.",
+      current: displayValue, 
+      deposited: displayValue,
+      returns: "+$0.00",
+      projected12m: projected12mValue,
     }
   ]
 
@@ -232,17 +197,8 @@ export function InvestmentsView({ onInvest }: { onInvest?: () => void }) {
         <section className="mb-6">
           <h2 className="text-[17px] font-bold text-slate-900 mb-3">{t("activePositions")}</h2>
           {positions.map((pos) => (
-            <PositionCard key={pos.id} pos={pos} t={t} onInvest={onInvest} />
+            <PositionCard key={pos.id} pos={pos} t={t} onInvest={onInvest} onWithdraw={onWithdraw} />
           ))}
-        </section>
-
-        <section className="mb-6">
-          <h2 className="text-[17px] font-bold text-slate-900 mb-3">{t("earnMore")}</h2>
-          <div className="flex gap-3">
-            {earnCards.map((card) => (
-              <EarnCardItem key={card.id} card={card} t={t} onInvest={onInvest} />
-            ))}
-          </div>
         </section>
       </div>
     </main>

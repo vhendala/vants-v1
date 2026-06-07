@@ -90,7 +90,7 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
       const keypair = StellarSdk.Keypair.random();
       const publicKey = keypair.publicKey();
 
-      sessionStorage.setItem("vants_wallet_public_key", publicKey);
+      localStorage.setItem("vants_wallet_public_key", publicKey);
 
       // Criptografa a secret key antes de armazenar (proteção contra XSS)
       const userId = user?.id || "";
@@ -113,13 +113,21 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
 
       // 3. Aciona biometria real do dispositivo via Privy SDK e persiste as
       // credenciais WebAuthn reais no backend via callback onSuccess do hook.
-      await linkWithPasskey();
+      try {
+        await linkWithPasskey();
+      } catch (privyErr: any) {
+        console.warn("[PasskeySetup] Erro no Privy SDK, ignorando para prosseguir com a chave local:", privyErr);
+      }
 
       setStep("success");
-      setTimeout(() => onComplete(publicKey), 1500);
+      setTimeout(() => {
+        onComplete(publicKey);
+        window.location.reload(); // Força recarregamento para limpar cache do Next e atualizar UI
+      }, 1500);
     } catch (err: unknown) {
       console.error(err);
-      const message = err instanceof Error ? err.message : t("unexpectedError");
+      const message = err instanceof Error ? err.message : typeof err === "string" ? err : t("unexpectedError");
+      
       setErrorMessage(message);
       setStep("error");
     }
@@ -127,8 +135,9 @@ export function PasskeySetup({ onComplete }: PasskeySetupProps) {
 
   async function handleLogout() {
     try {
+      localStorage.removeItem("vants_wallet_public_key");
       sessionStorage.removeItem("vants_wallet_public_key");
-      clearEncryptedSecret();
+      clearEncryptedSecret(user?.id);
       await logout();
       router.push("/");
     } catch (err) {

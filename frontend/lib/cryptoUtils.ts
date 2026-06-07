@@ -18,9 +18,15 @@
 
 // ─── Constantes ───────────────────────────────────────────────────────────────
 
-const STORAGE_KEY = "vants_wallet_secret_enc";
-const SALT_KEY = "vants_wallet_salt";
+// Storage keys now include userId to prevent cross-user contamination
+// WHY: Using a fixed key means user B can overwrite user A's secret in the same browser.
+const STORAGE_KEY_PREFIX = "vants_wallet_secret_enc";
+const SALT_KEY_PREFIX = "vants_wallet_salt";
 const PBKDF2_ITERATIONS = 100_000;
+
+// Helpers de key per-user
+const storageKey = (userId: string) => `${STORAGE_KEY_PREFIX}_${userId.replace(/:/g, '_')}`;
+const saltKey = (userId: string) => `${SALT_KEY_PREFIX}_${userId.replace(/:/g, '_')}`;
 
 // ─── Helpers internos ─────────────────────────────────────────────────────────
 
@@ -120,9 +126,8 @@ export async function storeEncryptedSecret(
   combined.set(iv, salt.length);
   combined.set(new Uint8Array(ciphertext), salt.length + iv.length);
 
-  sessionStorage.setItem(STORAGE_KEY, uint8ToBase64(combined));
-  // Backup do salt separado para validação extra (opcional)
-  sessionStorage.setItem(SALT_KEY, uint8ToBase64(salt));
+  localStorage.setItem(storageKey(userId), uint8ToBase64(combined));
+  localStorage.setItem(saltKey(userId), uint8ToBase64(salt));
 }
 
 /**
@@ -134,7 +139,8 @@ export async function storeEncryptedSecret(
 export async function retrieveDecryptedSecret(
   userId: string
 ): Promise<string | null> {
-  const stored = sessionStorage.getItem(STORAGE_KEY);
+  // Busca apenas pelo storage do userId atual — nunca de outro usuário
+  const stored = localStorage.getItem(storageKey(userId));
   if (!stored) return null;
 
   try {
@@ -164,9 +170,20 @@ export async function retrieveDecryptedSecret(
 /**
  * Remove todos os dados criptografados da sessão.
  */
-export function clearEncryptedSecret(): void {
-  sessionStorage.removeItem(STORAGE_KEY);
-  sessionStorage.removeItem(SALT_KEY);
-  // Limpa também a chave legada (plaintext) caso exista de versões anteriores
-  sessionStorage.removeItem("vants_wallet_secret_tmp");
+export function clearEncryptedSecret(userId?: string): void {
+  if (userId) {
+    // Limpa apenas os dados do usuário especificado
+    localStorage.removeItem(storageKey(userId));
+    localStorage.removeItem(saltKey(userId));
+  } else {
+    // Fallback: limpa as chaves antigas fixas (legado)
+    localStorage.removeItem("vants_wallet_secret_enc");
+    localStorage.removeItem("vants_wallet_salt");
+  }
+  // Limpa chaves legadas (plaintext e formato antigo fixo)
+  localStorage.removeItem("vants_wallet_secret_tmp");
+  localStorage.removeItem("vants_wallet_secret_enc");
+  localStorage.removeItem("vants_wallet_salt");
+  sessionStorage.removeItem("vants_wallet_secret_enc");
+  sessionStorage.removeItem("vants_wallet_salt");
 }

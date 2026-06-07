@@ -21,7 +21,7 @@ function MiniChart() {
   )
 }
 
-export function InvestmentPools() {
+export function InvestmentPools({ investedBalance = null }: { investedBalance?: number | null }) {
   const { t } = useLanguage()
   const [apy, setApy] = useState<number | null>(null);
 
@@ -35,6 +35,7 @@ export function InvestmentPools() {
   }, []);
 
   const displayApy = apy !== null ? apy.toFixed(1) : "7.5";
+  const displayValue = investedBalance !== null ? `$${investedBalance.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "...";
 
   const pools = [
     {
@@ -43,7 +44,7 @@ export function InvestmentPools() {
       iconLetter: "B",
       iconBg: "#1A56DB",
       apy: `${displayApy}% ${t("returns").toLowerCase()}`,
-      value: "$0.00",
+      value: displayValue,
       returns: "+$0.00",
     }
   ]

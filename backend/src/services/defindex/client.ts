@@ -81,7 +81,8 @@ export async function getUsdcVaultApy(): Promise<number> {
   }
 
   try {
-    const apyStr = await sdk.getVaultAPY(DEFINDEX_USDC_VAULT_ADDRESS, SupportedNetworks.TESTNET);
+    const response = await sdk.getVaultAPY(DEFINDEX_USDC_VAULT_ADDRESS, SupportedNetworks.TESTNET);
+    const apyStr = typeof response === 'object' && response !== null ? (response as any).apy || String(response) : String(response);
     const apy = parseFloat(apyStr);
     
     if (isNaN(apy)) {
@@ -93,6 +94,38 @@ export async function getUsdcVaultApy(): Promise<number> {
   } catch (error) {
     console.warn("[defindex] Falha ao buscar APY da Defindex. Usando valor padrão.", error instanceof Error ? error.message : String(error));
     return DEFAULT_APY;
+  }
+}
+
+/**
+ * Busca o saldo investido no Vault de USDC para um determinado usuário.
+ * Retorna o valor já convertido de stroops para USDC legível.
+ */
+export async function getUsdcVaultBalance(userPublicKey: string): Promise<number> {
+  if (!DEFINDEX_USDC_VAULT_ADDRESS) {
+    console.warn("[defindex] DEFINDEX_USDC_VAULT_ADDRESS não definida. Retornando saldo 0.");
+    return 0;
+  }
+
+  try {
+    const result = await sdk.getVaultBalance(
+      DEFINDEX_USDC_VAULT_ADDRESS,
+      userPublicKey,
+      SupportedNetworks.TESTNET
+    );
+    
+    // O SDK retorna: { dfTokens: '...', underlyingBalance: [ '229999000' ] }
+    if (result && typeof result === "object" && Array.isArray((result as any).underlyingBalance) && (result as any).underlyingBalance.length > 0) {
+      const amountInStroops = parseInt((result as any).underlyingBalance[0], 10);
+      if (!isNaN(amountInStroops)) {
+        return amountInStroops / 1e7;
+      }
+    }
+    
+    return 0;
+  } catch (error) {
+    console.warn(`[defindex] Erro ao buscar balance do cofre para ${userPublicKey}:`, error instanceof Error ? error.message : String(error));
+    return 0;
   }
 }
 
@@ -198,5 +231,84 @@ export async function buildUsdcDepositTransaction(
       error
     );
     throw new Error(`Falha ao construir depósito Defindex: ${message}`);
+  }
+}
+
+// ─── Resgate USDC do Vault ───────────────────────────────────────────────────
+
+/**
+ * Constrói uma transação XDR não assinada para resgatar USDC do Vault.
+ *
+ * @param userPublicKey Chave pública da carteira do usuário
+ * @param amount Valor em USDC legível (ex: "5.00")
+ * @returns Base64 do XDR não assinado
+ */
+export async function buildUsdcWithdrawTransaction(
+  userPublicKey: string,
+  amount: string
+): Promise<string> {
+  if (!DEFINDEX_USDC_VAULT_ADDRESS) {
+    throw new Error(
+      "[defindex] DEFINDEX_USDC_VAULT_ADDRESS não definida no .env."
+    );
+  }
+
+  if (!userPublicKey || !userPublicKey.startsWith("G")) {
+    throw new Error(
+      `[defindex] userPublicKey inválida: "${userPublicKey}".`
+    );
+  }
+
+  const parsedAmount = parseFloat(amount);
+  if (isNaN(parsedAmount) || parsedAmount <= 0) {
+    throw new Error(
+      `[defindex] Valor de resgate inválido: "${amount}".`
+    );
+  }
+
+  try {
+    console.log(
+      `[defindex] Construindo resgate: ${amount} USDC ← Vault ${DEFINDEX_USDC_VAULT_ADDRESS} | caller: ${userPublicKey}`
+    );
+
+    const amountInStroops = Math.round(parsedAmount * 1e7);
+
+    // withdrawFromVault exige { caller: string, amounts: number[] }
+    const response = await sdk.withdrawFromVault(
+      DEFINDEX_USDC_VAULT_ADDRESS,
+      {
+        amounts: [amountInStroops],
+        caller: userPublicKey,
+      },
+      SupportedNetworks.TESTNET
+    );
+
+    const xdr: string =
+      typeof response === "string" ? response : (response as any).xdr ?? (response as any).toXDR?.() ?? String(response);
+
+    console.log(
+      `[defindex] ✅ Transação de resgate construída com sucesso (${xdr.length} chars XDR)`
+    );
+
+    return xdr;
+  } catch (error: unknown) {
+    let message = "Erro desconhecido";
+    if (error instanceof Error) {
+      message = error.message;
+    } else if (typeof error === 'object' && error !== null) {
+      try {
+        message = JSON.stringify(error);
+      } catch {
+        message = String(error);
+      }
+    } else {
+      message = String(error);
+    }
+    console.error(
+      `[defindex] ❌ Falha ao construir transação de resgate:`,
+      message,
+      error
+    );
+    throw new Error(`Falha ao construir resgate Defindex: ${message}`);
   }
 }

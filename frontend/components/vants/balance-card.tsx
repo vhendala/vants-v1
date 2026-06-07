@@ -14,6 +14,7 @@ interface BalanceCardProps {
   refreshKey?: number
   initialUsdc?: number | null
   initialTesouro?: number | null
+  initialInvested?: number | null
   initialRate?: number
 }
 
@@ -65,6 +66,7 @@ export function BalanceCard({
   refreshKey = 0,
   initialUsdc = null,
   initialTesouro = null,
+  initialInvested = null,
   initialRate = 5.45
 }: BalanceCardProps) {
   const { t } = useLanguage()
@@ -81,13 +83,13 @@ export function BalanceCard({
 
     switch (selectedCurrency) {
       case "USD":
-        // USDC é 1:1 USD, TESOURO convertido via taxa inversa
-        value = initialUsdc + (initialRate > 0 ? initialTesouro / initialRate : 0)
+        // USDC é 1:1 USD, TESOURO convertido via taxa inversa, + Investido em USD
+        value = initialUsdc + (initialRate > 0 ? initialTesouro / initialRate : 0) + (initialInvested || 0)
         symbol = "$"
         break
       case "BRL":
-        // TESOURO é 1:1 BRL, USDC convertido via taxa
-        value = (initialUsdc * initialRate) + initialTesouro
+        // TESOURO é 1:1 BRL, USDC convertido via taxa, + Investido em BRL
+        value = (initialUsdc * initialRate) + initialTesouro + ((initialInvested || 0) * initialRate)
         symbol = "R$"
         break
     }
@@ -104,6 +106,13 @@ export function BalanceCard({
   }
 
   const { symbol, value } = getFormattedBalance()
+
+  const getFormattedInvested = () => {
+    if (initialInvested === null) return "..."
+    const val = selectedCurrency === "USD" ? initialInvested : initialInvested * initialRate
+    const sym = selectedCurrency === "USD" ? "$" : "R$"
+    return `${sym} ${val.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  }
 
   // 4. Atualização da UI
   return (
@@ -164,29 +173,39 @@ export function BalanceCard({
 
         {/* INVESTED / ACCOUNT */}
         <div
-          className="flex items-center gap-6 border-t pb-4 pt-4 mb-4"
+          className="flex items-start gap-6 border-t pb-4 pt-4 mb-4"
           style={{ borderColor: "rgba(255,255,255,0.1)" }}
         >
           <div>
-            <p className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-0.5">
+            <p className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-1">
               {t("invested")}
             </p>
             <p className="text-[15px] font-bold text-white/80">
-              {/* O valor investido aqui continua mockado mas reativo simbolicamente */}
-              {initialUsdc === null ? "..." : selectedCurrency === "USD" ? "$0.00" : "R$0.00"}
+              {getFormattedInvested()}
             </p>
           </div>
           <div
-            className="w-px h-8 self-center"
+            className="w-px h-10 self-center"
             style={{ backgroundColor: "rgba(255,255,255,0.1)" }}
           />
-          <div>
-            <p className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-0.5">
+          <div className="flex-1">
+            <p className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-1">
               {t("account")}
             </p>
-            <p className="text-[15px] font-bold text-white">
-              {initialUsdc === null ? "..." : `${symbol}${value}`}
-            </p>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-1.5" title="TESOURO">
+                <div className="w-1.5 h-1.5 rounded-full bg-[var(--vants-green)]" />
+                <p className="text-[14px] font-bold text-white">
+                  {initialUsdc === null ? "..." : `R$ ${initialTesouro?.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5" title="USDC">
+                <div className="w-1.5 h-1.5 rounded-full bg-[var(--vants-blue-light)]" />
+                <p className="text-[14px] font-bold text-white">
+                  {initialUsdc === null ? "..." : `$ ${initialUsdc?.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 

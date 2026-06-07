@@ -35,6 +35,9 @@ import { ProfileView } from "./profile-view";
 import { DepositFlow } from "./deposit-flow";
 import { WithdrawFlow } from "./withdraw-flow";
 import { InvestFlow } from "./invest-flow";
+import { WithdrawVaultFlow } from "./withdraw-vault-flow";
+import { ConvertFlow } from "./convert-flow";
+import { retrieveDecryptedSecret } from "../../lib/cryptoUtils";
 
 import { API_URL } from "../../lib/config";
 const HORIZON_URL = "https://horizon-testnet.stellar.org";
@@ -54,7 +57,7 @@ type AccountStatus =
 
 export function VantsDashboard() {
   const { t } = useLanguage();
-  const { ready, authenticated, login, getAccessToken } = usePrivy();
+  const { ready, authenticated, login, getAccessToken, user } = usePrivy();
   const [activeView, setActiveView] = useState<View>("home");
   const [showPayment, setShowPayment] = useState(false);
   const [showTransfer, setShowTransfer] = useState(false);
@@ -62,6 +65,8 @@ export function VantsDashboard() {
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showInvest, setShowInvest] = useState(false);
+  const [showVaultWithdraw, setShowVaultWithdraw] = useState(false);
+  const [showConvert, setShowConvert] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
   const [accountStatus, setAccountStatus] = useState<AccountStatus>({
     state: "loading",
@@ -70,6 +75,7 @@ export function VantsDashboard() {
   // Estados de Saldo Elevados (para persistência entre telas)
   const [usdcBalance, setUsdcBalance] = useState<number | null>(null);
   const [tesouroBalance, setTesouroBalance] = useState<number | null>(null);
+  const [investedBalance, setInvestedBalance] = useState<number | null>(null);
   const [brlRate, setBrlRate] = useState<number>(5.45); // Default fallback
 
   /**
@@ -91,15 +97,32 @@ export function VantsDashboard() {
 
       const data: { hasAccount: boolean; publicKey?: string } = await res.json();
 
+      let hasValidLocalKey = false;
+      if (user?.id && data.publicKey) {
+        const secret = await retrieveDecryptedSecret(user.id);
+        if (secret) {
+          try {
+            const keypair = StellarSdk.Keypair.fromSecret(secret);
+            if (keypair.publicKey() === data.publicKey) {
+              hasValidLocalKey = true;
+            } else {
+              console.warn("Chave local incompatível com o backend. Forçando novo setup.");
+            }
+          } catch (e) {
+            console.warn("Erro ao ler chave local:", e);
+          }
+        }
+      }
+
       setAccountStatus(
-        data.hasAccount && data.publicKey
+        data.hasAccount && data.publicKey && hasValidLocalKey
           ? { state: "has-account", publicKey: data.publicKey }
           : { state: "no-account" }
       );
     } catch {
       setAccountStatus({ state: "no-account" });
     }
-  }, [getAccessToken]);
+  }, [getAccessToken, user?.id]);
 
   useEffect(() => {
     if (ready && authenticated) {
@@ -109,7 +132,7 @@ export function VantsDashboard() {
     }
   }, [ready, authenticated, fetchAccountStatus]);
 
-  // 1. Polling de Saldo (Frequente - 1s)
+  // 1. Polling de Saldo (Frequente - 2s)
   useEffect(() => {
     if (accountStatus.state !== "has-account") return;
     const publicKey = accountStatus.publicKey;
@@ -118,10 +141,12 @@ export function VantsDashboard() {
     async function updateBalances() {
       try {
         const account = await server.loadAccount(publicKey);
-        const usdcLine = account.balances.find((b: any) => 
-          b.asset_code === "USDC" && b.asset_issuer === ISSUER_PUBLIC_KEY
-        );
-        const newUsdc = usdcLine ? parseFloat(usdcLine.balance) : 0;
+        
+        // Soma todos os saldos de USDC, independente do emissor
+        // WHY: O swap usa um emissor mockado (GCIZ...) diferente do emissor Etherfuse (GBBD...)
+        // Por isso buscamos qualquer trustline de USDC para garantir que o saldo apareça.
+        const usdcLines = account.balances.filter((b: any) => b.asset_code === "USDC");
+        const newUsdc = usdcLines.reduce((sum: number, b: any) => sum + parseFloat(b.balance), 0);
         
         const tesouroLine = account.balances.find((b: any) => 
           b.asset_code === "TESOURO" && b.asset_issuer === TESOURO_ISSUER_PUBLIC_KEY
@@ -132,20 +157,28 @@ export function VantsDashboard() {
         setUsdcBalance(prev => prev !== newUsdc ? newUsdc : prev);
         setTesouroBalance(prev => prev !== newTesouro ? newTesouro : prev);
         
-        console.log(`[Dashboard] Saldo atualizado: USDC=${newUsdc}, TESOURO=${newTesouro}`);
+        // Fetch invested balance from Defindex Vault
+        const vaultRes = await fetch(`${API_URL}/api/invest/vault-info?publicKey=${publicKey}`);
+        if (vaultRes.ok) {
+          const vaultData = await vaultRes.json();
+          if (vaultData.success && vaultData.userBalance !== undefined) {
+            setInvestedBalance(prev => prev !== vaultData.userBalance ? vaultData.userBalance : prev);
+          }
+        }
       } catch (e: any) {
         // Se a conta ainda não foi ativada/financiada na rede Stellar (novo usuário),
         // a Horizon API retorna 404. Nesse caso, o saldo é zero.
         if (e?.response?.status === 404) {
           setUsdcBalance(0);
           setTesouroBalance(0);
+          setInvestedBalance(0);
         }
         // Erro silencioso no console para não atrapalhar
       }
     }
 
     updateBalances();
-    const interval = setInterval(updateBalances, 1000); // Polling agressivo de 1s
+    const interval = setInterval(updateBalances, 2000); // Polling de 2s para não sobrecarregar
     return () => clearInterval(interval);
   }, [accountStatus, refreshKey]);
 
@@ -226,6 +259,31 @@ export function VantsDashboard() {
     );
   }
 
+  if (showVaultWithdraw && accountStatus.state === "has-account") {
+    return (
+      <WithdrawVaultFlow
+        publicKey={accountStatus.publicKey}
+        investedBalance={investedBalance}
+        onBack={() => {
+          setShowVaultWithdraw(false);
+          setRefreshKey(prev => prev + 1);
+        }}
+      />
+    );
+  }
+
+  if (showConvert && accountStatus.state === "has-account") {
+    return (
+      <ConvertFlow
+        publicKey={accountStatus.publicKey}
+        onBack={() => {
+          setShowConvert(false);
+          setRefreshKey(prev => prev + 1);
+        }}
+      />
+    );
+  }
+
   // ─── Dashboard principal ───────────────────────────────────────────────────────
 
   return (
@@ -242,15 +300,17 @@ export function VantsDashboard() {
                     publicKey={accountStatus.publicKey as string} 
                     initialUsdc={usdcBalance}
                     initialTesouro={tesouroBalance}
+                    initialInvested={investedBalance}
                     initialRate={brlRate}
                     refreshKey={refreshKey}
                   />
                   <QuickActions 
-                    onPayBill={() => setShowPayment(true)} 
+                    onPayBill={() => setActiveView("wallet")} 
                     onTransfer={() => setShowTransferMenu(true)}
                     onDeposit={() => setShowDeposit(true)}
+                    onConvert={() => setShowConvert(true)}
                   />
-                  <InvestmentPools />
+                  <InvestmentPools investedBalance={investedBalance} />
                   <RecentActivity 
                     publicKey={accountStatus.state === "has-account" ? accountStatus.publicKey : undefined} 
                     onSeeAll={() => setActiveView("activity")}
@@ -259,7 +319,7 @@ export function VantsDashboard() {
                 </main>
               )}
 
-              {activeView === "invest" && <InvestmentsView onInvest={() => setShowInvest(true)} />}
+              {activeView === "invest" && <InvestmentsView onInvest={() => setShowInvest(true)} onWithdraw={() => setShowVaultWithdraw(true)} investedBalance={investedBalance} />}
 
               {activeView === "wallet" && (
                 <WalletView onPayBill={() => setShowPayment(true)} />

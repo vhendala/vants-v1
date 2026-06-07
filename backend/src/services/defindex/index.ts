@@ -4,4 +4,4 @@
  * Re-exporta as funções do client para consumo pelas rotas.
  */
 
-export { checkDefindexHealth, buildUsdcDepositTransaction, getUsdcVaultApy } from "./client";
+export { checkDefindexHealth, buildUsdcDepositTransaction, buildUsdcWithdrawTransaction, getUsdcVaultApy, getUsdcVaultBalance } from "./client";
