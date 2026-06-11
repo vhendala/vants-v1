@@ -321,11 +321,12 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
       await horizonServer.submitTransaction(swapTx);
       console.log("[DepositFlow] ✅ Swap TESOURO → USDC concluído");
 
+      // Aguarda 3 segundos para dar tempo do Soroban RPC indexar a nova trustline
+      console.log("[DepositFlow] Aguardando 3 segundos para sincronização da rede...");
+      await new Promise(resolve => setTimeout(resolve, 3000));
+
       // ─── 2. Construir e submeter o Depósito no Vault (USDC) ──────────
-      // WHY: Apenas pedimos o XDR do Vault *após* o swap ser submetido com sucesso.
-      // Isso é obrigatório porque o SDK da Defindex faz uma simulação Soroban (RPC),
-      // e se a trustline de USDC não existir (o que o swap cria), a simulação falha (MissingTrustline).
-      
+      // Apenas pedimos o XDR do Vault *após* o swap ser submetido com sucesso e indexado.
       console.log(`[DepositFlow] Solicitando Depósito no Vault de ${usdcAmount} USDC`);
       const vaultRes = await fetch(`${API_URL}/api/invest/build-deposit`, {
         method: "POST",
@@ -355,7 +356,7 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
     } catch (err: any) {
       console.error("[DepositFlow] Atomic allocate error:", err);
 
-      let friendlyMessage = "Ocorreu um erro ao alocar seus fundos. Tente novamente.";
+      let friendlyMessage = `Ocorreu um erro ao alocar seus fundos (${err.message}). Tente novamente.`;
       if (err.message?.includes("Sessão") || err.message?.includes("Chave")) {
         friendlyMessage = err.message;
       } else if (err.message?.includes("underfunded") || err.message?.includes("tx_failed")) {
