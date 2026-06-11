@@ -57,7 +57,7 @@ interface Position {
   projected12m: string
 }
 
-function PositionCard({ pos, t, onInvest, onWithdraw }: { pos: Position; t: any; onInvest?: () => void; onWithdraw?: () => void }) {
+function PositionCard({ pos, t }: { pos: Position; t: any }) {
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-4">
       <div className="flex items-start justify-between mb-4">
@@ -108,28 +108,12 @@ function PositionCard({ pos, t, onInvest, onWithdraw }: { pos: Position; t: any;
         <MiniLineChart />
       </div>
 
-      <div className="flex gap-3">
-        <button
-          onClick={onInvest}
-          className="flex-1 py-3 rounded-2xl text-[14px] font-semibold transition-colors"
-          style={{ backgroundColor: "var(--vants-blue-light)", color: "var(--vants-blue)" }}
-        >
-          {t("deposit")}
-        </button>
-        <button
-          onClick={onWithdraw}
-          className="flex-1 py-3 rounded-2xl text-[14px] font-semibold transition-colors border"
-          style={{ borderColor: "var(--vants-blue-light)", color: "var(--vants-blue)", backgroundColor: "transparent" }}
-        >
-          Resgatar
-        </button>
-      </div>
     </div>
   )
 }
 
 // ─── View principal ───────────────────────────────────────────────────────────
-export function InvestmentsView({ onInvest, onWithdraw, investedBalance = null }: { onInvest?: () => void; onWithdraw?: () => void; investedBalance?: number | null }) {
+export function InvestmentsView({ investedBalance = null }: { investedBalance?: number | null }) {
   const { t } = useLanguage()
   const [apy, setApy] = useState<number | null>(null);
 
@@ -197,7 +181,7 @@ export function InvestmentsView({ onInvest, onWithdraw, investedBalance = null }
         <section className="mb-6">
           <h2 className="text-[17px] font-bold text-slate-900 mb-3">{t("activePositions")}</h2>
           {positions.map((pos) => (
-            <PositionCard key={pos.id} pos={pos} t={t} onInvest={onInvest} onWithdraw={onWithdraw} />
+            <PositionCard key={pos.id} pos={pos} t={t} />
           ))}
         </section>
       </div>

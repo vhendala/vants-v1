@@ -179,25 +179,11 @@ export const translations = {
     backToDashboard: "Back to Dashboard",
     depositOf: "Deposit of",
 
-    // Convert Flow
-    convert: "Convert",
-    convertTitle: "Currency Conversion",
-    convertFrom: "From",
-    convertTo: "To",
-    brlReal: "BRL (Real)",
-    usdDollar: "USD (Dollar)",
-    convertAmount: "Amount to convert",
-    confirmConversion: "Confirm Conversion",
-    converting: "Converting currencies...",
-    convertingDesc: "We are processing your conversion securely. This takes just a few seconds.",
-    conversionComplete: "Conversion Complete!",
-    conversionCompleteDesc: "Your balance has been updated with the converted amount.",
-    exchangeRate: "Exchange rate",
-    convertedTo: "Converted to",
-    minConversion: "Minimum R$ 1.00",
-    conversionSummary: "Conversion Summary",
-    youConverted: "You converted",
-    youReceived: "You received",
+    // Atomic Deposit Flow
+    depositAllocating: "Depositing and allocating funds...",
+    depositAllocatingDesc: "Your reais are being converted and allocated to earn automatically.",
+    depositEarning: "are now earning in Dollars",
+    depositCompleteAtomic: "Deposit completed!",
   },
   pt: {
     // Onboarding
@@ -373,25 +359,11 @@ export const translations = {
     backToDashboard: "Voltar ao Painel",
     depositOf: "Depósito de",
 
-    // Convert Flow
-    convert: "Converter",
-    convertTitle: "Conversão de Moeda",
-    convertFrom: "De",
-    convertTo: "Para",
-    brlReal: "BRL (Real)",
-    usdDollar: "USD (Dólar)",
-    convertAmount: "Valor a converter",
-    confirmConversion: "Confirmar Conversão",
-    converting: "Convertendo moedas...",
-    convertingDesc: "Estamos processando sua conversão com segurança. Isso leva apenas alguns segundos.",
-    conversionComplete: "Conversão Concluída!",
-    conversionCompleteDesc: "Seu saldo foi atualizado com o valor convertido.",
-    exchangeRate: "Taxa de câmbio",
-    convertedTo: "Convertido para",
-    minConversion: "Mínimo R$ 1,00",
-    conversionSummary: "Resumo da Conversão",
-    youConverted: "Você converteu",
-    youReceived: "Você recebeu",
+    // Atomic Deposit Flow
+    depositAllocating: "Depositando e alocando fundos...",
+    depositAllocatingDesc: "Seus reais estão sendo convertidos e alocados para render automaticamente.",
+    depositEarning: "já estão rendendo em Dólares",
+    depositCompleteAtomic: "Depósito concluído!",
   },
   es: {
     // Onboarding
@@ -567,24 +539,10 @@ export const translations = {
     backToDashboard: "Volver al Panel",
     depositOf: "Depósito de",
 
-    // Convert Flow
-    convert: "Convertir",
-    convertTitle: "Conversión de Moneda",
-    convertFrom: "De",
-    convertTo: "A",
-    brlReal: "BRL (Real)",
-    usdDollar: "USD (Dólar)",
-    convertAmount: "Monto a convertir",
-    confirmConversion: "Confirmar Conversión",
-    converting: "Convirtiendo monedas...",
-    convertingDesc: "Estamos procesando tu conversión de forma segura. Solo toma unos segundos.",
-    conversionComplete: "¡Conversión Completada!",
-    conversionCompleteDesc: "Tu saldo ha sido actualizado con el monto convertido.",
-    exchangeRate: "Tipo de cambio",
-    convertedTo: "Convertido a",
-    minConversion: "Mínimo R$ 1,00",
-    conversionSummary: "Resumen de Conversión",
-    youConverted: "Convertiste",
-    youReceived: "Recibiste",
+    // Atomic Deposit Flow
+    depositAllocating: "Depositando y asignando fondos...",
+    depositAllocatingDesc: "Tus reales están siendo convertidos y asignados para ganar automáticamente.",
+    depositEarning: "ya están generando en Dólares",
+    depositCompleteAtomic: "¡Depósito completado!",
   }
 };

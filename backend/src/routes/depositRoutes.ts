@@ -326,4 +326,120 @@ router.get(
   }
 );
 
+// ─── POST /api/deposit/atomic-allocate ───────────────────────────────────────
+
+/**
+ * Rota Atômica: converte TESOURO → USDC + deposita no Vault Defindex.
+ *
+ * WHY: Após o depósito Pix (que credita TESOURO na carteira do usuário),
+ * esta rota constrói um XDR atômico que:
+ *   1. changeTrust para USDC (caso não exista)
+ *   2. pathPaymentStrictSend de TESOURO → USDC via SDEX
+ *   3. Invoke do contrato Defindex Vault para depositar o USDC
+ *
+ * O frontend assina uma única vez e submete. Todo o processo é invisível
+ * para o usuário — ele vê apenas "Depositando e alocando fundos...".
+ *
+ * Body:
+ *   - publicKey: string — Chave pública Stellar do usuário (G...)
+ *   - tesouroAmount: string — Valor de TESOURO a converter (vindo do depósito Pix)
+ *
+ * Response (200):
+ *   { success: true, swapXdr: string, vaultXdr: string, estimatedUsdc: string }
+ */
+router.post(
+  "/atomic-allocate",
+  verifyPrivyToken,
+  async (req: Request, res: Response): Promise<void> => {
+    const { publicKey, tesouroAmount } = req.body as {
+      publicKey?: string;
+      tesouroAmount?: string;
+    };
+
+    if (!publicKey || !publicKey.startsWith("G")) {
+      res.status(400).json({
+        error:
+          "publicKey é obrigatória e deve ser uma chave pública Stellar válida (G...).",
+      });
+      return;
+    }
+
+    if (
+      !tesouroAmount ||
+      isNaN(parseFloat(tesouroAmount)) ||
+      parseFloat(tesouroAmount) <= 0
+    ) {
+      res.status(400).json({
+        error:
+          "tesouroAmount é obrigatório e deve ser um valor numérico positivo.",
+      });
+      return;
+    }
+
+    try {
+      console.log(
+        `[depositRoutes] 🔄 Fluxo atômico: ${tesouroAmount} TESOURO → USDC → Vault | caller: ${publicKey}`
+      );
+
+      // ── Step 1: Construir swap TESOURO → USDC ────────────────────────
+      const { buildSwapTransaction } = await import(
+        "../services/etherfuse/swapService"
+      );
+      const swapResult = await buildSwapTransaction(publicKey, tesouroAmount);
+      const estimatedUsdc = swapResult.quote.toAmount;
+
+      console.log(
+        `[depositRoutes] ✅ Swap XDR construído: ~${estimatedUsdc} USDC esperados`
+      );
+
+      // ── Step 2: Construir depósito no Vault Defindex ──────────────────
+      const { buildUsdcDepositTransaction } = await import(
+        "../services/defindex"
+      );
+      const vaultXdr = await buildUsdcDepositTransaction(
+        publicKey,
+        estimatedUsdc
+      );
+
+      console.log(
+        `[depositRoutes] ✅ Vault XDR construído para ${estimatedUsdc} USDC`
+      );
+
+      // WHY: Retornamos 2 XDRs separados em vez de tentar combiná-los.
+      // O contrato Defindex usa `invokeContractFunction` que pode ter
+      // dependências internas incompatíveis com operações SDEX na mesma tx.
+      // O frontend assina e submete sequencialmente (swap → vault).
+      // Se o swap falhar, o vault não executa. Se o vault falhar,
+      // o USDC fica na carteira (o usuário pode investir manualmente depois).
+
+      res.status(200).json({
+        success: true,
+        swapXdr: swapResult.xdr,
+        vaultXdr,
+        estimatedUsdc,
+        swapQuote: swapResult.quote,
+      });
+    } catch (error: any) {
+      console.error(
+        "[depositRoutes] ❌ Erro no fluxo atômico:",
+        error.message || error
+      );
+
+      let errorMessage =
+        "Falha ao preparar a alocação automática. Tente novamente.";
+      if (error.message?.includes("liquidez") || error.message?.includes("offers")) {
+        errorMessage =
+          "Sem liquidez disponível para conversão no momento. Tente novamente em alguns minutos.";
+      } else if (error.message?.includes("404") || error.message?.includes("não encontrada")) {
+        errorMessage =
+          "Conta não encontrada na rede. Verifique se sua carteira está ativada.";
+      } else if (error.message?.includes("underfunded")) {
+        errorMessage = "Saldo TESOURO insuficiente para esta alocação.";
+      }
+
+      res.status(500).json({ error: errorMessage });
+    }
+  }
+);
+
 export default router;

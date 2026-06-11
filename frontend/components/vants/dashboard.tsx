@@ -34,9 +34,8 @@ import { PasskeySetup } from "./PasskeySetup";
 import { ProfileView } from "./profile-view";
 import { DepositFlow } from "./deposit-flow";
 import { WithdrawFlow } from "./withdraw-flow";
-import { InvestFlow } from "./invest-flow";
-import { WithdrawVaultFlow } from "./withdraw-vault-flow";
-import { ConvertFlow } from "./convert-flow";
+
+
 import { retrieveDecryptedSecret } from "../../lib/cryptoUtils";
 
 import { API_URL } from "../../lib/config";
@@ -64,9 +63,8 @@ export function VantsDashboard() {
   const [showTransferMenu, setShowTransferMenu] = useState(false);
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
-  const [showInvest, setShowInvest] = useState(false);
-  const [showVaultWithdraw, setShowVaultWithdraw] = useState(false);
-  const [showConvert, setShowConvert] = useState(false);
+
+
   const [refreshKey, setRefreshKey] = useState(0);
   const [accountStatus, setAccountStatus] = useState<AccountStatus>({
     state: "loading",
@@ -247,42 +245,9 @@ export function VantsDashboard() {
     );
   }
 
-  if (showInvest && accountStatus.state === "has-account") {
-    return (
-      <InvestFlow
-        publicKey={accountStatus.publicKey}
-        onBack={() => {
-          setShowInvest(false);
-          setRefreshKey(prev => prev + 1);
-        }}
-      />
-    );
-  }
 
-  if (showVaultWithdraw && accountStatus.state === "has-account") {
-    return (
-      <WithdrawVaultFlow
-        publicKey={accountStatus.publicKey}
-        investedBalance={investedBalance}
-        onBack={() => {
-          setShowVaultWithdraw(false);
-          setRefreshKey(prev => prev + 1);
-        }}
-      />
-    );
-  }
 
-  if (showConvert && accountStatus.state === "has-account") {
-    return (
-      <ConvertFlow
-        publicKey={accountStatus.publicKey}
-        onBack={() => {
-          setShowConvert(false);
-          setRefreshKey(prev => prev + 1);
-        }}
-      />
-    );
-  }
+
 
   // ─── Dashboard principal ───────────────────────────────────────────────────────
 
@@ -308,7 +273,7 @@ export function VantsDashboard() {
                     onPayBill={() => setActiveView("wallet")} 
                     onTransfer={() => setShowTransferMenu(true)}
                     onDeposit={() => setShowDeposit(true)}
-                    onConvert={() => setShowConvert(true)}
+
                   />
                   <InvestmentPools investedBalance={investedBalance} />
                   <RecentActivity 
@@ -319,7 +284,7 @@ export function VantsDashboard() {
                 </main>
               )}
 
-              {activeView === "invest" && <InvestmentsView onInvest={() => setShowInvest(true)} onWithdraw={() => setShowVaultWithdraw(true)} investedBalance={investedBalance} />}
+              {activeView === "invest" && <InvestmentsView investedBalance={investedBalance} />}
 
               {activeView === "wallet" && (
                 <WalletView onPayBill={() => setShowPayment(true)} />

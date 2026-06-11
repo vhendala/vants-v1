@@ -1,16 +1,15 @@
 "use client"
 
-import { CreditCard, Plus, ArrowLeftRight, Repeat } from "lucide-react"
+import { CreditCard, Plus, ArrowLeftRight } from "lucide-react"
 import { useLanguage } from "../providers/LanguageProvider"
 
 interface QuickActionsProps {
   onPayBill?: () => void
   onTransfer?: () => void
   onDeposit?: () => void
-  onConvert?: () => void
 }
 
-export function QuickActions({ onPayBill, onTransfer, onDeposit, onConvert }: QuickActionsProps) {
+export function QuickActions({ onPayBill, onTransfer, onDeposit }: QuickActionsProps) {
   const { t } = useLanguage()
   const actions = [
     {
@@ -41,15 +40,6 @@ export function QuickActions({ onPayBill, onTransfer, onDeposit, onConvert }: Qu
       labelClass: "text-slate-900",
       isNavy: false,
     },
-    {
-      id: "convert",
-      icon: Repeat,
-      label: t("convert") || "Converter",
-      buttonStyle: { backgroundColor: "#FFFFFF" },
-      iconClass: "text-slate-700",
-      labelClass: "text-slate-900",
-      isNavy: false,
-    },
   ]
 
   return (
@@ -60,8 +50,7 @@ export function QuickActions({ onPayBill, onTransfer, onDeposit, onConvert }: Qu
           onClick={
             action.id === "pay" ? onPayBill : 
             action.id === "transfer" ? onTransfer :
-            action.id === "deposit" ? onDeposit :
-            action.id === "convert" ? onConvert : undefined
+            action.id === "deposit" ? onDeposit : undefined
           }
           className="flex flex-1 flex-col items-center gap-2"
         >

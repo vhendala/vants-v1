@@ -171,43 +171,7 @@ export function BalanceCard({
           )}
         </div>
 
-        {/* INVESTED / ACCOUNT */}
-        <div
-          className="flex items-start gap-6 border-t pb-4 pt-4 mb-4"
-          style={{ borderColor: "rgba(255,255,255,0.1)" }}
-        >
-          <div>
-            <p className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-1">
-              {t("invested")}
-            </p>
-            <p className="text-[15px] font-bold text-white/80">
-              {getFormattedInvested()}
-            </p>
-          </div>
-          <div
-            className="w-px h-10 self-center"
-            style={{ backgroundColor: "rgba(255,255,255,0.1)" }}
-          />
-          <div className="flex-1">
-            <p className="text-[10px] font-bold tracking-widest text-white/40 uppercase mb-1">
-              {t("account")}
-            </p>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5" title="TESOURO">
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--vants-green)]" />
-                <p className="text-[14px] font-bold text-white">
-                  {initialUsdc === null ? "..." : `R$ ${initialTesouro?.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                </p>
-              </div>
-              <div className="flex items-center gap-1.5" title="USDC">
-                <div className="w-1.5 h-1.5 rounded-full bg-[var(--vants-blue-light)]" />
-                <p className="text-[14px] font-bold text-white">
-                  {initialUsdc === null ? "..." : `$ ${initialUsdc?.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
+        <div className="h-px w-full my-6" style={{ backgroundColor: "rgba(255,255,255,0.1)" }} />
 
         {/* Badge de ganho mensal — verde semântico */}
         <div className="flex items-center gap-3 mb-4">

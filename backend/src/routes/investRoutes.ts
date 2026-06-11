@@ -341,4 +341,50 @@ router.post(
   }
 );
 
+// ─── POST /api/invest/build-reverse-swap ─────────────────────────────────────
+
+/**
+ * Constrói uma transação de reverse swap USDC → TESOURO (USD → BRL na UI).
+ * Usada no saque atômico. Recebe a quantidade EXATA de TESOURO (BRL) desejada
+ * e retorna o XDR junto com a quantidade máxima de USDC necessária.
+ *
+ * Body:
+ *   - publicKey: string
+ *   - amount: string (Valor em TESOURO/BRL que se deseja receber, ex: "100.00")
+ */
+router.post(
+  "/build-reverse-swap",
+  verifyPrivyToken,
+  async (req: Request, res: Response): Promise<void> => {
+    const { publicKey, amount } = req.body as {
+      publicKey?: string;
+      amount?: string;
+    };
+
+    if (!publicKey || !publicKey.startsWith("G")) {
+      res.status(400).json({ error: "publicKey é obrigatória e deve ser válida (G...)." });
+      return;
+    }
+
+    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
+      res.status(400).json({ error: "amount é obrigatório e deve ser numérico." });
+      return;
+    }
+
+    try {
+      console.log(`[investRoutes] Construindo reverse swap USDC → ${amount} TESOURO | caller: ${publicKey}`);
+      const { buildReverseSwapTransaction } = await import("../services/etherfuse/swapService");
+      
+      const result = await buildReverseSwapTransaction(publicKey, amount);
+
+      res.status(200).json({ success: true, xdr: result.xdr, usdcRequired: result.usdcRequired });
+    } catch (error: any) {
+      console.error("[investRoutes] Erro ao construir reverse swap:", error);
+      res.status(500).json({
+        error: error.message || "Falha ao construir transação de reverse swap.",
+      });
+    }
+  }
+);
+
 export default router;

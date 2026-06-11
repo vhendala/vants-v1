@@ -3,10 +3,14 @@
 /**
  * deposit-flow.tsx
  *
- * WHY: Componente fullstack de depósito via Pix integrando Etherfuse.
- * 4 steps: Valor → Trustline TESOURO → QR/Pix → Sucesso.
+ * WHY: Componente fullstack de depósito atômico via Pix.
+ * 5 steps: Valor → Trustline TESOURO → QR/Pix → Alocação Atômica → Sucesso.
  *
- * O ativo na rede é TESOURO, mas o frontend exibe como BRL.
+ * Fluxo invisível ao usuário (Tecnologia Invisível):
+ *   1. Usuário deposita BRL via Pix (recebe TESOURO)
+ *   2. Backend constrói swap TESOURO → USDC + depósito no Vault Defindex
+ *   3. Frontend assina e submete automaticamente
+ *   4. Tela de sucesso exibe: "R$ X,XX já estão rendendo em Dólares"
  */
 
 import { useState, useEffect, useCallback } from "react";
@@ -28,7 +32,7 @@ import { retrieveDecryptedSecret } from "../../lib/cryptoUtils";
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
-type DepositStep = "amount" | "trustline" | "payment" | "success";
+type DepositStep = "amount" | "trustline" | "payment" | "allocating" | "success";
 
 interface DepositFlowProps {
   publicKey: string;
@@ -58,6 +62,9 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
   const [receivedAmount, setReceivedAmount] = useState("");
   const [copied, setCopied] = useState(false);
   const [txHash, setTxHash] = useState<string | null>(null);
+
+  // Estado do fluxo atômico (swap + vault)
+  const [estimatedUsdc, setEstimatedUsdc] = useState("");
 
   // ─── Step 1: Formatação do input BRL ──────────────────────────────────────
 
@@ -252,10 +259,117 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
         }
       }
 
-      setStep("success");
+      // Ao invés de ir direto para sucesso, inicia o fluxo atômico
+      setStep("allocating");
+      handleAtomicAllocate();
     } catch (err: any) {
       console.error("[DepositFlow] Payment error:", err);
       setError(err.message || "Erro ao processar pagamento.");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // ─── Step 4: Alocação Atômica (swap TESOURO→USDC + Vault Defindex) ──────
+
+  const handleAtomicAllocate = async () => {
+    setIsProcessing(true);
+    setError("");
+
+    try {
+      const token = await getAccessToken();
+      if (!token) {
+        throw new Error("Sessão expirada. Faça login novamente.");
+      }
+
+      // Recupera a chave para assinatura
+      const secret = await retrieveDecryptedSecret(user?.id || "");
+      if (!secret) {
+        throw new Error("Chave da carteira não encontrada. Faça login novamente.");
+      }
+      const keypair = StellarSdk.Keypair.fromSecret(secret);
+      const horizonServer = new StellarSdk.Horizon.Server(
+        "https://horizon-testnet.stellar.org"
+      );
+
+      // ─── 1. Construir e submeter o Swap (TESOURO → USDC) ──────────────
+      const tesouroAmount = receivedAmount || amount;
+      console.log(`[DepositFlow] Solicitando Swap de ${tesouroAmount} TESOURO`);
+
+      const swapRes = await fetch(`${API_URL}/api/invest/build-swap`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ publicKey, amount: tesouroAmount }),
+      });
+
+      if (!swapRes.ok) {
+        const errData = await swapRes.json().catch(() => ({}));
+        throw new Error(errData.error || "Falha ao preparar conversão automática.");
+      }
+
+      const { xdr: swapXdr, quote } = await swapRes.json();
+      const usdcAmount = quote.toAmount;
+      setEstimatedUsdc(usdcAmount);
+
+      const swapTx = StellarSdk.TransactionBuilder.fromXDR(swapXdr, StellarSdk.Networks.TESTNET);
+      swapTx.sign(keypair);
+      
+      console.log("[DepositFlow] Submetendo Swap...");
+      await horizonServer.submitTransaction(swapTx);
+      console.log("[DepositFlow] ✅ Swap TESOURO → USDC concluído");
+
+      // ─── 2. Construir e submeter o Depósito no Vault (USDC) ──────────
+      // WHY: Apenas pedimos o XDR do Vault *após* o swap ser submetido com sucesso.
+      // Isso é obrigatório porque o SDK da Defindex faz uma simulação Soroban (RPC),
+      // e se a trustline de USDC não existir (o que o swap cria), a simulação falha (MissingTrustline).
+      
+      console.log(`[DepositFlow] Solicitando Depósito no Vault de ${usdcAmount} USDC`);
+      const vaultRes = await fetch(`${API_URL}/api/invest/build-deposit`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ publicKey, amount: usdcAmount }),
+      });
+
+      if (!vaultRes.ok) {
+        const errData = await vaultRes.json().catch(() => ({}));
+        throw new Error(errData.error || "Falha ao preparar depósito no Vault.");
+      }
+
+      const { xdr: vaultXdr } = await vaultRes.json();
+      
+      const vaultTx = StellarSdk.TransactionBuilder.fromXDR(vaultXdr, StellarSdk.Networks.TESTNET);
+      vaultTx.sign(keypair);
+
+      console.log("[DepositFlow] Submetendo Vault Deposit...");
+      await horizonServer.submitTransaction(vaultTx);
+      console.log("[DepositFlow] ✅ Depósito no Vault concluído");
+
+      // ─── 3. Sucesso! ────────────────────────────────────────────────
+      setStep("success");
+    } catch (err: any) {
+      console.error("[DepositFlow] Atomic allocate error:", err);
+
+      let friendlyMessage = "Ocorreu um erro ao alocar seus fundos. Tente novamente.";
+      if (err.message?.includes("Sessão") || err.message?.includes("Chave")) {
+        friendlyMessage = err.message;
+      } else if (err.message?.includes("underfunded") || err.message?.includes("tx_failed")) {
+        friendlyMessage = "Saldo insuficiente para alocação.";
+      } else if (err.message?.includes("liquidez") || err.message?.includes("offers")) {
+        friendlyMessage = "Sem liquidez para conversão no momento. Tente novamente em breve.";
+      } else if (err.message?.includes("Network")) {
+        friendlyMessage = "Problema de conexão. Verifique sua internet e tente novamente.";
+      } else if (err.message?.includes("MissingTrustline")) {
+        friendlyMessage = "Sua carteira ainda não possui a linha de confiança necessária.";
+      }
+
+      setError(friendlyMessage);
+      setStep("payment"); // Volta para poder tentar novamente
     } finally {
       setIsProcessing(false);
     }
@@ -279,8 +393,8 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
 
   // ─── Progress Bar ─────────────────────────────────────────────────────────
 
-  const stepIndex = { amount: 0, trustline: 1, payment: 2, success: 3 };
-  const progress = ((stepIndex[step] + 1) / 4) * 100;
+  const stepIndex = { amount: 0, trustline: 1, payment: 2, allocating: 3, success: 4 };
+  const progress = ((stepIndex[step] + 1) / 5) * 100;
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
@@ -550,7 +664,51 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
           </main>
         )}
 
-        {/* ── STEP 4: Sucesso ───────────────────────────────────────────── */}
+        {/* ── STEP 4: Alocação Atômica (loading) ────────────────────────── */}
+        {step === "allocating" && (
+          <main className="flex-1 flex flex-col items-center justify-center px-5">
+            <div className="flex flex-col items-center gap-6 animate-in fade-in duration-500">
+              {/* Ícone de loading */}
+              <div
+                className="h-20 w-20 rounded-2xl flex items-center justify-center"
+                style={{ backgroundColor: "oklch(56% 0.13 218 / 0.08)" }}
+              >
+                <Loader2
+                  className="h-10 w-10 animate-spin"
+                  style={{ color: "var(--vants-blue-deep)" }}
+                />
+              </div>
+
+              <div className="text-center">
+                <h2
+                  className="text-[20px] font-bold mb-2"
+                  style={{ color: "var(--vants-ink)" }}
+                >
+                  {t("depositAllocating")}
+                </h2>
+                <p className="text-[14px] text-slate-500 max-w-[280px]">
+                  {t("depositAllocatingDesc")}
+                </p>
+              </div>
+
+              {/* Dots de loading */}
+              <div className="flex gap-1.5">
+                {[0, 1, 2].map((i) => (
+                  <div
+                    key={i}
+                    className="h-2.5 w-2.5 rounded-full animate-bounce"
+                    style={{
+                      backgroundColor: "var(--vants-blue-deep)",
+                      animationDelay: `${i * 0.15}s`,
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </main>
+        )}
+
+        {/* ── STEP 5: Sucesso (Depósito Atômico) ─────────────────────────── */}
         {step === "success" && (
           <main className="flex-1 flex flex-col items-center justify-center px-5 pb-8">
             <div className="flex flex-col items-center gap-5 animate-in fade-in zoom-in-95 duration-500">
@@ -568,39 +726,88 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
               <div className="text-center">
                 <h2
                   className="text-[22px] font-bold mb-2"
-                  style={{ color: "var(--vants-ink)" }}
+                  style={{
+                    fontFamily: "'Zain', sans-serif",
+                    fontWeight: 900,
+                    color: "var(--vants-ink)",
+                  }}
                 >
-                  {t("depositComplete")}
+                  {t("depositCompleteAtomic")}
                 </h2>
-                <p className="text-[14px] text-slate-500 mb-4">
-                  {t("depositSuccessDesc")}
+                <p className="text-[15px] text-slate-500 max-w-[300px]">
+                  <span className="font-bold" style={{ color: "var(--vants-green)" }}>
+                    R$ {parseFloat(receivedAmount || amount).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+                  </span>{" "}
+                  {t("depositEarning")}
                 </p>
               </div>
 
-              {/* Valor confirmado */}
+              {/* Card de resumo */}
               <div
-                className="rounded-2xl px-8 py-4 text-center"
-                style={{ backgroundColor: "oklch(74% 0.13 155 / 0.08)" }}
+                className="rounded-2xl p-6 w-full max-w-[320px]"
+                style={{
+                  backgroundColor: "oklch(98% 0 0)",
+                  border: "1px solid oklch(92% 0 0)",
+                }}
               >
-                <p className="text-[13px] text-slate-500 font-medium mb-1">
+                <p
+                  className="text-[11px] font-bold tracking-[0.25em] uppercase mb-5 text-center"
+                  style={{ color: "var(--vants-muted, #64748B)" }}
+                >
                   {t("depositOf")}
                 </p>
-                <p
-                  className="text-[32px] font-extrabold tracking-tight"
-                  style={{ color: "var(--vants-green)" }}
-                >
-                  + R$ {parseFloat(receivedAmount || amount).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
-                </p>
-              </div>
 
-              {/* ID da Transação / Ordem */}
-              <div className="flex flex-col gap-3 w-full mt-2">
-                <div className="flex flex-col items-center justify-center px-4 py-3 rounded-xl border border-slate-200 bg-white w-full">
-                  <span className="text-[12px] font-medium text-slate-500 mb-1">
-                    ID da Transação
+                {/* Valor BRL */}
+                <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px]">🇧🇷</span>
+                    <span
+                      className="text-[13px] font-medium"
+                      style={{ color: "var(--vants-muted, #64748B)" }}
+                    >
+                      Depositado
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontVariantNumeric: "tabular-nums",
+                      fontSize: "16px",
+                      fontWeight: 700,
+                      color: "var(--vants-ink)",
+                    }}
+                  >
+                    R$ {parseFloat(receivedAmount || amount).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
                   </span>
-                  <span className="text-[11px] font-mono break-all text-center text-slate-400">
-                    {txHash?.replace("etherfuse-", "") || orderId}
+                </div>
+
+                {/* Separador */}
+                <div
+                  className="h-px w-full mb-4"
+                  style={{ backgroundColor: "oklch(92% 0 0)" }}
+                />
+
+                {/* Valor USDC rendendo */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[14px]">💰</span>
+                    <span
+                      className="text-[13px] font-medium"
+                      style={{ color: "var(--vants-muted, #64748B)" }}
+                    >
+                      Rendendo
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontVariantNumeric: "tabular-nums",
+                      fontSize: "16px",
+                      fontWeight: 700,
+                      color: "var(--vants-green)",
+                    }}
+                  >
+                    + $ {parseFloat(estimatedUsdc || "0").toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                 </div>
               </div>

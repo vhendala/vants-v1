@@ -19,6 +19,7 @@ export function WithdrawFlow({ onBack, publicKey }: WithdrawFlowProps) {
 
   const [amount, setAmount] = useState("")
   const [step, setStep] = useState<"input" | "loading" | "success" | "error">("input")
+  const [loadingMessage, setLoadingMessage] = useState("")
   const [errorMessage, setErrorMessage] = useState("")
   const [txHash, setTxHash] = useState("")
 
@@ -51,6 +52,7 @@ export function WithdrawFlow({ onBack, publicKey }: WithdrawFlowProps) {
 
     setStep("loading");
     setErrorMessage("");
+    setLoadingMessage("Validando segurança...");
 
     try {
       // 1. Desafio biométrico
@@ -62,17 +64,61 @@ export function WithdrawFlow({ onBack, publicKey }: WithdrawFlowProps) {
       const token = await getAccessToken();
       if (!token) throw new Error(t("invalidSession") || "Sessão inválida");
 
-      // 2. Recupera secret local (Não-custodial) — decripta do sessionStorage
+      // 2. Recupera secret local (Não-custodial)
       const secret = await retrieveDecryptedSecret(user?.id || "");
       if (!secret) {
         throw new Error(t("secretNotFound") || "Chave de assinatura não encontrada no dispositivo. Autentique novamente.");
       }
 
+      const keypair = StellarSdk.Keypair.fromSecret(secret);
+      const horizonServer = new StellarSdk.Horizon.Server("https://horizon-testnet.stellar.org");
+
       // 3. Sanitiza os inputs
       const safeAmount = Number(amount).toFixed(7).replace(/\.?0+$/, ""); 
       if (Number(safeAmount) <= 0) throw new Error(t("invalidAmount") || "Valor inválido.");
 
-      // 4. Pega o XDR não assinado do Backend
+      // ─── ETAPA 1: PREPARAÇÃO (Cotação e Swap Reverso) ─────────────────
+      setLoadingMessage("Calculando conversão...");
+      const reverseSwapRes = await fetch(`${API_URL}/api/invest/build-reverse-swap`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ publicKey: keypair.publicKey(), amount: safeAmount })
+      });
+
+      if (!reverseSwapRes.ok) {
+        const errData = await reverseSwapRes.json().catch(() => ({}));
+        throw new Error(errData.error || "Falha ao preparar conversão para BRL.");
+      }
+
+      const { xdr: swapXdr, usdcRequired } = await reverseSwapRes.json();
+
+      // ─── ETAPA 2: RESGATE DO VAULT ────────────────────────────────────
+      setLoadingMessage("Resgatando Dólares do cofre...");
+      const vaultRes = await fetch(`${API_URL}/api/invest/build-withdraw`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ publicKey: keypair.publicKey(), amount: usdcRequired })
+      });
+
+      if (!vaultRes.ok) {
+        const errData = await vaultRes.json().catch(() => ({}));
+        throw new Error(errData.error || "Falha ao resgatar fundos do cofre.");
+      }
+
+      const { xdr: vaultXdr } = await vaultRes.json();
+      
+      const vaultTx = StellarSdk.TransactionBuilder.fromXDR(vaultXdr, StellarSdk.Networks.TESTNET);
+      vaultTx.sign(keypair);
+      await horizonServer.submitTransaction(vaultTx);
+
+      // ─── ETAPA 3: SWAP (USDC → TESOURO) ───────────────────────────────
+      setLoadingMessage("Convertendo para Reais...");
+      const swapTx = StellarSdk.TransactionBuilder.fromXDR(swapXdr, StellarSdk.Networks.TESTNET);
+      swapTx.sign(keypair);
+      await horizonServer.submitTransaction(swapTx);
+
+      // ─── ETAPA 4: TRANSFERÊNCIA PIX (OFFRAMP) ───────────────────────
+      setLoadingMessage("Enviando PIX...");
       const buildRes = await fetch(`${API_URL}/api/transactions/withdraw/build`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
@@ -81,33 +127,24 @@ export function WithdrawFlow({ onBack, publicKey }: WithdrawFlowProps) {
 
       if (!buildRes.ok) {
         const errData = await buildRes.json().catch(() => ({}));
-        throw new Error(errData.error || "Falha ao construir transação de saque.");
+        throw new Error(errData.error || "Falha ao preparar envio PIX.");
       }
 
       const { unsignedXdr } = await buildRes.json();
 
-      // 5. Assina o XDR localmente
-      const keypair = StellarSdk.Keypair.fromSecret(secret);
-      const tx = StellarSdk.TransactionBuilder.fromXDR(unsignedXdr, StellarSdk.Networks.TESTNET) as StellarSdk.Transaction;
-      
-      // Verifica se a chave na sessão corresponde à conta
-      if (tx.source !== keypair.publicKey()) {
-        throw new Error(t("invalidSession") || "Chave local não corresponde à sua conta. Saia e entre novamente.");
-      }
+      const pixTx = StellarSdk.TransactionBuilder.fromXDR(unsignedXdr, StellarSdk.Networks.TESTNET) as StellarSdk.Transaction;
+      pixTx.sign(keypair);
+      const signedPixXdr = pixTx.toXDR();
 
-      tx.sign(keypair);
-      const signedXdr = tx.toXDR();
-
-      // 6. Submete a transação assinada
       const submitRes = await fetch(`${API_URL}/api/transactions/withdraw/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
-        body: JSON.stringify({ signedXdr, amount: safeAmount })
+        body: JSON.stringify({ signedXdr: signedPixXdr, amount: safeAmount })
       });
 
       if (!submitRes.ok) {
         const errData = await submitRes.json().catch(() => ({}));
-        throw new Error(errData.error || "Falha ao submeter saque.");
+        throw new Error(errData.error || "Falha ao submeter saque PIX.");
       }
 
       const submitData = await submitRes.json();
@@ -117,8 +154,14 @@ export function WithdrawFlow({ onBack, publicKey }: WithdrawFlowProps) {
 
       setStep("success");
     } catch (error: any) {
-      console.error(error);
-      setErrorMessage(error.message || "Ocorreu um erro desconhecido no saque.");
+      console.error("[WithdrawFlow] Erro no saque atômico:", error);
+      
+      let msg = error.message || "Ocorreu um erro desconhecido no saque.";
+      if (msg.includes("underfunded") || msg.includes("tx_failed")) {
+        msg = "Saldo insuficiente no cofre.";
+      }
+      
+      setErrorMessage(msg);
       setStep("error");
     }
   }
@@ -249,7 +292,10 @@ export function WithdrawFlow({ onBack, publicKey }: WithdrawFlowProps) {
             style={{ backgroundColor: "var(--vants-blue-deep)" }}
           >
             {step === "loading" ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
+              <div className="flex items-center gap-2">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span className="font-bold text-[16px]">{loadingMessage || "Processando..."}</span>
+              </div>
             ) : (
               <>
                 <Lock className="h-4 w-4" />

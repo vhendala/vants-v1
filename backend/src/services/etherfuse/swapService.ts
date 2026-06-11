@@ -208,11 +208,79 @@ export async function buildSwapTransaction(
         "Conta não encontrada na rede. Verifique se sua carteira está ativada."
       );
     }
-    if (err.message?.includes("op_underfunded")) {
-      throw new Error("Saldo insuficiente para esta conversão.");
-    }
     throw new Error(
       err.message || "Falha ao preparar a conversão. Tente novamente."
     );
   }
 }
+
+/**
+ * Constrói uma transação atômica "Reverse Swap" na SDEX (USDC → TESOURO).
+ * O usuário quer receber uma quantidade EXATA de TESOURO (BRL) para o saque,
+ * e a SDEX calculará o custo máximo em USDC necessário (com slippage).
+ */
+export async function buildReverseSwapTransaction(
+  publicKey: string,
+  amountTesouro: string
+): Promise<{ xdr: string; usdcRequired: string }> {
+  try {
+    console.log(
+      `[swapService] Construindo reverse swap: USDC → ${amountTesouro} TESOURO | caller: ${publicKey}`
+    );
+
+    const sourceAccount = await server.loadAccount(publicKey);
+    const tesouroAsset = new StellarSdk.Asset("TESOURO", TESOURO_ISSUER);
+    const usdcAsset = new StellarSdk.Asset("USDC", USDC_ISSUER);
+
+    // Consulta os paths disponíveis para receber exatamente amountTesouro
+    const paths = await server.strictReceivePaths([usdcAsset], tesouroAsset, amountTesouro).call();
+    
+    if (!paths.records || paths.records.length === 0) {
+      throw new Error("Sem liquidez na SDEX para converter USDC para TESOURO.");
+    }
+    
+    const bestPath = paths.records[0];
+    const expectedInput = parseFloat(bestPath.source_amount);
+    
+    // Aplicamos um slippage de 2% para segurança no custo máximo de USDC
+    const maxSourceAmount = (expectedInput * 1.02).toFixed(7);
+
+    const txBuilder = new StellarSdk.TransactionBuilder(sourceAccount, {
+      fee: StellarSdk.BASE_FEE,
+      networkPassphrase: StellarSdk.Networks.TESTNET,
+    });
+
+    // Swap Reverso na SDEX (pathPaymentStrictReceive)
+    txBuilder.addOperation(
+      StellarSdk.Operation.pathPaymentStrictReceive({
+        sendAsset: usdcAsset,
+        sendMax: maxSourceAmount,
+        destAsset: tesouroAsset,
+        destAmount: parseFloat(amountTesouro).toFixed(7),
+        destination: publicKey,
+        path: bestPath.path.map((p: any) => new StellarSdk.Asset(p.asset_code, p.asset_issuer)),
+      })
+    );
+
+    const tx = txBuilder.setTimeout(120).build();
+    const xdr = tx.toXDR();
+
+    console.log(
+      `[swapService] ✅ XDR de Reverse Swap construído (${xdr.length} chars) - Custo Máximo: ${maxSourceAmount} USDC`
+    );
+
+    return { xdr, usdcRequired: maxSourceAmount };
+  } catch (err: any) {
+    console.error(`[swapService] ❌ Falha ao construir reverse swap:`, err.message);
+
+    if (err.message?.includes("404")) {
+      throw new Error(
+        "Conta não encontrada na rede. Verifique se sua carteira está ativada."
+      );
+    }
+    throw new Error(
+      err.message || "Falha ao preparar o reverse swap. Tente novamente."
+    );
+  }
+}
+

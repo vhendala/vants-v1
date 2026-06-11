@@ -154,7 +154,8 @@ export async function getUsdcVaultBalance(userPublicKey: string): Promise<number
  */
 export async function buildUsdcDepositTransaction(
   userPublicKey: string,
-  amount: string
+  amount: string,
+  retryCount: number = 0
 ): Promise<string> {
   // ── Validações ──────────────────────────────────────────────────────────────
 
@@ -183,9 +184,11 @@ export async function buildUsdcDepositTransaction(
   // ── Construção da transação ─────────────────────────────────────────────────
 
   try {
-    console.log(
-      `[defindex] Construindo depósito: ${amount} USDC → Vault ${DEFINDEX_USDC_VAULT_ADDRESS} | caller: ${userPublicKey}`
-    );
+    if (retryCount === 0) {
+      console.log(
+        `[defindex] Construindo depósito: ${amount} USDC → Vault ${DEFINDEX_USDC_VAULT_ADDRESS} | caller: ${userPublicKey}`
+      );
+    }
 
     // Converte o valor legível para a unidade mínima do asset (Stellar usa 7 decimais)
     const amountInStroops = Math.round(parsedAmount * 1e7);
@@ -213,6 +216,16 @@ export async function buildUsdcDepositTransaction(
 
     return xdr;
   } catch (error: unknown) {
+    // Retry Logic for 429 Too Many Requests
+    const errObj = error as any;
+    if (errObj && errObj.statusCode === 429 && retryCount < 3) {
+      const delaySecs = errObj.retryAfter || Math.pow(2, retryCount); // Use retryAfter ou backoff exponencial
+      const delayMs = delaySecs * 1000;
+      console.warn(`[defindex] ⚠️ Rate limit excedido (429). Tentando novamente em ${delayMs}ms (Tentativa ${retryCount + 1}/3)...`);
+      await new Promise(resolve => setTimeout(resolve, delayMs));
+      return buildUsdcDepositTransaction(userPublicKey, amount, retryCount + 1);
+    }
+
     let message = "Erro desconhecido";
     if (error instanceof Error) {
       message = error.message;
