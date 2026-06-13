@@ -284,7 +284,15 @@ export function VantsDashboard() {
                 </main>
               )}
 
-              {activeView === "invest" && <InvestmentsView investedBalance={investedBalance} />}
+              {activeView === "invest" && (
+                <InvestmentsView 
+                  investedBalance={investedBalance} 
+                  usdcBalance={usdcBalance}
+                  tesouroBalance={tesouroBalance}
+                  publicKey={accountStatus.state === "has-account" ? accountStatus.publicKey : undefined}
+                  onSweepComplete={() => setRefreshKey(k => k + 1)}
+                />
+              )}
 
               {activeView === "wallet" && (
                 <WalletView onPayBill={() => setShowPayment(true)} />

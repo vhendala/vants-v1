@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react"
 import { useLanguage } from "../providers/LanguageProvider"
 import { API_URL } from "../../lib/config"
+import { usePrivy } from "@privy-io/react-auth"
+import * as StellarSdk from "@stellar/stellar-sdk"
+import { retrieveDecryptedSecret } from "../../lib/cryptoUtils"
+import { Loader2 } from "lucide-react"
 
 // ─── Mini gráfico de linha decorativo SVG ────────────────────────────────────
 function MiniLineChart({ color = "#10B981" }: { color?: string }) {
@@ -113,9 +117,24 @@ function PositionCard({ pos, t }: { pos: Position; t: any }) {
 }
 
 // ─── View principal ───────────────────────────────────────────────────────────
-export function InvestmentsView({ investedBalance = null }: { investedBalance?: number | null }) {
+export function InvestmentsView({ 
+  investedBalance = null,
+  usdcBalance = 0,
+  tesouroBalance = 0,
+  publicKey,
+  onSweepComplete
+}: { 
+  investedBalance?: number | null;
+  usdcBalance?: number | null;
+  tesouroBalance?: number | null;
+  publicKey?: string;
+  onSweepComplete?: () => void;
+}) {
   const { t } = useLanguage()
+  const { getAccessToken, user } = usePrivy()
   const [apy, setApy] = useState<number | null>(null);
+  const [isSweeping, setIsSweeping] = useState(false);
+  const [sweepError, setSweepError] = useState("");
 
   useEffect(() => {
     fetch(`${API_URL}/api/invest/vault-info`)
@@ -125,6 +144,62 @@ export function InvestmentsView({ investedBalance = null }: { investedBalance?: 
       })
       .catch(err => console.error("Falha ao buscar APY:", err));
   }, []);
+
+  const handleSweep = async () => {
+    if (!publicKey) return;
+    setIsSweeping(true);
+    setSweepError("");
+    try {
+      const token = await getAccessToken();
+      const secret = await retrieveDecryptedSecret(user?.id || "");
+      if (!secret) throw new Error("Chave não encontrada.");
+
+      const keypair = StellarSdk.Keypair.fromSecret(secret);
+      const horizonServer = new StellarSdk.Horizon.Server("https://horizon-testnet.stellar.org");
+
+      let totalUsdcToDeposit = usdcBalance || 0;
+
+      // 1. Se tiver TESOURO, converte para USDC primeiro
+      if (tesouroBalance && tesouroBalance > 0.01) {
+        const swapRes = await fetch(`${API_URL}/api/invest/build-swap`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ publicKey, amount: tesouroBalance.toFixed(7) })
+        });
+        if (!swapRes.ok) throw new Error("Falha ao preparar conversão de BRL para Dólar.");
+        const { xdr: swapXdr, quote } = await swapRes.json();
+        const swapTx = StellarSdk.TransactionBuilder.fromXDR(swapXdr, StellarSdk.Networks.TESTNET);
+        swapTx.sign(keypair);
+        await horizonServer.submitTransaction(swapTx);
+        
+        totalUsdcToDeposit += parseFloat(quote.toAmount);
+        
+        // Delay for ledger indexing
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      }
+
+      // 2. Deposita todo o USDC no Vault
+      if (totalUsdcToDeposit > 0.01) {
+        const vaultRes = await fetch(`${API_URL}/api/invest/build-deposit`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ publicKey, amount: totalUsdcToDeposit.toFixed(7) })
+        });
+        if (!vaultRes.ok) throw new Error("Falha ao preparar depósito no cofre.");
+        const { xdr: vaultXdr } = await vaultRes.json();
+        const vaultTx = StellarSdk.TransactionBuilder.fromXDR(vaultXdr, StellarSdk.Networks.TESTNET);
+        vaultTx.sign(keypair);
+        await horizonServer.submitTransaction(vaultTx);
+      }
+
+      if (onSweepComplete) onSweepComplete();
+    } catch (err: any) {
+      console.error(err);
+      setSweepError(err.message || "Erro ao migrar saldo.");
+    } finally {
+      setIsSweeping(false);
+    }
+  };
 
   const displayApy = apy !== null ? apy.toFixed(1) : "7.5";
   const displayValue = investedBalance !== null ? `$${investedBalance.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "...";
@@ -157,6 +232,24 @@ export function InvestmentsView({ investedBalance = null }: { investedBalance?: 
       </div>
 
       <div className="px-5 pt-5">
+        
+        {((usdcBalance && usdcBalance > 0.01) || (tesouroBalance && tesouroBalance > 0.01)) ? (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-4 mb-6">
+            <h3 className="text-[14px] font-bold text-amber-900 mb-1">Saldo ocioso detectado</h3>
+            <p className="text-[12px] text-amber-700 leading-snug mb-3">
+              Você possui fundos na carteira que não estão rendendo no Cofre. Mova-os agora para otimizar seus ganhos.
+            </p>
+            {sweepError && <p className="text-[11px] text-red-600 mb-2">{sweepError}</p>}
+            <button
+              onClick={handleSweep}
+              disabled={isSweeping}
+              className="w-full py-2.5 rounded-xl text-[13px] font-bold bg-amber-500 text-white flex justify-center items-center gap-2 hover:bg-amber-600 transition"
+            >
+              {isSweeping ? <><Loader2 className="w-4 h-4 animate-spin" /> Movendo para o Cofre...</> : "Mover tudo para o Cofre"}
+            </button>
+          </div>
+        ) : null}
+
         <div className="bg-white rounded-2xl border border-slate-200 p-5 mb-6">
           <div className="flex items-center gap-6">
             <div className="shrink-0">

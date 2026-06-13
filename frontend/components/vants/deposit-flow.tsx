@@ -261,7 +261,7 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
 
       // Ao invés de ir direto para sucesso, inicia o fluxo atômico
       setStep("allocating");
-      handleAtomicAllocate();
+      handleAtomicAllocate(data.finalAmount || amount);
     } catch (err: any) {
       console.error("[DepositFlow] Payment error:", err);
       setError(err.message || "Erro ao processar pagamento.");
@@ -272,7 +272,7 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
 
   // ─── Step 4: Alocação Atômica (swap TESOURO→USDC + Vault Defindex) ──────
 
-  const handleAtomicAllocate = async () => {
+  const handleAtomicAllocate = async (actualAmount?: string) => {
     setIsProcessing(true);
     setError("");
 
@@ -293,7 +293,7 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
       );
 
       // ─── 1. Construir e submeter o Swap (TESOURO → USDC) ──────────────
-      const tesouroAmount = receivedAmount || amount;
+      const tesouroAmount = actualAmount || receivedAmount || amount;
       console.log(`[DepositFlow] Solicitando Swap de ${tesouroAmount} TESOURO`);
 
       const swapRes = await fetch(`${API_URL}/api/invest/build-swap`, {
@@ -318,7 +318,16 @@ export function DepositFlow({ publicKey, onBack }: DepositFlowProps) {
       swapTx.sign(keypair);
       
       console.log("[DepositFlow] Submetendo Swap...");
-      await horizonServer.submitTransaction(swapTx);
+      try {
+        await horizonServer.submitTransaction(swapTx);
+      } catch (submitErr: any) {
+        let codes = "";
+        if (submitErr.response?.data?.extras?.result_codes) {
+          codes = JSON.stringify(submitErr.response.data.extras.result_codes);
+        }
+        console.error("[DepositFlow] Erro Horizon no Swap:", codes, submitErr);
+        throw new Error(`Falha na rede Stellar (Swap): ${codes || submitErr.message}`);
+      }
       console.log("[DepositFlow] ✅ Swap TESOURO → USDC concluído");
 
       // Aguarda 3 segundos para dar tempo do Soroban RPC indexar a nova trustline
