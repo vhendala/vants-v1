@@ -53,14 +53,16 @@ router.post(
           id: user.smartWalletAddress,
           name: { givenName: "Usuario", familyName: "Vants" },
           dateOfBirth: "1990-01-01",
+          email: user.email || "user@vants.app",
+          phoneNumber: "+5511999999999",
+          occupation: "Desenvolvedor",
           address: {
             street: "Rua Sandbox",
             city: "São Paulo",
             region: "SP",
             postalCode: "01310100",
             country: "BR"
-          },
-          idNumbers: [{ value: "12345678909", type: "CPF" }]
+          }
         }
       });
 
