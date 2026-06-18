@@ -34,6 +34,7 @@ import { PasskeySetup } from "./PasskeySetup";
 import { ProfileView } from "./profile-view";
 import { DepositFlow } from "./deposit-flow";
 import { WithdrawFlow } from "./withdraw-flow";
+import { ConvertFlow } from "./convert-flow";
 
 
 import { retrieveDecryptedSecret } from "../../lib/cryptoUtils";
@@ -63,6 +64,7 @@ export function VantsDashboard() {
   const [showTransferMenu, setShowTransferMenu] = useState(false);
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
+  const [showConvert, setShowConvert] = useState(false);
 
 
   const [refreshKey, setRefreshKey] = useState(0);
@@ -245,8 +247,17 @@ export function VantsDashboard() {
     );
   }
 
-
-
+  if (showConvert && accountStatus.state === "has-account") {
+    return (
+      <ConvertFlow
+        publicKey={accountStatus.publicKey}
+        onBack={() => {
+          setShowConvert(false);
+          setRefreshKey(prev => prev + 1);
+        }}
+      />
+    );
+  }
 
 
   // ─── Dashboard principal ───────────────────────────────────────────────────────
@@ -273,7 +284,7 @@ export function VantsDashboard() {
                     onPayBill={() => setActiveView("wallet")} 
                     onTransfer={() => setShowTransferMenu(true)}
                     onDeposit={() => setShowDeposit(true)}
-
+                    onConvert={() => setShowConvert(true)}
                   />
                   <InvestmentPools investedBalance={investedBalance} />
                   <RecentActivity 

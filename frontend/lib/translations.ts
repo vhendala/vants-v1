@@ -88,6 +88,21 @@ export const translations = {
     pay: "Pay",
     deposit: "Deposit",
     swap: "Swap",
+    convert: "Convert",
+
+    // Convert Flow
+    convertTitle: "Convert",
+    convertFrom: "You send (BRL)",
+    convertTo: "You receive (USD)",
+    convertRate: "Exchange rate",
+    convertConfirm: "Confirm Conversion",
+    converting: "Converting currencies...",
+    convertSuccess: "Conversion Complete!",
+    convertBack: "Back to Home",
+    convertSummary: "Summary",
+    brlBalance: "BRL Balance",
+    usdBalance: "USD Balance",
+    convertMinAmount: "Minimum R$ 1.00",
 
     // Wallet / Scan
     scanToPay: "Scan to Pay",
@@ -268,6 +283,21 @@ export const translations = {
     pay: "Pagar",
     deposit: "Depositar",
     swap: "Trocar",
+    convert: "Converter",
+
+    // Convert Flow
+    convertTitle: "Converter",
+    convertFrom: "Você envia (BRL)",
+    convertTo: "Você recebe (USD)",
+    convertRate: "Taxa de câmbio",
+    convertConfirm: "Confirmar Conversão",
+    converting: "Convertendo moedas...",
+    convertSuccess: "Conversão Concluída!",
+    convertBack: "Voltar ao Início",
+    convertSummary: "Resumo",
+    brlBalance: "Saldo em Real",
+    usdBalance: "Saldo em Dólar",
+    convertMinAmount: "Mínimo R$ 1,00",
 
     // Wallet / Scan
     scanToPay: "Escanear para Pagar",
@@ -448,6 +478,21 @@ export const translations = {
     pay: "Pagar",
     deposit: "Depositar",
     swap: "Intercambiar",
+    convert: "Convertir",
+
+    // Convert Flow
+    convertTitle: "Convertir",
+    convertFrom: "Tú envías (BRL)",
+    convertTo: "Tú recibes (USD)",
+    convertRate: "Tasa de cambio",
+    convertConfirm: "Confirmar Conversión",
+    converting: "Convirtiendo monedas...",
+    convertSuccess: "¡Conversión Completada!",
+    convertBack: "Volver al Inicio",
+    convertSummary: "Resumen",
+    brlBalance: "Saldo en Reales",
+    usdBalance: "Saldo en Dólares",
+    convertMinAmount: "Mínimo R$ 1,00",
 
     // Wallet / Scan
     scanToPay: "Escanear para Pagar",
