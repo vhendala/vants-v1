@@ -117,24 +117,31 @@ function PositionCard({ pos, t }: { pos: Position; t: any }) {
 }
 
 // ─── View principal ───────────────────────────────────────────────────────────
-export function InvestmentsView({ 
+export function InvestmentsView({
   investedBalance = null,
   usdcBalance = 0,
   tesouroBalance = 0,
   publicKey,
-  onSweepComplete
-}: { 
+  onSweepComplete,
+  onOpenBlend
+}: {
   investedBalance?: number | null;
   usdcBalance?: number | null;
   tesouroBalance?: number | null;
   publicKey?: string;
   onSweepComplete?: () => void;
+  onOpenBlend?: () => void;
 }) {
   const { t } = useLanguage()
   const { getAccessToken, user } = usePrivy()
   const [apy, setApy] = useState<number | null>(null);
   const [isSweeping, setIsSweeping] = useState(false);
   const [sweepError, setSweepError] = useState("");
+
+  // Blend (Soroban Lending) — colateral suprido, dívida e APY de supply.
+  const [blendSupplied, setBlendSupplied] = useState(0);
+  const [blendBorrowed, setBlendBorrowed] = useState(0);
+  const [blendSupplyApy, setBlendSupplyApy] = useState<number | null>(null);
 
   useEffect(() => {
     fetch(`${API_URL}/api/invest/vault-info`)
@@ -144,6 +151,23 @@ export function InvestmentsView({
       })
       .catch(err => console.error("Falha ao buscar APY:", err));
   }, []);
+
+  useEffect(() => {
+    const url = publicKey
+      ? `${API_URL}/api/blend/pool-info?publicKey=${publicKey}`
+      : `${API_URL}/api/blend/pool-info`;
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (!data.success) return;
+        const xlm = data.positions?.XLM;
+        setBlendSupplied((xlm?.collateral || 0) + (xlm?.supply || 0));
+        setBlendBorrowed(data.positions?.USDC?.liabilities || 0);
+        const xlmReserve = (data.reserves || []).find((r: any) => r.symbol === "XLM");
+        if (xlmReserve) setBlendSupplyApy(xlmReserve.supplyApy);
+      })
+      .catch(err => console.error("Falha ao buscar Blend pool-info:", err));
+  }, [publicKey]);
 
   const handleSweep = async () => {
     if (!publicKey) return;
@@ -276,6 +300,58 @@ export function InvestmentsView({
           {positions.map((pos) => (
             <PositionCard key={pos.id} pos={pos} t={t} />
           ))}
+        </section>
+
+        {/* ─── Blend · Empréstimos (Soroban Lending) ─────────────────────────── */}
+        <section className="mb-6">
+          <h2 className="text-[17px] font-bold text-slate-900 mb-3">Empréstimos</h2>
+          <div className="bg-white rounded-2xl border border-slate-200 p-4">
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div
+                  className="flex h-9 w-9 items-center justify-center rounded-full shrink-0 overflow-hidden border border-slate-200 bg-white"
+                >
+                  {/* Logo oficial do Blend (media-kit), usado sem alterações */}
+                  <img src="/blend-logo.svg" alt="Blend" className="h-7 w-7" />
+                </div>
+                <div>
+                  <p className="text-[15px] font-bold text-slate-900">Blend · XLM</p>
+                  <p className="text-[12px] text-slate-500">Colateral on-chain · Soroban</p>
+                </div>
+              </div>
+              {blendSupplyApy !== null && (
+                <span
+                  className="text-[11px] font-semibold px-2.5 py-1 rounded-full"
+                  style={{ backgroundColor: "oklch(74% 0.13 155 / 0.06)", color: "var(--vants-green)" }}
+                >
+                  {blendSupplyApy.toFixed(2)}% APY
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mb-4">
+              <div>
+                <p className="text-[11px] text-slate-500 mb-0.5">Depositado (XLM)</p>
+                <p className="text-[15px] font-bold text-slate-900">
+                  {blendSupplied.toLocaleString("pt-BR", { maximumFractionDigits: 4 })}
+                </p>
+              </div>
+              <div>
+                <p className="text-[11px] text-slate-500 mb-0.5">Emprestado (USDC)</p>
+                <p className="text-[15px] font-bold text-slate-900">
+                  {blendBorrowed.toLocaleString("pt-BR", { maximumFractionDigits: 4 })}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={onOpenBlend}
+              className="w-full py-2.5 rounded-xl text-[13px] font-bold text-white transition hover:opacity-90"
+              style={{ backgroundColor: "var(--vants-blue-deep)" }}
+            >
+              Depositar, sacar ou emprestar
+            </button>
+          </div>
         </section>
       </div>
     </main>

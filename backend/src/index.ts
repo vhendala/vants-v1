@@ -13,6 +13,7 @@ import transactionRoutes from "./routes/transactionRoutes";
 import passkeyRoutes from "./routes/passkeyRoutes";
 import depositRoutes from "./routes/depositRoutes";
 import investRoutes from "./routes/investRoutes";
+import blendRoutes from "./routes/blendRoutes";
 
 // ─── Constantes de configuração ───────────────────────────────────────────────
 
@@ -66,6 +67,8 @@ app.get("/debug/env", (_req, res) => {
     hasPrivyAppSecret: !!process.env.PRIVY_APP_SECRET,
     hasEtherfuseApiKey: !!process.env.ETHERFUSE_API_KEY,
     hasDefindexApiKey: !!process.env.DEFINDEX_API_KEY,
+    blendPoolAddress: process.env.BLEND_POOL_ADDRESS ?? "(default testnet)",
+    sorobanRpcUrl: process.env.SOROBAN_RPC_URL ?? "(default testnet)",
     allowedOrigins: ALLOWED_ORIGINS,
     port: PORT,
   });
@@ -85,6 +88,9 @@ app.use("/api/deposit", depositRoutes);
 
 // Rotas de Investimento (Defindex Vaults)
 app.use("/api/invest", investRoutes);
+
+// Rotas do Blend (Soroban Lending — "Borrow & Pay" Orchestrator)
+app.use("/api/blend", blendRoutes);
 
 // ─── 404 handler ─────────────────────────────────────────────────────────────
 

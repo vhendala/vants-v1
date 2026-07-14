@@ -35,6 +35,7 @@ import { ProfileView } from "./profile-view";
 import { DepositFlow } from "./deposit-flow";
 import { WithdrawFlow } from "./withdraw-flow";
 import { ConvertFlow } from "./convert-flow";
+import { BlendFlow } from "./blend-flow";
 
 
 import { retrieveDecryptedSecret } from "../../lib/cryptoUtils";
@@ -65,6 +66,7 @@ export function VantsDashboard() {
   const [showDeposit, setShowDeposit] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showConvert, setShowConvert] = useState(false);
+  const [showBlend, setShowBlend] = useState(false);
 
 
   const [refreshKey, setRefreshKey] = useState(0);
@@ -259,6 +261,18 @@ export function VantsDashboard() {
     );
   }
 
+  if (showBlend && accountStatus.state === "has-account") {
+    return (
+      <BlendFlow
+        publicKey={accountStatus.publicKey}
+        onBack={() => {
+          setShowBlend(false);
+          setRefreshKey(prev => prev + 1);
+        }}
+      />
+    );
+  }
+
 
   // ─── Dashboard principal ───────────────────────────────────────────────────────
 
@@ -296,12 +310,13 @@ export function VantsDashboard() {
               )}
 
               {activeView === "invest" && (
-                <InvestmentsView 
-                  investedBalance={investedBalance} 
+                <InvestmentsView
+                  investedBalance={investedBalance}
                   usdcBalance={usdcBalance}
                   tesouroBalance={tesouroBalance}
                   publicKey={accountStatus.state === "has-account" ? accountStatus.publicKey : undefined}
                   onSweepComplete={() => setRefreshKey(k => k + 1)}
+                  onOpenBlend={() => setShowBlend(true)}
                 />
               )}
 
