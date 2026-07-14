@@ -62,6 +62,7 @@ router.post(
             region: "SP",
             postalCode: "01310100",
             country: "BR"
+            // idNumbers omitted: only valid when country is "MX"
           }
         }
       });

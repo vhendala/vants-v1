@@ -119,6 +119,12 @@ export interface EtherfuseKycIdentityRequest {
         };
         /** ISO 8601 date string (e.g. `"1990-05-15"`). */
         dateOfBirth: string;
+        /** Customer email address. Required by some rails (e.g. BRL/PIX). */
+        email?: string;
+        /** Customer phone number in E.164 format (e.g. `"+5511999999999"`). Required by some rails (e.g. BRL/PIX). */
+        phoneNumber?: string;
+        /** Customer occupation. Required by some rails (e.g. BRL/PIX). */
+        occupation?: string;
         /** Residential address. */
         address: {
             /** Street address. */
@@ -129,11 +135,14 @@ export interface EtherfuseKycIdentityRequest {
             region: string;
             /** Postal/ZIP code. */
             postalCode: string;
-            /** ISO 3166-1 alpha-2 country code (e.g. `"MX"`). */
+            /** ISO 3166-1 alpha-2 country code (e.g. `"MX"` or `"BR"`). */
             country: string;
         };
-        /** National identity numbers (e.g. CURP). */
-        idNumbers: Array<{
+        /**
+         * National identity numbers (e.g. CURP for Mexico).
+         * Only provide when `address.country` is `"MX"`.
+         */
+        idNumbers?: Array<{
             /** ID number value. */
             value: string;
             /** ID type (e.g. `"CURP"`). */
