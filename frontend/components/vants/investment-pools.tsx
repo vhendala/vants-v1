@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useLanguage } from "../providers/LanguageProvider"
 import { API_URL } from "../../lib/config"
 
-// Mini line chart idêntico ao das imagens
+// Mini line chart
 function MiniChart() {
   return (
     <svg viewBox="0 0 80 24" className="w-full h-6 mt-2" preserveAspectRatio="none">
@@ -23,30 +23,29 @@ function MiniChart() {
 
 export function InvestmentPools({ investedBalance = null }: { investedBalance?: number | null }) {
   const { t } = useLanguage()
-  const [apy, setApy] = useState<number | null>(null);
+  const [blendApy, setBlendApy] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch(`${API_URL}/api/invest/vault-info`)
+    fetch(`${API_URL}/api/blend/pool-info`)
       .then(res => res.json())
       .then(data => {
-        if (data.success && data.apy) setApy(data.apy);
+        if (!data.success) return;
+        const xlmReserve = (data.reserves || []).find((r: any) => r.symbol === "XLM");
+        if (xlmReserve) setBlendApy(xlmReserve.supplyApy);
       })
-      .catch(err => console.error("Falha ao buscar APY:", err));
+      .catch(err => console.error("Falha ao buscar APY Blend:", err));
   }, []);
 
-  const displayApy = apy !== null ? apy.toFixed(1) : "7.5";
-  const displayValue = investedBalance !== null ? `$${investedBalance.toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}` : "...";
+  const displayApy = blendApy !== null ? `${blendApy.toFixed(2)}%` : "...";
 
   const pools = [
     {
-      id: "blendusdc",
-      name: "Cofre de Dólar",
-      iconLetter: "B",
-      iconBg: "#1A56DB",
-      apy: `${displayApy}% ${t("returns").toLowerCase()}`,
-      value: displayValue,
-      returns: "+$0.00",
-    }
+      id: "blend-xlm",
+      name: "Blend · XLM",
+      iconSrc: "/blend-logo.svg",
+      apy: `${displayApy} APY`,
+      subtitle: "Soroban Lending",
+    },
   ]
 
   return (
@@ -66,28 +65,22 @@ export function InvestmentPools({ investedBalance = null }: { investedBalance?: 
           >
             {/* Header: ícone + nome */}
             <div className="flex items-center gap-2 mb-3">
-              <div
-                className="flex h-8 w-8 items-center justify-center rounded-full text-white text-[11px] font-bold shrink-0"
-                style={{ backgroundColor: pool.iconBg }}
-              >
-                {pool.iconLetter}
+              <div className="flex h-8 w-8 items-center justify-center rounded-full shrink-0 overflow-hidden border border-slate-200 bg-white">
+                <img src={pool.iconSrc} alt={pool.name} className="h-6 w-6" />
               </div>
               <p className="text-[13px] font-semibold text-slate-700">{pool.name}</p>
             </div>
 
-            {/* Valor */}
-            <p className="text-[20px] font-bold text-slate-900 mb-2">{pool.value}</p>
+            {/* Subtitle */}
+            <p className="text-[11px] text-slate-500 mb-2">{pool.subtitle}</p>
 
-            {/* APY badge + returns */}
+            {/* APY badge */}
             <div className="flex items-center justify-between">
               <span
                 className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
                 style={{ backgroundColor: "oklch(74% 0.13 155 / 0.06)", color: "var(--vants-green)" }}
               >
                 {pool.apy}
-              </span>
-              <span className="text-[12px] font-semibold" style={{ color: "var(--vants-green)" }}>
-                {pool.returns}
               </span>
             </div>
 

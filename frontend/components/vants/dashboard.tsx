@@ -77,7 +77,7 @@ export function VantsDashboard() {
   // Estados de Saldo Elevados (para persistência entre telas)
   const [usdcBalance, setUsdcBalance] = useState<number | null>(null);
   const [tesouroBalance, setTesouroBalance] = useState<number | null>(null);
-  const [investedBalance, setInvestedBalance] = useState<number | null>(null);
+  const [xlmBalance, setXlmBalance] = useState<number | null>(null);
   const [brlRate, setBrlRate] = useState<number>(5.45); // Default fallback
 
   /**
@@ -155,25 +155,23 @@ export function VantsDashboard() {
         );
         const newTesouro = tesouroLine ? parseFloat(tesouroLine.balance) : 0;
 
+        // Saldo XLM nativo
+        const xlmLine = account.balances.find((b: any) => b.asset_type === "native");
+        const newXlm = xlmLine ? parseFloat(xlmLine.balance) : 0;
+
         // Só atualiza se mudar (evita rerenders desnecessários)
         setUsdcBalance(prev => prev !== newUsdc ? newUsdc : prev);
         setTesouroBalance(prev => prev !== newTesouro ? newTesouro : prev);
+        setXlmBalance(prev => prev !== newXlm ? newXlm : prev);
         
-        // Fetch invested balance from Defindex Vault
-        const vaultRes = await fetch(`${API_URL}/api/invest/vault-info?publicKey=${publicKey}`);
-        if (vaultRes.ok) {
-          const vaultData = await vaultRes.json();
-          if (vaultData.success && vaultData.userBalance !== undefined) {
-            setInvestedBalance(prev => prev !== vaultData.userBalance ? vaultData.userBalance : prev);
-          }
-        }
+
       } catch (e: any) {
         // Se a conta ainda não foi ativada/financiada na rede Stellar (novo usuário),
         // a Horizon API retorna 404. Nesse caso, o saldo é zero.
         if (e?.response?.status === 404) {
           setUsdcBalance(0);
           setTesouroBalance(0);
-          setInvestedBalance(0);
+          setXlmBalance(0);
         }
         // Erro silencioso no console para não atrapalhar
       }
@@ -290,7 +288,7 @@ export function VantsDashboard() {
                     publicKey={accountStatus.publicKey as string} 
                     initialUsdc={usdcBalance}
                     initialTesouro={tesouroBalance}
-                    initialInvested={investedBalance}
+                    initialXlm={xlmBalance}
                     initialRate={brlRate}
                     refreshKey={refreshKey}
                   />
@@ -300,7 +298,7 @@ export function VantsDashboard() {
                     onDeposit={() => setShowDeposit(true)}
                     onConvert={() => setShowConvert(true)}
                   />
-                  <InvestmentPools investedBalance={investedBalance} />
+                  <InvestmentPools />
                   <RecentActivity 
                     publicKey={accountStatus.state === "has-account" ? accountStatus.publicKey : undefined} 
                     onSeeAll={() => setActiveView("activity")}
@@ -311,11 +309,7 @@ export function VantsDashboard() {
 
               {activeView === "invest" && (
                 <InvestmentsView
-                  investedBalance={investedBalance}
-                  usdcBalance={usdcBalance}
-                  tesouroBalance={tesouroBalance}
                   publicKey={accountStatus.state === "has-account" ? accountStatus.publicKey : undefined}
-                  onSweepComplete={() => setRefreshKey(k => k + 1)}
                   onOpenBlend={() => setShowBlend(true)}
                 />
               )}

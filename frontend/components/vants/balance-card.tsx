@@ -8,7 +8,7 @@ interface BalanceCardProps {
   refreshKey?: number
   initialUsdc?: number | null
   initialTesouro?: number | null
-  initialInvested?: number | null
+  initialXlm?: number | null
   initialRate?: number
 }
 
@@ -30,17 +30,65 @@ function BalanceChart() {
   )
 }
 
+// Sub-card individual de saldo
+function BalanceSubCard({
+  flag,
+  label,
+  prefix,
+  value,
+  isLoading,
+  syncText,
+}: {
+  flag: string
+  label: string
+  prefix: string
+  value: string
+  isLoading: boolean
+  syncText: string
+}) {
+  return (
+    <div
+      className="flex-1 min-w-0 rounded-xl px-3 py-2.5 flex flex-col gap-0.5"
+      style={{
+        backgroundColor: "rgba(255,255,255,0.07)",
+        border: "1px solid rgba(255,255,255,0.08)",
+      }}
+    >
+      <div className="flex items-center gap-1 mb-0.5">
+        <span className="text-sm leading-none">{flag}</span>
+        <span className="text-[9px] font-bold text-white/50 tracking-wide uppercase truncate">
+          {label}
+        </span>
+      </div>
+      {isLoading ? (
+        <div className="flex items-center gap-1 h-6">
+          <Loader2 className="h-3 w-3 text-white/40 animate-spin" />
+          <span className="text-white/40 text-[10px]">{syncText}</span>
+        </div>
+      ) : (
+        <p
+          className="font-bold tabular-nums leading-none truncate"
+          style={{ fontSize: 16, fontFamily: "'Inter', sans-serif" }}
+        >
+          <span className="text-[10px] font-medium opacity-60 mr-0.5">{prefix}</span>
+          {value}
+        </p>
+      )}
+    </div>
+  )
+}
+
 export function BalanceCard({
   publicKey,
   refreshKey = 0,
   initialUsdc = null,
   initialTesouro = null,
-  initialInvested = null,
-  initialRate = 5.45
+  initialXlm = null,
+  initialRate = 5.45,
 }: BalanceCardProps) {
   const { t } = useLanguage()
 
-  const isLoading = initialUsdc === null || initialTesouro === null
+  const isLoading = initialUsdc === null || initialTesouro === null || initialXlm === null
 
   const brlFormatted = isLoading
     ? "..."
@@ -49,6 +97,12 @@ export function BalanceCard({
   const usdFormatted = isLoading
     ? "..."
     : (initialUsdc ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+  const xlmFormatted = isLoading
+    ? "..."
+    : (initialXlm ?? 0).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 4 })
+
+  const syncText = t("syncing") || "Sincronizando"
 
   return (
     <div
@@ -77,61 +131,32 @@ export function BalanceCard({
           </span>
         </div>
 
-        {/* Dois sub-cards de saldo */}
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          {/* Card BRL */}
-          <div
-            className="rounded-2xl px-4 py-3 flex flex-col gap-1"
-            style={{ backgroundColor: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.08)" }}
-          >
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-lg leading-none">🇧🇷</span>
-              <span className="text-[11px] font-semibold text-white/50 tracking-wide uppercase">
-                {t("brlBalance") || "Saldo em Real"}
-              </span>
-            </div>
-            {isLoading ? (
-              <div className="flex items-center gap-1.5 h-8">
-                <Loader2 className="h-4 w-4 text-white/40 animate-spin" />
-                <span className="text-white/40 text-xs">{t("syncing")}</span>
-              </div>
-            ) : (
-              <p
-                className="font-bold tabular-nums leading-none"
-                style={{ fontSize: 22, fontFamily: "'Inter', sans-serif" }}
-              >
-                <span className="text-[13px] font-medium opacity-60 mr-0.5">R$</span>
-                {brlFormatted}
-              </p>
-            )}
-          </div>
-
-          {/* Card USD */}
-          <div
-            className="rounded-2xl px-4 py-3 flex flex-col gap-1"
-            style={{ backgroundColor: "rgba(255,255,255,0.07)", border: "1px solid rgba(255,255,255,0.08)" }}
-          >
-            <div className="flex items-center gap-1.5 mb-1">
-              <span className="text-lg leading-none">🇺🇸</span>
-              <span className="text-[11px] font-semibold text-white/50 tracking-wide uppercase">
-                {t("usdBalance") || "Saldo em Dólar"}
-              </span>
-            </div>
-            {isLoading ? (
-              <div className="flex items-center gap-1.5 h-8">
-                <Loader2 className="h-4 w-4 text-white/40 animate-spin" />
-                <span className="text-white/40 text-xs">{t("syncing")}</span>
-              </div>
-            ) : (
-              <p
-                className="font-bold tabular-nums leading-none"
-                style={{ fontSize: 22, fontFamily: "'Inter', sans-serif" }}
-              >
-                <span className="text-[13px] font-medium opacity-60 mr-0.5">$</span>
-                {usdFormatted}
-              </p>
-            )}
-          </div>
+        {/* Três sub-cards de saldo — mesma linha, sem scroll */}
+        <div className="flex gap-2 mb-4">
+          <BalanceSubCard
+            flag="🇧🇷"
+            label={t("brlBalance") || "Real"}
+            prefix="R$"
+            value={brlFormatted}
+            isLoading={isLoading}
+            syncText={syncText}
+          />
+          <BalanceSubCard
+            flag="🇺🇸"
+            label={t("usdBalance") || "USD"}
+            prefix="$"
+            value={usdFormatted}
+            isLoading={isLoading}
+            syncText={syncText}
+          />
+          <BalanceSubCard
+            flag="✶"
+            label="XLM"
+            prefix=""
+            value={xlmFormatted}
+            isLoading={isLoading}
+            syncText={syncText}
+          />
         </div>
 
         <div className="h-px w-full mb-4" style={{ backgroundColor: "rgba(255,255,255,0.08)" }} />

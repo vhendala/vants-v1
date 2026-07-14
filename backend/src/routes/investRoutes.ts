@@ -387,4 +387,125 @@ router.post(
   }
 );
 
+// ─── POST /api/invest/generic-swap ───────────────────────────────────────────
+
+/**
+ * Swap genérico entre BRL (TESOURO), USD (USDC) e XLM via SDEX.
+ *
+ * Body:
+ *   - publicKey: string — Chave pública Stellar do usuário (G...)
+ *   - fromAsset: "BRL" | "USD" | "XLM"
+ *   - toAsset: "BRL" | "USD" | "XLM"
+ *   - amount: string — Valor a enviar (em fromAsset)
+ *
+ * Response (200):
+ *   { success: true, xdr, quote: { fromAmount, toAmount, rate } }
+ */
+router.post(
+  "/generic-swap",
+  verifyPrivyToken,
+  async (req: Request, res: Response): Promise<void> => {
+    const { publicKey, fromAsset, toAsset, amount } = req.body as {
+      publicKey?: string;
+      fromAsset?: string;
+      toAsset?: string;
+      amount?: string;
+    };
+
+    if (!publicKey || !publicKey.startsWith("G")) {
+      res.status(400).json({ error: "publicKey inválida." });
+      return;
+    }
+    if (!fromAsset || !toAsset || fromAsset === toAsset) {
+      res.status(400).json({ error: "fromAsset e toAsset são obrigatórios e devem ser diferentes." });
+      return;
+    }
+    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
+      res.status(400).json({ error: "amount é obrigatório e deve ser positivo." });
+      return;
+    }
+
+    const TESOURO_ISSUER = process.env.TESOURO_ISSUER_PUBLIC_KEY || "GC3CW7EDYRTWQ635VDIGY6S4ZUF5L6TQ7AA4MWS7LEQDBLUSZXV7UPS4";
+    const USDC_ISSUER = "GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5";
+
+    const { default: StellarSdk } = await import("@stellar/stellar-sdk") as any;
+    const server = new StellarSdk.Horizon.Server("https://horizon-testnet.stellar.org");
+
+    const resolveAsset = (code: string) => {
+      if (code === "BRL") return new StellarSdk.Asset("TESOURO", TESOURO_ISSUER);
+      if (code === "USD") return new StellarSdk.Asset("USDC", USDC_ISSUER);
+      if (code === "XLM") return StellarSdk.Asset.native();
+      throw new Error(`Moeda desconhecida: ${code}`);
+    };
+
+    try {
+      console.log(`[investRoutes] Generic swap: ${amount} ${fromAsset} → ${toAsset} | caller: ${publicKey}`);
+
+      const sendAsset = resolveAsset(fromAsset);
+      const destAsset = resolveAsset(toAsset);
+
+      // Busca paths na SDEX
+      const paths = await server.strictSendPaths(sendAsset, amount, [destAsset]).call();
+      if (!paths.records || paths.records.length === 0) {
+        throw new Error(`Sem liquidez na SDEX para converter ${fromAsset} → ${toAsset}.`);
+      }
+
+      const bestPath = paths.records[0];
+      const expectedOutput = parseFloat(bestPath.destination_amount);
+      const minDestinationAmount = (expectedOutput * 0.98).toFixed(7);
+      const rate = (expectedOutput / parseFloat(amount)).toFixed(6);
+
+      const sourceAccount = await server.loadAccount(publicKey);
+      const txBuilder = new StellarSdk.TransactionBuilder(sourceAccount, {
+        fee: StellarSdk.BASE_FEE,
+        networkPassphrase: StellarSdk.Networks.TESTNET,
+      });
+
+      // Garante trustlines necessárias
+      if (fromAsset === "BRL" || toAsset === "BRL") {
+        txBuilder.addOperation(StellarSdk.Operation.changeTrust({ asset: resolveAsset("BRL"), source: publicKey }));
+      }
+      if (fromAsset === "USD" || toAsset === "USD") {
+        txBuilder.addOperation(StellarSdk.Operation.changeTrust({ asset: resolveAsset("USD"), source: publicKey }));
+      }
+
+      // Swap via pathPaymentStrictSend
+      txBuilder.addOperation(
+        StellarSdk.Operation.pathPaymentStrictSend({
+          sendAsset,
+          sendAmount: parseFloat(amount).toFixed(7),
+          destAsset,
+          destMin: minDestinationAmount,
+          destination: publicKey,
+          path: bestPath.path
+            .filter((p: any) => p.asset_type !== "native" && p.asset_code && p.asset_issuer)
+            .map((p: any) => new StellarSdk.Asset(p.asset_code, p.asset_issuer)),
+          source: publicKey,
+        })
+      );
+
+      const tx = txBuilder.setTimeout(120).build();
+      const xdr = tx.toXDR();
+
+      console.log(`[investRoutes] ✅ Generic swap XDR construído → min ${minDestinationAmount} ${toAsset}`);
+
+      res.status(200).json({
+        success: true,
+        xdr,
+        quote: {
+          fromAmount: amount,
+          fromAsset,
+          toAmount: expectedOutput.toFixed(7),
+          toAsset,
+          minDestinationAmount,
+          rate,
+        },
+      });
+    } catch (error: any) {
+      console.error("[investRoutes] Erro no generic swap:", error.message);
+      res.status(500).json({ error: error.message || "Falha ao construir swap." });
+    }
+  }
+);
+
 export default router;
