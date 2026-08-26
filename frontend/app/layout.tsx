@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter, JetBrains_Mono, Manrope } from 'next/font/google'
+import { Analytics } from '@vercel/analytics/next'
 
 import { PrivyProviderWrapper } from '@/components/providers/PrivyProviderWrapper'
 import { ThemeProvider } from '@/components/vants/theme-provider'
@@ -63,7 +64,7 @@ export default function RootLayout({
             </PrivyProviderWrapper>
           </ThemeProvider>
         </LanguageProvider>
-
+        <Analytics />
       </body>
     </html>
   )
